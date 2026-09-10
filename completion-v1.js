@@ -1,0 +1,30 @@
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const euro=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(Number(n)||0);
+function add(id,html){const el=$(id);if(el)el.insertAdjacentHTML('beforeend',html)}
+function init(){
+ if(document.getElementById('completion-v1'))return;
+ const marker=document.createElement('meta');marker.id='completion-v1';document.head.appendChild(marker);
+ // Mode simple / avancé
+ const pro=document.getElementById('pro'); if(pro){
+  const top=pro.querySelector('.card');
+  if(top){const d=document.createElement('div');d.className='actions';d.innerHTML='<button id="modeSimple" class="primary">✨ Simple</button><button id="modeAdvanced">⚙️ Avancé</button><span class="muted">Le mode simple garde les calculs automatiques.</span>';top.appendChild(d);}
+  const adv=document.createElement('div');adv.id='advancedFactors';adv.className='card hide';adv.innerHTML='<h2>🎛️ Ajustements intelligents du chantier</h2><div class="grid3"><div><label>Accessibilité</label><select id="access"><option value="0">Normale</option><option value=".05">Difficile</option><option value=".12">Très difficile</option></select></div><div><label>Hauteur / profondeur</label><select id="height"><option value="0">Normale</option><option value=".06">Contraignante</option><option value=".14">Très contraignante</option></select></div><div><label>Urgence</label><select id="urgency"><option value="0">Normale</option><option value=".05">Rapide</option><option value=".12">Urgente</option></select></div><div><label>Niveau de finition</label><select id="finish"><option value="0">Standard</option><option value=".04">Soignée</option><option value=".09">Premium</option></select></div><div><label>Contrainte matériel</label><select id="equipment"><option value="0">Normale</option><option value=".05">Spécifique</option><option value=".10">Spécifique / rare</option></select></div><div><label>Logistique / déplacement</label><select id="logistics"><option value="0">Optimisée</option><option value=".04">Normale</option><option value=".08">Contraignante</option></select></div></div><p id="factorExplain" class="muted"></p></div>';
+  const res=document.getElementById('res');if(res)res.parentNode.insertBefore(adv,res);
+  const summary=document.createElement('div');summary.id='siteSummary';summary.className='card';summary.innerHTML='<h2>📋 Résumé du chantier</h2><div id="summaryText" class="muted">Remplissez les informations principales pour voir le résumé.</div>';if(res)res.parentNode.insertBefore(summary,res);
+  $('modeSimple').onclick=()=>{adv.classList.add('hide');$('modeSimple').classList.add('primary');$('modeAdvanced').classList.remove('primary')};
+  $('modeAdvanced').onclick=()=>{adv.classList.remove('hide');$('modeAdvanced').classList.add('primary');$('modeSimple').classList.remove('primary')};
+  const fields=['metier','prest','qty','unit','hours','rate','travel','other','margin','vat','access','height','urgency','finish','equipment','logistics','wl','ww','wh','wv','wt'];fields.forEach(id=>$(id)?.addEventListener('input',refresh));fields.forEach(id=>$(id)?.addEventListener('change',refresh));
+  refresh();
+ }
+ // Aides: contenu robuste, sans dépendre d'une variable homonyme
+ const ap=document.getElementById('aides');if(ap&&!ap.dataset.fixed){ap.dataset.fixed='1';ap.innerHTML='<div class="card"><span class="pill">ORIENTATION</span><h1>💶 Aides et financements</h1><p>Chifr’Eco&Pro aide à identifier des dispositifs possibles. <b>Aucune éligibilité ni montant n’est garanti</b> : vérifiez toujours les conditions officielles.</p><div class="item"><div><b>ADEME</b><br><small>Transition écologique, économie circulaire, études et investissements selon dispositifs.</small></div><a href="https://agirpourlatransition.ademe.fr/entreprises/aides-financieres" target="_blank" rel="noopener">Voir les aides</a></div><div class="item"><div><b>Service Public — entreprises</b><br><small>Recherche d'aides, financements et accompagnements selon l'entreprise.</small></div><a href="https://entreprendre.service-public.fr/vosdroits/F35273" target="_blank" rel="noopener">Rechercher</a></div><div class="item"><div><b>CEE</b><br><small>Certificats d'économies d'énergie : opérations et conditions à vérifier.</small></div><a href="https://www.ecologie.gouv.fr/politiques-publiques/dispositif-certificats-deconomies-denergie" target="_blank" rel="noopener">Informations</a></div></div>';}
+}
+function factor(){return ['access','height','urgency','finish','equipment','logistics'].reduce((s,id)=>s+(parseFloat($(id)?.value)||0),0)}
+function refresh(){
+ const s=$('summaryText');if(!s)return;const m=$('metier')?.value||'Métier à préciser',p=$('prest')?.value||'Prestation à préciser',q=$('qty')?.value||0,u=$('unit')?.value||'',h=$('hours')?.value||0,w=$('wvol')?.textContent||'0,00 m³';s.innerHTML='<b>'+m+'</b> · '+p+'<br>Quantité : <b>'+q+' '+u+'</b> · Main-d’œuvre : <b>'+h+' h</b> · Déchets : <b>'+w+'</b>';const f=factor();if($('factorExplain'))$('factorExplain').textContent='Ajustement transparent du baromètre : +'+(f*100).toFixed(0)+' % pour les contraintes sélectionnées.';}
+// Validation centralisée sans casser les fonctions existantes
+const oldCalc=window.calc; if(oldCalc&&!window.__completionCalc){window.__completionCalc=true;window.calc=function(){const errors=[];[['qty','Quantité'],['hours','Heures'],['rate','Taux horaire'],['margin','Marge']].forEach(([id,n])=>{const v=parseFloat($(id)?.value);if(!Number.isFinite(v)||v<0)errors.push(n+' doit être positif.');});const mar=parseFloat($('margin')?.value);if(mar>=100)errors.push('La marge doit être inférieure à 100 %.');if(!$('prest')?.value)errors.push('Choisissez une prestation.');if(errors.length){alert('Vérification du chiffrage :\n• '+errors.join('\n• '));return;}return oldCalc.apply(this,arguments)}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();

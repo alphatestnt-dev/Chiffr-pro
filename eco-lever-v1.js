@@ -1,0 +1,24 @@
+(()=>{
+/* Chifr’Eco Pro — Éco-Levier V1
+   Transforme un surcoût écologique en investissement mesurable.
+   IMPORTANT : aucune aide/remboursement n'est garanti. Les montants doivent être confirmés par la source officielle ou le partenaire. */
+const ECO_LEVER_VERSION='1.0';
+const ecoState={active:true,investment:0,savings:0,aid:0,partner:0,annualGain:0,months:0};
+function n(v){return Math.max(0,Number(v)||0)}
+function eur(v){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(n(v))}
+function calcEcoLever(){
+ const investment=n(document.getElementById('ecoInvestment')?.value), savings=n(document.getElementById('ecoSavings')?.value), aid=n(document.getElementById('ecoAid')?.value), partner=n(document.getElementById('ecoPartner')?.value), annual=n(document.getElementById('ecoAnnualGain')?.value);
+ const recover=Math.min(investment,savings+aid+partner), remaining=Math.max(0,investment-recover), totalReturn=savings+aid+partner+annual;
+ const roi=investment?((totalReturn-investment)/investment*100):0, months=annual>0?remaining/(annual/12):0;
+ ecoState.investment=investment;ecoState.savings=savings;ecoState.aid=aid;ecoState.partner=partner;ecoState.annualGain=annual;ecoState.months=months;
+ const r=document.getElementById('ecoLeverResult');if(!r)return;
+ r.innerHTML=`<div class="results"><div class="box">Investissement<div class="big">${eur(investment)}</div></div><div class="box">Retour identifié<div class="big">${eur(savings+aid+partner)}</div></div><div class="box">Reste à récupérer<div class="big">${eur(remaining)}</div></div><div class="box">ROI estimé<div class="big">${roi.toFixed(1)} %</div></div><div class="box">Retour<div class="big">${months>0?months.toFixed(1)+' mois':'à confirmer'}</div></div></div><p><b>Effet de levier :</b> ${remaining===0?'investissement couvert par les économies/aides/partenariats identifiés.':`il reste ${eur(remaining)} à récupérer par les économies futures ou financements.`}</p><p class="notice">Les aides et contributions ne deviennent « confirmées » qu'après vérification officielle ou accord écrit. Une estimation n'est jamais présentée comme un remboursement garanti.</p>`;
+}
+function install(){
+ if(document.getElementById('ecoLeverNav')||!document.querySelector('nav')||!document.querySelector('main'))return;
+ const nav=document.querySelector('nav'),main=document.querySelector('main');
+ const b=document.createElement('button');b.id='ecoLeverNav';b.textContent='📈 Éco-Levier';b.onclick=()=>{document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('ecoLeverPage').classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active')};nav.appendChild(b);
+ const s=document.createElement('section');s.id='ecoLeverPage';s.className='page';s.innerHTML=`<div class="card"><span class="pill">ÉCO-LEVIER V${ECO_LEVER_VERSION}</span><h1>📈 Faire de l’écologie un investissement</h1><p>Le moteur mesure le surcoût écologique, les économies, les aides potentielles et les contributions partenaires afin d'estimer le retour économique.</p><div class="grid"><div><label>Surcoût / investissement écologique (€)</label><input id="ecoInvestment" type="number" step="0.01" min="0" value="0"></div><div><label>Économies immédiates identifiées (€)</label><input id="ecoSavings" type="number" step="0.01" min="0" value="0"></div><div><label>Aide potentielle identifiée (€)</label><input id="ecoAid" type="number" step="0.01" min="0" value="0"></div><div><label>Contribution partenaire (€)</label><input id="ecoPartner" type="number" step="0.01" min="0" value="0"></div><div><label>Économies annuelles estimées (€)</label><input id="ecoAnnualGain" type="number" step="0.01" min="0" value="0"></div></div><div class="actions"><button class="primary" onclick="calcEcoLever()">Calculer l’effet de levier</button></div><div id="ecoLeverResult" class="box" style="margin-top:14px"></div></div><div class="card eco"><h2>🛡️ Protection contre les fausses promesses</h2><ul><li><b>Confirmé :</b> justificatif ou accord écrit disponible.</li><li><b>Sous conditions :</b> éligibilité à vérifier.</li><li><b>Estimé :</b> calcul économique interne.</li><li><b>Non identifié :</b> aucune source de financement trouvée.</li></ul><p>Le moteur recherchera progressivement les dispositifs publics, CEE, prêts, partenaires et économies propres au métier. Il ne considérera jamais une aide publique comme acquise avant validation.</p></div>`;main.appendChild(s);calcEcoLever();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+})();

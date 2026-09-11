@@ -6,14 +6,14 @@
     const labor=num('hours')*num('rate');
     const materials=arr('mats').reduce((s,x)=>s+(Number(x.q)||0)*(Number(x.p)||0),0);
     const tools=arr('tools').reduce((s,x)=>s+(Number(x.c)||0),0);
-    const waste=arr('wastes').reduce((s,x)=>s+(Number(x.cost)||0),0);
+    const waste=arr('wastes').reduce((s,x)=>s+(Number(x.c ?? x.cost)||0),0);
     const travel=num('travel'),other=num('other');
     const cost=labor+materials+tools+waste+travel+other;
     const margin=Math.min(99,Math.max(0,num('margin')));
     const ht=margin>=100?cost:cost/(1-margin/100);
     const vat=num('vat');
     const ttc=ht*(1+vat/100);
-    const volume=arr('wastes').reduce((s,x)=>s+(Number(x.volume)||0),0);
+    const volume=arr('wastes').reduce((s,x)=>s+(Number(x.v ?? x.volume)||0),0);
     return {labor,materials,tools,waste,travel,other,cost,margin,ht,vat,ttc,volume};
   }
   function render(){
@@ -33,7 +33,8 @@
       '<p class="muted">Marge sélectionnée : '+t.margin+' % · TVA : '+t.vat+' %. Indicateur interne : ce contrôle ne constitue pas une référence officielle de prix de marché.</p>'+
       '<div class="pill">'+(ok?'✅ Chiffrage cohérent avec les données saisies':'⚠️ '+issues.join(' '))+'</div>';
   }
-  function hook(){
+  function brand(){document.title='Chiffr’EcoPro — V31';document.querySelectorAll('.logo').forEach(x=>x.textContent='Chiffr’EcoPro');document.querySelectorAll('.pill').forEach(x=>{if(/^VERSION\s+\d+/i.test(x.textContent))x.textContent='VERSION 31'})}
+  function hook(){brand();
     const old=window.calc;
     if(typeof old==='function'&&!old.__ecoV31){
       const wrapped=function(){const r=old.apply(this,arguments);setTimeout(render,0);return r};

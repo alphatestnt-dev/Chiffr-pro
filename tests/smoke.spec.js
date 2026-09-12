@@ -24,14 +24,35 @@ test('fresh user loads without blank screen', async ({ page }) => {
 
 test('six-page navigation and preserved sub-pages', async ({ page }) => {
   await openFresh(page);
-  const primary = await page.locator('nav[aria-label="Navigation principale"] button:visible').allTextContents();
+  const primaryNav = page.locator('nav[aria-label="Navigation principale"]');
+  const primary = await primaryNav.locator('button:visible').allTextContents();
   expect(primary).toEqual(['Accueil','Professionnel','Particulier','🌱 Écologie','Aides / Informations','Compte / Paramètres']);
-  await expect(page.locator('nav[aria-label="Navigation principale"]')).toHaveCSS('flex-wrap','nowrap');
+  await expect(primaryNav).toHaveCSS('flex-wrap','nowrap');
 
-  for (const id of ['pro','particulier','eco','aides','param']) await go(page, id);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(primaryNav).toHaveCSS('flex-wrap','nowrap');
+  const primaryMobile = await primaryNav.evaluate(el => ({wrap:getComputedStyle(el).flexWrap, scroll:el.scrollWidth, client:el.clientWidth}));
+  expect(primaryMobile.wrap).toBe('nowrap');
+  expect(primaryMobile.scroll).toBeGreaterThan(primaryMobile.client);
 
   await go(page, 'pro');
-  await expect(page.locator('#pro .ce-page-nav')).toBeVisible();
+  const proNav = page.locator('#pro .ce-page-nav');
+  await expect(proNav).toBeVisible();
+  const proMobile = await proNav.evaluate(el => ({wrap:getComputedStyle(el).flexWrap, whiteSpace:getComputedStyle(el).whiteSpace, scroll:el.scrollWidth, client:el.clientWidth}));
+  expect(proMobile.wrap).toBe('nowrap');
+  expect(proMobile.whiteSpace).toBe('nowrap');
+  expect(proMobile.scroll).toBeGreaterThan(proMobile.client);
+
+  await go(page, 'particulier');
+  const partNav = page.locator('#particulier .ce-page-nav');
+  const partMobile = await partNav.evaluate(el => ({wrap:getComputedStyle(el).flexWrap, whiteSpace:getComputedStyle(el).whiteSpace}));
+  expect(partMobile.wrap).toBe('nowrap');
+  expect(partMobile.whiteSpace).toBe('nowrap');
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  for (const id of ['eco','aides','param']) await go(page, id);
+
+  await go(page, 'pro');
   await page.locator('#pro .ce-page-nav button', { hasText: 'Devis' }).click();
   await expect(page.locator('#devis')).toBeVisible();
   await page.locator('#devis .ce-page-nav button', { hasText: 'Historique' }).click();

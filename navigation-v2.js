@@ -87,9 +87,12 @@
       const b=document.createElement('button');
       b.type='button'; b.textContent=label;
       b.onclick=()=>{
-        const target=$(id);
+        if(id==='devis'||id==='historique'||id==='partnersPage'||id==='eco-lever'){
+          window.go?.(id);
+          return;
+        }
+        const target=$(id)||page.querySelector(`[data-ce-anchor="${id}"]`);
         if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
-        else if(id==='devis'||id==='historique')window.go?.(id);
       };
       bar.appendChild(b);
     });
@@ -100,13 +103,13 @@
     const pro=$('pro');
     if(pro){
       const cards=[...pro.querySelectorAll(':scope > .card')];
-      const ids=['pro-chiffrage','pro-materiaux','pro-machines','pro-dechets','pro-actions','pro-resultat'];
-      cards.forEach((c,i)=>{if(ids[i])c.id=ids[i]});
+      const anchors=['pro-chiffrage','pro-materiaux','pro-machines','pro-dechets','pro-actions','pro-resultat'];
+      cards.forEach((c,i)=>{if(anchors[i])c.dataset.ceAnchor=anchors[i]});
     }
     const part=$('particulier');
     if(part){
       const cards=[...part.querySelectorAll(':scope > .card')];
-      ['part-estimation','part-dechets','part-comparaison'].forEach((id,i)=>{if(cards[i])cards[i].id=id});
+      ['part-estimation','part-dechets','part-comparaison'].forEach((anchor,i)=>{if(cards[i])cards[i].dataset.ceAnchor=anchor});
     }
   }
 

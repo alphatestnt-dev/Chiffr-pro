@@ -22,11 +22,24 @@ test('fresh user loads without blank screen', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('navigation and key pages', async ({ page }) => {
+test('six-page navigation and preserved sub-pages', async ({ page }) => {
   await openFresh(page);
-  for (const id of ['pro','particulier','eco','devis','historique','aides','param']) await go(page, id);
-  await expect(page.locator('#partnerNav')).toBeVisible();
-  await page.locator('#partnerNav').click();
+  const primary = await page.locator('nav[aria-label="Navigation principale"] button:visible').allTextContents();
+  expect(primary).toEqual(['Accueil','Professionnel','Particulier','🌱 Écologie','Aides / Informations','Compte / Paramètres']);
+  await expect(page.locator('nav[aria-label="Navigation principale"]')).toHaveCSS('flex-wrap','nowrap');
+
+  for (const id of ['pro','particulier','eco','aides','param']) await go(page, id);
+
+  await go(page, 'pro');
+  await expect(page.locator('#pro .ce-page-nav')).toBeVisible();
+  await page.locator('#pro .ce-page-nav button', { hasText: 'Devis' }).click();
+  await expect(page.locator('#devis')).toBeVisible();
+  await page.locator('#pro .ce-page-nav button', { hasText: 'Historique' }).click();
+  await expect(page.locator('#historique')).toBeVisible();
+
+  await go(page, 'eco');
+  await expect(page.locator('.ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
+  await page.locator('.ce-tools-nav button', { hasText: 'Partenaires' }).click();
   await expect(page.locator('#partnersPage')).toBeVisible();
 });
 
@@ -81,7 +94,8 @@ test('direct waste volume and quote/history', async ({ page }) => {
   await expect(page.locator('#wvol')).toHaveText('3.25 m³');
   await page.getByRole('button', { name: 'Ajouter au chiffrage' }).click();
   await page.getByRole('button', { name: 'Sauvegarder' }).click();
-  await go(page, 'historique');
+  await go(page, 'pro');
+  await page.locator('#pro .ce-page-nav button', { hasText: 'Historique' }).click();
   await expect(page.locator('#hist .item')).toHaveCount(1);
   await page.locator('#hist .item').getByRole('button', { name: 'Ouvrir' }).click();
   await expect(page.locator('#pro')).toBeVisible();
@@ -94,6 +108,7 @@ test('direct waste volume and quote/history', async ({ page }) => {
 test('particular estimation, waste and comparison', async ({ page }) => {
   await openFresh(page);
   await go(page, 'particulier');
+  await expect(page.locator('#particulier .ce-page-nav')).toBeVisible();
   await page.locator('#pq').fill('20');
   await page.locator('#pd').selectOption('Difficile');
   await page.getByRole('button', { name: "Obtenir l'estimation" }).click();
@@ -109,33 +124,35 @@ test('particular estimation, waste and comparison', async ({ page }) => {
   await expect(page.locator('#cl .item')).toHaveCount(1);
 });
 
-test('final user acceptance: work catalogue, controls and visual layout', async ({ page }) => {
+test('final user acceptance: work catalogue, controls, visual layout and sharp hero', async ({ page }) => {
   const errors = [];
   page.on('pageerror', e => errors.push(String(e)));
   await openFresh(page);
 
-  // Real user-facing home controls and visual anchors.
-  await expect(page.locator('.home-copy .avenir')).toContainText('Parce que le Monde a Besoin d’un Avenir');
-  await expect(page.locator('.home-copy .eco-title')).toContainText('Pensez Éco Logique');
+  await expect(page.locator('.home-copy')).toBeHidden();
+  await expect(page.locator('.home img')).toHaveAttribute('src', './hero-home-ecopro.svg');
   await expect(page.locator('.home img')).toBeVisible();
   await expect(page.locator('.home-links button')).toHaveCount(2);
   await page.screenshot({ path: 'test-results/accueil-final.png', fullPage: true });
 
-  // Every professional work family and every available sub-branch must be selectable.
   await go(page, 'pro');
+  await expect(page.locator('#pro .ce-page-nav button')).toHaveCount(7);
+  const mobile = await page.evaluate(() => {
+    const nav=document.querySelector('#pro .ce-page-nav');
+    return {wrap:getComputedStyle(nav).flexWrap, whiteSpace:getComputedStyle(nav).whiteSpace};
+  });
+  expect(mobile.wrap).toBe('nowrap');
+  expect(mobile.whiteSpace).toBe('nowrap');
+
   const professions = await page.locator('#metier option').allTextContents();
   expect(professions.length).toBeGreaterThan(20);
   for (const profession of professions) {
     await page.locator('#metier').selectOption({ label: profession });
     const subbranches = await page.locator('#prest option').allTextContents();
     expect(subbranches.length, `Sous-branches absentes pour ${profession}`).toBeGreaterThan(0);
-    for (const sub of subbranches) {
-      await page.locator('#prest').selectOption({ label: sub });
-      await expect(page.locator('#prest')).toHaveValue(await page.locator('#prest').inputValue());
-    }
+    for (const sub of subbranches) await page.locator('#prest').selectOption({ label: sub });
   }
 
-  // Complete the practical PRO flow with travel, other cost, material, machine and every waste family.
   await page.locator('#entreprise').fill('Recette EcoPro');
   await page.locator('#client').fill('Client recette');
   await page.locator('#qty').fill('25');
@@ -183,7 +200,6 @@ test('final user acceptance: work catalogue, controls and visual layout', async 
   await expect(page.locator('#ttc')).not.toHaveText('');
   await page.screenshot({ path: 'test-results/pro-result-final.png', fullPage: true });
 
-  // Devis flow and print layout.
   await page.getByRole('button', { name: 'Préparer le devis' }).click();
   await expect(page.locator('#devis')).toBeVisible();
   await expect(page.locator('#quote')).toContainText('DEVIS');
@@ -192,8 +208,8 @@ test('final user acceptance: work catalogue, controls and visual layout', async 
   await page.screenshot({ path: 'test-results/devis-print-final.png', fullPage: true });
   await page.emulateMedia({ media: 'screen' });
 
-  // Particulier: principal controls and a second real estimate.
   await go(page, 'particulier');
+  await expect(page.locator('#particulier .ce-page-nav button')).toHaveCount(3);
   await page.locator('#pf').selectOption({ index: 0 });
   expect(await page.locator('#ps option').count()).toBeGreaterThan(0);
   await page.locator('#pq').fill('30');
@@ -201,11 +217,9 @@ test('final user acceptance: work catalogue, controls and visual layout', async 
   await page.getByRole('button', { name: "Obtenir l'estimation" }).click();
   await expect(page.locator('#pr')).toBeVisible();
 
-  // Partners and ecology remain reachable from the real navigation.
   await go(page, 'eco');
-  await expect(page.locator('#eco')).toBeVisible();
-  await expect(page.locator('#partnerNav')).toBeVisible();
-  await page.locator('#partnerNav').click();
+  await expect(page.locator('.ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
+  await page.locator('.ce-tools-nav button', { hasText: 'Partenaires' }).click();
   await expect(page.locator('#partnersPage')).toBeVisible();
 
   expect(errors).toEqual([]);
@@ -213,10 +227,11 @@ test('final user acceptance: work catalogue, controls and visual layout', async 
 
 test('reload keeps app usable and PWA registers', async ({ page }) => {
   await openFresh(page);
-  await page.locator('nav button[data-p="eco"]').click();
+  await go(page, 'eco');
   await page.reload({ waitUntil: 'networkidle' });
   await expect(page.locator('#accueil')).toBeVisible();
   await expect(page.locator('.home')).toBeVisible();
+  await expect(page.locator('nav[aria-label="Navigation principale"] button:visible')).toHaveCount(6);
   const registration = await page.evaluate(async () => {
     if (!('serviceWorker' in navigator)) return null;
     const reg = await navigator.serviceWorker.ready;

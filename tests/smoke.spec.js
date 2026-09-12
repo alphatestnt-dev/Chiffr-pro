@@ -34,12 +34,12 @@ test('six-page navigation and preserved sub-pages', async ({ page }) => {
   await expect(page.locator('#pro .ce-page-nav')).toBeVisible();
   await page.locator('#pro .ce-page-nav button', { hasText: 'Devis' }).click();
   await expect(page.locator('#devis')).toBeVisible();
-  await page.locator('#pro .ce-page-nav button', { hasText: 'Historique' }).click();
+  await page.locator('#devis .ce-page-nav button', { hasText: 'Historique' }).click();
   await expect(page.locator('#historique')).toBeVisible();
 
   await go(page, 'eco');
-  await expect(page.locator('.ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
-  await page.locator('.ce-tools-nav button', { hasText: 'Partenaires' }).click();
+  await expect(page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
+  await page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' }).click();
   await expect(page.locator('#partnersPage')).toBeVisible();
 });
 
@@ -218,8 +218,8 @@ test('final user acceptance: work catalogue, controls, visual layout and sharp h
   await expect(page.locator('#pr')).toBeVisible();
 
   await go(page, 'eco');
-  await expect(page.locator('.ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
-  await page.locator('.ce-tools-nav button', { hasText: 'Partenaires' }).click();
+  await expect(page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
+  await page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' }).click();
   await expect(page.locator('#partnersPage')).toBeVisible();
 
   expect(errors).toEqual([]);

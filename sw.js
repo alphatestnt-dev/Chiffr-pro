@@ -1,4 +1,4 @@
-const CACHE = 'chifrecopro-stable-v1';
+const CACHE = 'chifrecopro-stable-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -7,7 +7,9 @@ const ASSETS = [
   './icon-512.png',
   './hero-home-ecopro.webp',
   './app-v13.js',
-  './partner-v1.js'
+  './partner-v1.js',
+  './pwa.js',
+  './runtime-stability.js'
 ];
 
 self.addEventListener('install', event => {

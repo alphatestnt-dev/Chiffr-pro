@@ -42,9 +42,21 @@ test('professional project, metrics, waste and price calculation', async ({ page
   await page.locator('#mq').fill('2');
   await page.locator('#mp').fill('15');
   await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(0).click();
+  await expect(page.locator('#ml .item')).toHaveCount(1);
+  await page.locator('#ml .item button').click();
+  await expect(page.locator('#ml .item')).toHaveCount(0);
+  await page.locator('#mn').fill('Terreau');
+  await page.locator('#mq').fill('2');
+  await page.locator('#mp').fill('15');
+  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(0).click();
   await page.locator('#th').fill('2');
   await page.locator('#tn').selectOption({ index: 0 });
   await page.locator('#tc').waitFor({ state: 'attached' });
+  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(1).click();
+  await expect(page.locator('#tl .item')).toHaveCount(1);
+  await page.locator('#tl .item button').click();
+  await expect(page.locator('#tl .item')).toHaveCount(0);
+  await page.locator('#th').fill('2');
   await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(1).click();
   await page.locator('#wl').fill('2');
   await page.locator('#ww').fill('1.5');
@@ -53,6 +65,7 @@ test('professional project, metrics, waste and price calculation', async ({ page
   await page.getByRole('button', { name: 'Calculer le volume' }).click();
   await expect(page.locator('#wvol')).toHaveText('1.50 m³');
   await page.getByRole('button', { name: 'Ajouter au chiffrage' }).click();
+  await expect(page.locator('#wlst .item')).toHaveCount(1);
   await page.getByRole('button', { name: 'Calculer le prix' }).click();
   await expect(page.locator('#res')).toBeVisible();
   await expect(page.locator('#ht')).not.toHaveText('');
@@ -74,6 +87,8 @@ test('direct waste volume and quote/history', async ({ page }) => {
   await expect(page.locator('#pro')).toBeVisible();
   await page.getByRole('button', { name: 'Préparer le devis' }).click();
   await expect(page.locator('#quote')).toContainText('DEVIS');
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('#quote')).toBeVisible();
 });
 
 test('particular estimation, waste and comparison', async ({ page }) => {

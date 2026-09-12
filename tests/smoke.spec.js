@@ -109,6 +109,108 @@ test('particular estimation, waste and comparison', async ({ page }) => {
   await expect(page.locator('#cl .item')).toHaveCount(1);
 });
 
+test('final user acceptance: work catalogue, controls and visual layout', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', e => errors.push(String(e)));
+  await openFresh(page);
+
+  // Real user-facing home controls and visual anchors.
+  await expect(page.locator('.home-copy .avenir')).toContainText('Parce que le Monde a Besoin d’un Avenir');
+  await expect(page.locator('.home-copy .eco-title')).toContainText('Pensez Éco Logique');
+  await expect(page.locator('.home img')).toBeVisible();
+  await expect(page.locator('.home-links button')).toHaveCount(2);
+  await page.screenshot({ path: 'test-results/accueil-final.png', fullPage: true });
+
+  // Every professional work family and every available sub-branch must be selectable.
+  await go(page, 'pro');
+  const professions = await page.locator('#metier option').allTextContents();
+  expect(professions.length).toBeGreaterThan(20);
+  for (const profession of professions) {
+    await page.locator('#metier').selectOption({ label: profession });
+    const subbranches = await page.locator('#prest option').allTextContents();
+    expect(subbranches.length, `Sous-branches absentes pour ${profession}`).toBeGreaterThan(0);
+    for (const sub of subbranches) {
+      await page.locator('#prest').selectOption({ label: sub });
+      await expect(page.locator('#prest')).toHaveValue(await page.locator('#prest').inputValue());
+    }
+  }
+
+  // Complete the practical PRO flow with travel, other cost, material, machine and every waste family.
+  await page.locator('#entreprise').fill('Recette EcoPro');
+  await page.locator('#client').fill('Client recette');
+  await page.locator('#qty').fill('25');
+  await page.locator('#hours').fill('4');
+  await page.locator('#rate').fill('25');
+  await page.locator('#travel').fill('30');
+  await page.locator('#other').fill('20');
+  await page.locator('#margin').fill('35');
+  await page.locator('#vat').fill('20');
+  await page.locator('#mn').fill('Fourniture test');
+  await page.locator('#mq').fill('3');
+  await page.locator('#mp').fill('12');
+  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(0).click();
+  await expect(page.locator('#ml .item')).toHaveCount(1);
+
+  await page.locator('#tn').selectOption({ index: 0 });
+  await page.locator('#th').fill('2');
+  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(1).click();
+  await expect(page.locator('#tl .item')).toHaveCount(1);
+
+  const wasteTypes = await page.locator('#wt option').evaluateAll(opts => opts.map(o => o.value));
+  expect(wasteTypes.length).toBeGreaterThanOrEqual(10);
+  for (const type of wasteTypes) {
+    await page.locator('#wt').selectOption(type);
+    await page.locator('#wmode').selectOption('dimensions');
+    await page.locator('#wl').fill('2');
+    await page.locator('#ww').fill('1');
+    await page.locator('#wh').fill('0.5');
+    await page.getByRole('button', { name: 'Calculer le volume' }).click();
+    await expect(page.locator('#wvol')).toHaveText('1.00 m³');
+    await page.getByRole('button', { name: 'Ajouter au chiffrage' }).click();
+  }
+  await expect(page.locator('#wlst .item')).toHaveCount(wasteTypes.length);
+
+  await page.locator('#sort').check();
+  await page.locator('#reuse').check();
+  await page.locator('#grind').check();
+  await page.locator('#opt').check();
+  await page.getByRole('button', { name: 'Calculer le prix' }).click();
+  await expect(page.locator('#res')).toBeVisible();
+  await expect(page.locator('#cost')).not.toHaveText('');
+  await expect(page.locator('#me')).not.toHaveText('');
+  await expect(page.locator('#mr')).not.toHaveText('');
+  await expect(page.locator('#ht')).not.toHaveText('');
+  await expect(page.locator('#ttc')).not.toHaveText('');
+  await page.screenshot({ path: 'test-results/pro-result-final.png', fullPage: true });
+
+  // Devis flow and print layout.
+  await page.getByRole('button', { name: 'Préparer le devis' }).click();
+  await expect(page.locator('#devis')).toBeVisible();
+  await expect(page.locator('#quote')).toContainText('DEVIS');
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('#quote')).toBeVisible();
+  await page.screenshot({ path: 'test-results/devis-print-final.png', fullPage: true });
+  await page.emulateMedia({ media: 'screen' });
+
+  // Particulier: principal controls and a second real estimate.
+  await go(page, 'particulier');
+  await page.locator('#pf').selectOption({ index: 0 });
+  expect(await page.locator('#ps option').count()).toBeGreaterThan(0);
+  await page.locator('#pq').fill('30');
+  await page.locator('#pd').selectOption('Moyenne');
+  await page.getByRole('button', { name: "Obtenir l'estimation" }).click();
+  await expect(page.locator('#pr')).toBeVisible();
+
+  // Partners and ecology remain reachable from the real navigation.
+  await go(page, 'eco');
+  await expect(page.locator('#eco')).toBeVisible();
+  await expect(page.locator('#partnerNav')).toBeVisible();
+  await page.locator('#partnerNav').click();
+  await expect(page.locator('#partnersPage')).toBeVisible();
+
+  expect(errors).toEqual([]);
+});
+
 test('reload keeps app usable and PWA registers', async ({ page }) => {
   await openFresh(page);
   await page.locator('nav button[data-p="eco"]').click();

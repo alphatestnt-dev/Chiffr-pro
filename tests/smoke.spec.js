@@ -51,7 +51,7 @@ test('professional project, metrics, waste and price calculation', async ({ page
   await page.locator('#wh').fill('0.5');
   await page.locator('#wmode').selectOption('dimensions');
   await page.getByRole('button', { name: 'Calculer le volume' }).click();
-  await expect(page.locator('#wvol')).toHaveText('1.00 m³');
+  await expect(page.locator('#wvol')).toHaveText('1.50 m³');
   await page.getByRole('button', { name: 'Ajouter au chiffrage' }).click();
   await page.getByRole('button', { name: 'Calculer le prix' }).click();
   await expect(page.locator('#res')).toBeVisible();

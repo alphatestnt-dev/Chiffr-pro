@@ -1,7 +1,15 @@
 (()=>{
   'use strict';
-  if(!('serviceWorker' in navigator)) return;
+  const loadRuntime=()=>new Promise(resolve=>{
+    if(document.querySelector('script[data-ce-runtime]'))return resolve();
+    const s=document.createElement('script');s.src='./runtime-stability.js';s.dataset.ceRuntime='1';s.defer=true;s.onload=resolve;s.onerror=resolve;document.head.appendChild(s);
+  });
+  if(!('serviceWorker'in navigator)){
+    loadRuntime();
+    return;
+  }
   const start=async()=>{
+    await loadRuntime();
     try{
       const reg=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
       await reg.update();

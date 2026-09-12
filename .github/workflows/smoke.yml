@@ -1,0 +1,23 @@
+name: Chiffr’EcoPro smoke tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Start local server
+        run: python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/chiffrecopro-server.log 2>&1 &
+      - name: Install Playwright
+        run: npm install --no-save @playwright/test
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run smoke tests
+        run: npx playwright test tests/smoke.spec.js --reporter=line

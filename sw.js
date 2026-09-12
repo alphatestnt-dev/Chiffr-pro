@@ -1,4 +1,4 @@
-const CACHE = 'chifrecopro-stable-v3';
+const CACHE = 'chifrecopro-stable-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -6,9 +6,11 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './hero-home-ecopro.webp',
+  './hero-home-ecopro.svg',
   './app-v13.js',
   './partner-v1.js',
   './pwa.js',
+  './navigation-v2.js',
   './runtime-stability.js'
 ];
 

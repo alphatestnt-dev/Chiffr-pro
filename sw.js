@@ -1,4 +1,4 @@
-const CACHE = 'chifrecopro-stable-v2';
+const CACHE = 'chifrecopro-stable-v3';
 const ASSETS = [
   './',
   './index.html',

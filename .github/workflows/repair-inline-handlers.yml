@@ -1,0 +1,38 @@
+name: Chiffr’EcoPro one-time runtime repair
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch closure-scoped remove handlers
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app-v13.js')
+          s=p.read_text()
+          s=s.replace('onclick="mats.splice(${i},1);matRenderV13()"','onclick="window.__ceRemoveMat(${i})"')
+          s=s.replace('onclick="toolsList.splice(${i},1);toolRenderV13()"','onclick="window.__ceRemoveTool(${i})"')
+          s=s.replace('onclick="wastes.splice(${i},1);wasteRenderV13();ecoV13()"','onclick="window.__ceRemoveWaste(${i})"')
+          if 'window.__ceRemoveMat=' not in s:
+            marker='\n})();'
+            bridge='\nwindow.__ceRemoveMat=i=>{mats.splice(i,1);matRenderV13();};\nwindow.__ceRemoveTool=i=>{toolsList.splice(i,1);toolRenderV13();};\nwindow.__ceRemoveWaste=i=>{wastes.splice(i,1);wasteRenderV13();ecoV13();};\n'
+            pos=s.rfind(marker)
+            if pos<0: raise SystemExit('terminator not found')
+            s=s[:pos]+bridge+s[pos:]
+          p.write_text(s)
+          PY
+          if grep -q 'window.__ceRemoveMat=' app-v13.js; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add app-v13.js
+            git diff --cached --quiet || git commit -m 'repair: fix closure handlers'
+            git push
+          fi

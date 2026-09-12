@@ -1,4 +1,4 @@
-const CACHE='chifrecopro-v41';
+const CACHE='chifrecopro-v42';
 
 const ASSETS=[
 './','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
@@ -6,7 +6,7 @@ const ASSETS=[
 './completion-v1.js','./chifrecopro-v15.js','./chifrecopro-v22.js','./chifrecopro-v23.js','./chifrecopro-v24.js',
 './chifrecopro-v25.js','./chifrecopro-v26.js','./chifrecopro-v27.js','./chifrecopro-v28.js','./chifrecopro-v29.js',
 './chifrecopro-v31.js','./chifrecopro-v32.js','./chifrecopro-v33.js','./qa-v34.js','./chifrecopro-v35.js',
-'./chifrecopro-v36.js','./chifrecopro-v37.js','./chifrecopro-v38.js','./chifrecopro-v39.js','./chifrecopro-v40.js','./chifrecopro-v41.js',
+'./chifrecopro-v36.js','./chifrecopro-v37.js','./chifrecopro-v38.js','./chifrecopro-v39.js','./chifrecopro-v40.js','./chifrecopro-v41.js','./chifrecopro-v42.js',
 './partner-v1.js','./tool-v1.js'
 ];
 
@@ -15,10 +15,10 @@ if(!r||!r.ok)return r;
 const ct=r.headers.get('content-type')||'';
 if(ct.includes('text/html')){
 const t=await r.text();
-if(t.includes('data-chifrecopro-injected="v41"'))return new Response(t,{status:r.status,statusText:r.statusText,headers:r.headers});
+if(t.includes('data-chifrecopro-injected="v42"'))return new Response(t,{status:r.status,statusText:r.statusText,headers:r.headers});
 const h=new Headers(r.headers);h.delete('content-length');
-const files=['partner-v1.js','tool-v1.js','catalog-v2.js','eco-lever-v1.js','ux-v1.js','barometre-pro-v1.js','completion-v1.js','chifrecopro-v15.js','chifrecopro-v22.js','chifrecopro-v23.js','chifrecopro-v24.js','chifrecopro-v25.js','chifrecopro-v26.js','chifrecopro-v27.js','chifrecopro-v28.js','chifrecopro-v29.js','chifrecopro-v31.js','chifrecopro-v32.js','chifrecopro-v33.js','qa-v34.js','chifrecopro-v35.js','chifrecopro-v36.js','chifrecopro-v37.js','chifrecopro-v38.js','chifrecopro-v39.js','chifrecopro-v40.js','chifrecopro-v41.js'];
-const injected='<script data-chifrecopro-injected="v41"></script>'+files.map(x=>'<script src="./'+x+'"></script>').join('');
+const files=['partner-v1.js','tool-v1.js','catalog-v2.js','eco-lever-v1.js','ux-v1.js','barometre-pro-v1.js','completion-v1.js','chifrecopro-v15.js','chifrecopro-v22.js','chifrecopro-v23.js','chifrecopro-v24.js','chifrecopro-v25.js','chifrecopro-v26.js','chifrecopro-v27.js','chifrecopro-v28.js','chifrecopro-v29.js','chifrecopro-v31.js','chifrecopro-v32.js','chifrecopro-v33.js','qa-v34.js','chifrecopro-v35.js','chifrecopro-v36.js','chifrecopro-v37.js','chifrecopro-v38.js','chifrecopro-v39.js','chifrecopro-v40.js','chifrecopro-v41.js','chifrecopro-v42.js'];
+const injected='<script data-chifrecopro-injected="v42"></script>'+files.map(x=>'<script src="./'+x+'"></script>').join('');
 return new Response(t.replace('</body>',injected+'</body>'),{status:r.status,statusText:r.statusText,headers:h});
 }
 return r;

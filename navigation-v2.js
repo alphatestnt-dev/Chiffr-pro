@@ -2,6 +2,9 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const primary=[['accueil','Accueil'],['pro','Professionnel'],['particulier','Particulier'],['factures-pro','Factures'],['eco','🌱 Écologie'],['aides','Aides / Informations'],['param','Compte / Paramètres']];
+  const proItems=[['pro-chiffrage','Chiffrage'],['pro-materiaux','Matériaux'],['pro-machines','Machines / outils'],['pro-dechets','Déchets / évacuation'],['pro-resultat','Résultat'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']];
+  const partItems=[['part-estimation','Estimation'],['part-dechets','Déchets'],['part-comparaison','Comparaison'],['demande-particulier','Demande de devis'],['factures-particulier','Factures'],['historique','Historique']];
+  const docItems=[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']];
   function style(){
     if($('ce-navigation-v2'))return;
     const s=document.createElement('style');s.id='ce-navigation-v2';s.textContent=`
@@ -62,15 +65,9 @@
   }
   function ensurePrimaryButtons(){
     const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;
-    const labels=new Map(primary);
-    const buttons=new Map();
+    const labels=new Map(primary),buttons=new Map();
     nav.querySelectorAll('button[data-p]').forEach(b=>{if(labels.has(b.dataset.p)&&!buttons.has(b.dataset.p))buttons.set(b.dataset.p,b)});
-    primary.forEach(([id,label])=>{
-      let b=buttons.get(id);
-      if(!b){b=document.createElement('button');b.type='button';b.dataset.p=id;b.onclick=()=>window.go?.(id);buttons.set(id,b)}
-      b.textContent=label;
-      nav.appendChild(b);
-    });
+    primary.forEach(([id,label])=>{let b=buttons.get(id);if(!b){b=document.createElement('button');b.type='button';b.dataset.p=id;b.onclick=()=>window.go?.(id);buttons.set(id,b)}b.textContent=label;nav.appendChild(b)});
   }
   function hideExtraNav(){
     const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;
@@ -85,28 +82,25 @@
   function ensureSubnav(pageId,items){
     const page=$(pageId);if(!page)return;
     let bar=page.querySelector('.ce-page-nav');
-    if(!bar){bar=document.createElement('div');bar.className='ce-page-nav';bar.setAttribute('aria-label',`Navigation ${pageId}`);page.insertBefore(bar,page.firstElementChild);}
-    const existing=new Map([...bar.querySelectorAll('button')].map(b=>[b.textContent.trim(),b]));
-    bar.innerHTML='';
+    if(!bar){bar=document.createElement('div');bar.className='ce-page-nav';bar.setAttribute('aria-label',`Navigation ${pageId}`);page.insertBefore(bar,page.firstElementChild)}
+    const existing=new Map([...bar.querySelectorAll('button')].map(b=>[b.textContent.trim(),b]));bar.innerHTML='';
     items.forEach(([id,label])=>{const b=existing.get(label)||document.createElement('button');bindSubButton(b,id,label,page);bar.appendChild(b)});
   }
   function markCards(){
     const pro=$('pro');if(pro)[...pro.querySelectorAll(':scope > .card')].forEach((c,i)=>c.dataset.ceAnchor=['pro-chiffrage','pro-materiaux','pro-machines','pro-dechets','pro-actions','pro-resultat'][i]||'');
     const part=$('particulier');if(part)[...part.querySelectorAll(':scope > .card')].forEach((c,i)=>c.dataset.ceAnchor=['part-estimation','part-dechets','part-comparaison'][i]||'');
   }
+  function refreshSubnavs(){
+    ensureSubnav('pro',proItems);ensureSubnav('particulier',partItems);ensureSubnav('devis',docItems);ensureSubnav('historique',docItems);hideExtraNav();
+  }
   function addTools(){
     const eco=$('eco');if(eco&&!eco.querySelector('.ce-tools-nav')){const wrap=document.createElement('div');wrap.className='ce-tools-nav';const mk=(label,id)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>window.go?.(id);return b};wrap.append(mk('🤝 Partenaires','partnersPage'),mk('📈 Éco-Levier','eco-lever'));const card=eco.querySelector('.card');if(card)card.appendChild(wrap)}
     const oldPartner=$('partnerNav');if(oldPartner)oldPartner.style.display='none';
   }
   function install(){
-    const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;style();ensurePrimaryButtons();hideExtraNav();markCards();
-    ensureSubnav('pro',[['pro-chiffrage','Chiffrage'],['pro-materiaux','Matériaux'],['pro-machines','Machines / outils'],['pro-dechets','Déchets / évacuation'],['pro-resultat','Résultat'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
-    ensureSubnav('particulier',[['part-estimation','Estimation'],['part-dechets','Déchets'],['part-comparaison','Comparaison'],['demande-particulier','Demande de devis'],['factures-particulier','Factures'],['historique','Historique']]);
-    ensureSubnav('devis',[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
-    ensureSubnav('historique',[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
-    addTools();
-    const clean=()=>hideExtraNav();
-    if(!nav.dataset.cePrimaryGuard){nav.dataset.cePrimaryGuard='1';new MutationObserver(clean).observe(nav,{childList:true});}
+    const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;style();ensurePrimaryButtons();hideExtraNav();markCards();refreshSubnavs();addTools();
+    if(!nav.dataset.cePrimaryGuard){nav.dataset.cePrimaryGuard='1';new MutationObserver(hideExtraNav).observe(nav,{childList:true});}
+    if(!window.__ceGoWrapped){window.__ceGoWrapped='1';const baseGo=window.go;window.go=(id)=>{const r=typeof baseGo==='function'?baseGo(id):undefined;setTimeout(()=>{refreshSubnavs();addTools()},0);return r};}
     const home=$('accueil')?.querySelector('.home img');if(home){home.src='./file_00000000cef88246bb6203174d2ac629.png';home.removeAttribute('srcset');home.style.imageRendering='auto'}
     window.__ceNavigationRefresh=install;
   }

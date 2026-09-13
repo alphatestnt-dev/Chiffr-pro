@@ -65,9 +65,7 @@
     const labels=new Map(primary);
     primary.forEach(([id,label])=>{
       let b=nav.querySelector(`button[data-p="${id}"]`);
-      if(!b){
-        b=document.createElement('button');b.type='button';b.dataset.p=id;b.onclick=()=>window.go?.(id);nav.appendChild(b);
-      }
+      if(!b){b=document.createElement('button');b.type='button';b.dataset.p=id;b.onclick=()=>window.go?.(id);nav.appendChild(b)}
       b.textContent=label;
     });
     nav.querySelectorAll('button').forEach(b=>{if(!labels.has(b.dataset.p))b.style.display='none'});
@@ -75,7 +73,9 @@
   function hideExtraNav(){
     ensurePrimaryButtons();
     const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;
-    nav.querySelectorAll('button').forEach(b=>{if(primary.some(x=>x[0]===b.dataset.p))b.style.display=''});
+    const allowed=new Set(primary.map(x=>x[0]));
+    nav.querySelectorAll('button').forEach(b=>{b.style.display=allowed.has(b.dataset.p)?'none':''});
+    primary.forEach(([id])=>{const b=nav.querySelector(`button[data-p="${id}"]`);if(b)b.style.display=''});
   }
   function makeSubnav(pageId,items){
     const page=$(pageId);if(!page||page.querySelector('.ce-page-nav'))return;const first=page.firstElementChild;if(!first)return;
@@ -92,12 +92,18 @@
     const oldPartner=$('partnerNav');if(oldPartner)oldPartner.style.display='none';
   }
   function install(){
-    if(!document.querySelector('nav[aria-label="Navigation principale"]'))return;style();ensurePrimaryButtons();hideExtraNav();markCards();
+    const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;style();ensurePrimaryButtons();hideExtraNav();markCards();
     makeSubnav('pro',[['pro-chiffrage','Chiffrage'],['pro-materiaux','Matériaux'],['pro-machines','Machines / outils'],['pro-dechets','Déchets / évacuation'],['pro-resultat','Résultat'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
     makeSubnav('particulier',[['part-estimation','Estimation'],['part-dechets','Déchets'],['part-comparaison','Comparaison'],['demande-particulier','Demande de devis'],['factures-particulier','Factures'],['historique','Historique']]);
     makeSubnav('devis',[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
     makeSubnav('historique',[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
     addTools();
+    const clean=()=>hideExtraNav();
+    if(!nav.dataset.cePrimaryGuard){
+      nav.dataset.cePrimaryGuard='1';
+      new MutationObserver(clean).observe(nav,{childList:true});
+      [120,350,700,1200].forEach(ms=>setTimeout(clean,ms));
+    }
     const home=$('accueil')?.querySelector('.home img');if(home){home.src='./file_00000000cef88246bb6203174d2ac629.png';home.removeAttribute('srcset');home.style.imageRendering='auto'}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0),{once:true});else setTimeout(install,0);

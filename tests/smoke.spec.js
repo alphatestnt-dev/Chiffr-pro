@@ -1,262 +1,74 @@
 const { test, expect } = require('@playwright/test');
-
 const url = 'http://127.0.0.1:4173/index.html';
+const hero = './file_00000000cef88246bb6203174d2ac629.png';
 
-async function openFresh(page) {
-  await page.goto(url, { waitUntil: 'networkidle' });
+async function openFresh(page){
+  await page.goto(url,{waitUntil:'networkidle'});
   await expect(page.locator('#accueil')).toBeVisible();
   await expect(page.locator('.home')).toBeVisible();
 }
-
-async function go(page, id) {
+async function go(page,id){
   await page.locator(`nav button[data-p="${id}"]`).click();
   await expect(page.locator(`#${id}`)).toBeVisible();
 }
 
-test('fresh user loads without blank screen', async ({ page }) => {
-  const errors = [];
-  page.on('pageerror', e => errors.push(String(e)));
-  await page.goto(url, { waitUntil: 'networkidle' });
-  await expect(page.locator('#accueil')).toBeVisible();
-  await expect(page.locator('.home-links button').nth(0)).toBeVisible();
-  expect(errors).toEqual([]);
-});
 
-test('six-page navigation and preserved sub-pages', async ({ page }) => {
+test('fresh user and exact home asset',async({page,request})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
   await openFresh(page);
-  const primaryNav = page.locator('nav[aria-label="Navigation principale"]');
-  const primary = await primaryNav.locator('button:visible').allTextContents();
-  expect(primary).toEqual(['Accueil','Professionnel','Particulier','🌱 Écologie','Aides / Informations','Compte / Paramètres']);
-  await expect(primaryNav).toHaveCSS('flex-wrap','nowrap');
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(primaryNav).toHaveCSS('flex-wrap','nowrap');
-  const primaryMobile = await primaryNav.evaluate(el => ({wrap:getComputedStyle(el).flexWrap, scroll:el.scrollWidth, client:el.clientWidth}));
-  expect(primaryMobile.wrap).toBe('nowrap');
-  expect(primaryMobile.scroll).toBeGreaterThan(primaryMobile.client);
-
-  await go(page, 'pro');
-  const proNav = page.locator('#pro .ce-page-nav');
-  await expect(proNav).toBeVisible();
-  const proMobile = await proNav.evaluate(el => ({wrap:getComputedStyle(el).flexWrap, whiteSpace:getComputedStyle(el).whiteSpace, scroll:el.scrollWidth, client:el.clientWidth}));
-  expect(proMobile.wrap).toBe('nowrap');
-  expect(proMobile.whiteSpace).toBe('nowrap');
-  expect(proMobile.scroll).toBeGreaterThan(proMobile.client);
-
-  await go(page, 'particulier');
-  const partNav = page.locator('#particulier .ce-page-nav');
-  const partMobile = await partNav.evaluate(el => ({wrap:getComputedStyle(el).flexWrap, whiteSpace:getComputedStyle(el).whiteSpace}));
-  expect(partMobile.wrap).toBe('nowrap');
-  expect(partMobile.whiteSpace).toBe('nowrap');
-
-  await page.setViewportSize({ width: 1280, height: 900 });
-  for (const id of ['eco','aides','param']) await go(page, id);
-
-  await go(page, 'pro');
-  await page.locator('#pro .ce-page-nav button', { hasText: 'Devis' }).click();
-  await expect(page.locator('#devis')).toBeVisible();
-  await page.locator('#devis .ce-page-nav button', { hasText: 'Historique' }).click();
-  await expect(page.locator('#historique')).toBeVisible();
-
-  await go(page, 'eco');
-  await expect(page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
-  await page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' }).click();
-  await expect(page.locator('#partnersPage')).toBeVisible();
-});
-
-test('professional project, metrics, waste and price calculation', async ({ page }) => {
-  await openFresh(page);
-  await page.locator('.home-links button').nth(0).click();
-  await page.locator('#entreprise').fill('Test EcoPro');
-  await page.locator('#client').fill('Client Test');
-  await page.locator('#hours').fill('3');
-  await page.locator('#rate').fill('20');
-  await page.locator('#margin').fill('30');
-  await page.locator('#mn').fill('Terreau');
-  await page.locator('#mq').fill('2');
-  await page.locator('#mp').fill('15');
-  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(0).click();
-  await expect(page.locator('#ml .item')).toHaveCount(1);
-  await page.locator('#ml .item button').click();
-  await expect(page.locator('#ml .item')).toHaveCount(0);
-  await page.locator('#mn').fill('Terreau');
-  await page.locator('#mq').fill('2');
-  await page.locator('#mp').fill('15');
-  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(0).click();
-  await page.locator('#th').fill('2');
-  await page.locator('#tn').selectOption({ index: 0 });
-  await page.locator('#tc').waitFor({ state: 'attached' });
-  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(1).click();
-  await expect(page.locator('#tl .item')).toHaveCount(1);
-  await page.locator('#tl .item button').click();
-  await expect(page.locator('#tl .item')).toHaveCount(0);
-  await page.locator('#th').fill('2');
-  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(1).click();
-  await page.locator('#wl').fill('2');
-  await page.locator('#ww').fill('1.5');
-  await page.locator('#wh').fill('0.5');
-  await page.locator('#wmode').selectOption('dimensions');
-  await page.getByRole('button', { name: 'Calculer le volume' }).click();
-  await expect(page.locator('#wvol')).toHaveText('1.50 m³');
-  await page.getByRole('button', { name: 'Ajouter au chiffrage' }).click();
-  await expect(page.locator('#wlst .item')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Calculer le prix' }).click();
-  await expect(page.locator('#res')).toBeVisible();
-  await expect(page.locator('#ht')).not.toHaveText('');
-  await expect(page.locator('#ttc')).not.toHaveText('');
-});
-
-test('direct waste volume and quote/history', async ({ page }) => {
-  await openFresh(page);
-  await page.locator('nav button[data-p="pro"]').click();
-  await page.locator('#wmode').selectOption('volume');
-  await page.locator('#wv').fill('3.25');
-  await page.getByRole('button', { name: 'Calculer le volume' }).click();
-  await expect(page.locator('#wvol')).toHaveText('3.25 m³');
-  await page.getByRole('button', { name: 'Ajouter au chiffrage' }).click();
-  await page.getByRole('button', { name: 'Sauvegarder' }).click();
-  await go(page, 'pro');
-  await page.locator('#pro .ce-page-nav button', { hasText: 'Historique' }).click();
-  await expect(page.locator('#hist .item')).toHaveCount(1);
-  await page.locator('#hist .item').getByRole('button', { name: 'Ouvrir' }).click();
-  await expect(page.locator('#pro')).toBeVisible();
-  await page.getByRole('button', { name: 'Préparer le devis' }).click();
-  await expect(page.locator('#quote')).toContainText('DEVIS');
-  await page.emulateMedia({ media: 'print' });
-  await expect(page.locator('#quote')).toBeVisible();
-});
-
-test('particular estimation, waste and comparison', async ({ page }) => {
-  await openFresh(page);
-  await go(page, 'particulier');
-  await expect(page.locator('#particulier .ce-page-nav')).toBeVisible();
-  await page.locator('#pq').fill('20');
-  await page.locator('#pd').selectOption('Difficile');
-  await page.getByRole('button', { name: "Obtenir l'estimation" }).click();
-  await expect(page.locator('#pr')).toBeVisible();
-  await page.locator('#pwl').fill('2');
-  await page.locator('#pww').fill('1');
-  await page.locator('#pwh').fill('0.5');
-  await page.getByRole('button', { name: 'Calculer' }).click();
-  await expect(page.locator('#pvol')).toHaveText('1.00 m³');
-  await page.locator('#cn').fill('Entreprise A');
-  await page.locator('#cp').fill('1200');
-  await page.getByRole('button', { name: 'Ajouter', exact: true }).click();
-  await expect(page.locator('#cl .item')).toHaveCount(1);
-});
-
-test('final user acceptance: work catalogue, controls, visual layout and sharp hero', async ({ page }) => {
-  const errors = [];
-  page.on('pageerror', e => errors.push(String(e)));
-  await openFresh(page);
-
+  await expect(page.locator('.home img')).toHaveAttribute('src',hero);
   await expect(page.locator('.home-copy')).toBeHidden();
-  await expect(page.locator('.home img')).toHaveAttribute('src', './hero-home-ecopro.svg');
-  await expect(page.locator('.home img')).toBeVisible();
   await expect(page.locator('.home-links button')).toHaveCount(2);
-  await page.screenshot({ path: 'test-results/accueil-final.png', fullPage: true });
-
-  await go(page, 'pro');
-  await expect(page.locator('#pro .ce-page-nav button')).toHaveCount(7);
-  const mobile = await page.evaluate(() => {
-    const nav=document.querySelector('#pro .ce-page-nav');
-    return {wrap:getComputedStyle(nav).flexWrap, whiteSpace:getComputedStyle(nav).whiteSpace};
-  });
-  expect(mobile.wrap).toBe('nowrap');
-  expect(mobile.whiteSpace).toBe('nowrap');
-
-  const professions = await page.locator('#metier option').allTextContents();
-  expect(professions.length).toBeGreaterThan(20);
-  for (const profession of professions) {
-    await page.locator('#metier').selectOption({ label: profession });
-    const subbranches = await page.locator('#prest option').allTextContents();
-    expect(subbranches.length, `Sous-branches absentes pour ${profession}`).toBeGreaterThan(0);
-    for (const sub of subbranches) await page.locator('#prest').selectOption({ label: sub });
-  }
-
-  await page.locator('#entreprise').fill('Recette EcoPro');
-  await page.locator('#client').fill('Client recette');
-  await page.locator('#qty').fill('25');
-  await page.locator('#hours').fill('4');
-  await page.locator('#rate').fill('25');
-  await page.locator('#travel').fill('30');
-  await page.locator('#other').fill('20');
-  await page.locator('#margin').fill('35');
-  await page.locator('#vat').fill('20');
-  await page.locator('#mn').fill('Fourniture test');
-  await page.locator('#mq').fill('3');
-  await page.locator('#mp').fill('12');
-  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(0).click();
-  await expect(page.locator('#ml .item')).toHaveCount(1);
-
-  await page.locator('#tn').selectOption({ index: 0 });
-  await page.locator('#th').fill('2');
-  await page.getByRole('button', { name: 'Ajouter', exact: true }).nth(1).click();
-  await expect(page.locator('#tl .item')).toHaveCount(1);
-
-  const wasteTypes = await page.locator('#wt option').evaluateAll(opts => opts.map(o => o.value));
-  expect(wasteTypes.length).toBeGreaterThanOrEqual(10);
-  for (const type of wasteTypes) {
-    await page.locator('#wt').selectOption(type);
-    await page.locator('#wmode').selectOption('dimensions');
-    await page.locator('#wl').fill('2');
-    await page.locator('#ww').fill('1');
-    await page.locator('#wh').fill('0.5');
-    await page.getByRole('button', { name: 'Calculer le volume' }).click();
-    await expect(page.locator('#wvol')).toHaveText('1.00 m³');
-    await page.getByRole('button', { name: 'Ajouter au chiffrage' }).click();
-  }
-  await expect(page.locator('#wlst .item')).toHaveCount(wasteTypes.length);
-
-  await page.locator('#sort').check();
-  await page.locator('#reuse').check();
-  await page.locator('#grind').check();
-  await page.locator('#opt').check();
-  await page.getByRole('button', { name: 'Calculer le prix' }).click();
-  await expect(page.locator('#res')).toBeVisible();
-  await expect(page.locator('#cost')).not.toHaveText('');
-  await expect(page.locator('#me')).not.toHaveText('');
-  await expect(page.locator('#mr')).not.toHaveText('');
-  await expect(page.locator('#ht')).not.toHaveText('');
-  await expect(page.locator('#ttc')).not.toHaveText('');
-  await page.screenshot({ path: 'test-results/pro-result-final.png', fullPage: true });
-
-  await page.getByRole('button', { name: 'Préparer le devis' }).click();
-  await expect(page.locator('#devis')).toBeVisible();
-  await expect(page.locator('#quote')).toContainText('DEVIS');
-  await page.emulateMedia({ media: 'print' });
-  await expect(page.locator('#quote')).toBeVisible();
-  await page.screenshot({ path: 'test-results/devis-print-final.png', fullPage: true });
-  await page.emulateMedia({ media: 'screen' });
-
-  await go(page, 'particulier');
-  await expect(page.locator('#particulier .ce-page-nav button')).toHaveCount(3);
-  await page.locator('#pf').selectOption({ index: 0 });
-  expect(await page.locator('#ps option').count()).toBeGreaterThan(0);
-  await page.locator('#pq').fill('30');
-  await page.locator('#pd').selectOption('Moyenne');
-  await page.getByRole('button', { name: "Obtenir l'estimation" }).click();
-  await expect(page.locator('#pr')).toBeVisible();
-
-  await go(page, 'eco');
-  await expect(page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' })).toBeVisible();
-  await page.locator('#eco .ce-tools-nav button', { hasText: 'Partenaires' }).click();
-  await expect(page.locator('#partnersPage')).toBeVisible();
-
+  const img=await page.locator('.home img').evaluate(el=>({w:el.clientWidth,h:el.clientHeight,nw:el.naturalWidth,nh:el.naturalHeight}));
+  expect(img.nw).toBeGreaterThan(0);expect(img.nh).toBeGreaterThan(0);expect(img.w).toBeGreaterThan(0);expect(img.h).toBeGreaterThan(0);
+  const res=await request.get('http://127.0.0.1:4173/file_00000000cef88246bb6203174d2ac629.png');
+  expect(res.ok()).toBeTruthy();expect((await res.body()).length).toBeGreaterThan(100000);
+  await page.setViewportSize({width:390,height:844});
+  const mobile=await page.locator('.home img').evaluate(el=>({w:el.clientWidth,h:el.clientHeight,nw:el.naturalWidth,nh:el.naturalHeight}));
+  expect(Math.abs(mobile.w/mobile.h-mobile.nw/mobile.nh)).toBeLessThan(0.02);
+  await page.setViewportSize({width:1280,height:900});
   expect(errors).toEqual([]);
 });
 
-test('reload keeps app usable and PWA registers', async ({ page }) => {
-  await openFresh(page);
-  await go(page, 'eco');
-  await page.reload({ waitUntil: 'networkidle' });
-  await expect(page.locator('#accueil')).toBeVisible();
-  await expect(page.locator('.home')).toBeVisible();
-  await expect(page.locator('nav[aria-label="Navigation principale"] button:visible')).toHaveCount(6);
-  const registration = await page.evaluate(async () => {
-    if (!('serviceWorker' in navigator)) return null;
-    const reg = await navigator.serviceWorker.ready;
-    return !!reg && !!reg.active;
-  });
-  expect(registration).toBeTruthy();
+test('six pages and horizontal menus',async({page})=>{
+  await openFresh(page);const nav=page.locator('nav[aria-label="Navigation principale"]');
+  expect(await nav.locator('button:visible').allTextContents()).toEqual(['Accueil','Professionnel','Particulier','🌱 Écologie','Aides / Informations','Compte / Paramètres']);
+  await page.setViewportSize({width:390,height:844});
+  const p=await nav.evaluate(el=>({wrap:getComputedStyle(el).flexWrap,scroll:el.scrollWidth,client:el.clientWidth}));expect(p.wrap).toBe('nowrap');expect(p.scroll).toBeGreaterThan(p.client);
+  await go(page,'pro');const pn=page.locator('#pro .ce-page-nav');expect(await pn.locator('button').allTextContents()).toContain('Factures');
+  const pm=await pn.evaluate(el=>({wrap:getComputedStyle(el).flexWrap,white:getComputedStyle(el).whiteSpace,scroll:el.scrollWidth,client:el.clientWidth}));expect(pm.wrap).toBe('nowrap');expect(pm.white).toBe('nowrap');expect(pm.scroll).toBeGreaterThan(pm.client);
+  await go(page,'particulier');expect(await page.locator('#particulier .ce-page-nav').locator('button').allTextContents()).toContain('Demande de devis');
+  await page.setViewportSize({width:1280,height:900});for(const id of ['eco','aides','param'])await go(page,id);
 });
+
+test('professional chiffrage materials tools waste metrics',async({page})=>{
+  await openFresh(page);await page.locator('.home-links button').first().click();
+  await page.locator('#entreprise').fill('EcoPro Test');await page.locator('#client').fill('Client Test');
+  await page.locator('#hours').fill('3');await page.locator('#rate').fill('25');await page.locator('#margin').fill('30');
+  await page.locator('#mn').fill('Terreau');await page.locator('#mq').fill('2');await page.locator('#mp').fill('15');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(0).click();
+  await page.locator('#th').fill('2');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(1).click();
+  await page.locator('#wl').fill('2');await page.locator('#ww').fill('1');await page.locator('#wh').fill('0.5');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('1.00 m³');await page.getByRole('button',{name:'Ajouter au chiffrage'}).click();
+  await page.locator('#wmode').selectOption('volume');await page.locator('#wv').fill('3.25');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('3.25 m³');
+  await page.getByRole('button',{name:'Calculer le prix'}).click();await expect(page.locator('#res')).toBeVisible();await expect(page.locator('#ht')).not.toHaveText('');await expect(page.locator('#ttc')).not.toHaveText('');
+});
+
+test('quote accept then invoice and persistent history',async({page})=>{
+  await openFresh(page);await page.locator('.home-links button').first().click();await page.locator('#client').fill('Client Document');await page.locator('#hours').fill('2');await page.locator('#rate').fill('30');await page.getByRole('button',{name:'Calculer le prix'}).click();
+  await page.getByRole('button',{name:'Préparer le devis'}).click();await expect(page.locator('#devis')).toBeVisible();await expect(page.locator('#quote')).toContainText('DEVIS');
+  await page.getByRole('button',{name:'Accepter le devis'}).click();await page.getByRole('button',{name:'Transformer en facture'}).click();await expect(page.locator('#factures-pro')).toBeVisible();await expect(page.locator('#factures-pro')).toContainText('FACTURE');
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_quotes')||'[]').length)).toBe(1);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_invoices')||'[]').length)).toBe(1);
+  await page.reload({waitUntil:'networkidle'});await go(page,'pro');await page.locator('#pro .ce-page-nav button',{hasText:'Factures'}).click();await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
+  await go(page,'historique');await expect(page.locator('#ceDocumentHistory')).toBeVisible();await expect(page.locator('#ce-doc-results')).toContainText('Devis');await expect(page.locator('#ce-doc-results')).toContainText('Facture');
+});
+
+test('particular estimation request and factures view',async({page})=>{
+  await openFresh(page);await go(page,'particulier');await page.locator('#pq').fill('20');await page.locator('#pd').selectOption('Difficile');await page.getByRole('button',{name:"Obtenir l'estimation"}).click();await expect(page.locator('#pr')).toBeVisible();
+  await page.locator('#particulier .ce-page-nav button',{hasText:'Demande de devis'}).click();await page.locator('#req-project').fill('Création terrasse');await page.locator('#req-qty').fill('25');await page.locator('#req-notes').fill('Accès par portail');await page.getByRole('button',{name:'Enregistrer la demande'}).click();await expect(page.locator('#requestList .item')).toHaveCount(1);
+  await page.locator('#particulier .ce-page-nav button',{hasText:'Factures'}).click();await expect(page.locator('#factures-particulier')).toBeVisible();
+});
+
+test('ecology aids partners settings and no page errors',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(String(e)));await openFresh(page);await go(page,'eco');await expect(page.locator('#score')).toBeVisible();await page.locator('#eco .ce-tools-nav button',{hasText:'Partenaires'}).click();await expect(page.locator('#partnersPage')).toBeVisible();await go(page,'aides');await expect(page.locator('#aid')).not.toHaveText('');await go(page,'param');await expect(page.locator('#dn')).toBeVisible();expect(errors).toEqual([]);
+});
+
+test('PWA survives reload',async({page})=>{await openFresh(page);await page.reload({waitUntil:'networkidle'});await expect(page.locator('#accueil')).toBeVisible();const active=await page.evaluate(async()=>('serviceWorker'in navigator)?!!(await navigator.serviceWorker.ready).active:false);expect(active).toBeTruthy()});

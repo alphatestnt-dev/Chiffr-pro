@@ -1,5 +1,5 @@
-const CACHE='chifrecopro-stable-v6';
-const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./file_00000000cef88246bb6203174d2ac629.png','./app-v13.js','./partner-v1.js','./pwa.js','./navigation-v2.js','./runtime-stability.js','./documents-v1.js','./documents-bridge.js'];
+const CACHE='chifrecopro-stable-v7';
+const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./file_00000000cef88246bb6203174d2ac629.png','./app-v13.js','./partner-v1.js','./pwa.js','./navigation-v2.js','./runtime-stability.js','./documents-v2.js'];
 self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE);await Promise.all(ASSETS.map(async asset=>{try{const r=await fetch(asset,{cache:'no-store'});if(r.ok)await cache.put(asset,r.clone())}catch(_){}}));await self.skipWaiting()})())});
 self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('chifrecopro-')&&k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim()})())});
 self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith((async()=>{try{const r=await fetch(event.request,{cache:'no-store'});if(r.ok){const c=await caches.open(CACHE);c.put(event.request,r.clone()).catch(()=>{})}return r}catch(_){const c=await caches.open(CACHE);return(await c.match(event.request))||Response.error()}})())});

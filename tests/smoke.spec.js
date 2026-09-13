@@ -1,3 +1,4 @@
+// Full browser smoke coverage for stabilized navigation and document workflows.
 const { test, expect } = require('@playwright/test');
 const url='http://127.0.0.1:4173/index.html';
 const hero='./file_00000000cef88246bb6203174d2ac629.png';

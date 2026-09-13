@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
   const $=id=>document.getElementById(id);
-  const primary=[['accueil','Accueil'],['pro','Professionnel'],['particulier','Particulier'],['eco','🌱 Écologie'],['aides','Aides / Informations'],['param','Compte / Paramètres']];
+  const primary=[['accueil','Accueil'],['pro','Professionnel'],['particulier','Particulier'],['factures-pro','Factures'],['eco','🌱 Écologie'],['aides','Aides / Informations'],['param','Compte / Paramètres']];
   function style(){
     if($('ce-navigation-v2'))return;
     const s=document.createElement('style');s.id='ce-navigation-v2';s.textContent=`
@@ -60,9 +60,22 @@
       @media(min-width:1100px){main{padding-left:22px!important;padding-right:22px!important}.page>.card{padding:22px!important}}
     `;document.head.appendChild(s);
   }
+  function ensurePrimaryButtons(){
+    const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;
+    const labels=new Map(primary);
+    primary.forEach(([id,label])=>{
+      let b=nav.querySelector(`button[data-p="${id}"]`);
+      if(!b){
+        b=document.createElement('button');b.type='button';b.dataset.p=id;b.onclick=()=>window.go?.(id);nav.appendChild(b);
+      }
+      b.textContent=label;
+    });
+    nav.querySelectorAll('button').forEach(b=>{if(!labels.has(b.dataset.p))b.style.display='none'});
+  }
   function hideExtraNav(){
-    document.querySelectorAll('nav[aria-label="Navigation principale"] button').forEach(b=>{b.style.display=primary.some(x=>x[0]===b.dataset.p)?'':'none'});
-    const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;primary.forEach(([id,label])=>{const b=nav.querySelector(`button[data-p="${id}"]`);if(b)b.textContent=label});
+    ensurePrimaryButtons();
+    const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;
+    nav.querySelectorAll('button').forEach(b=>{if(primary.some(x=>x[0]===b.dataset.p))b.style.display=''});
   }
   function makeSubnav(pageId,items){
     const page=$(pageId);if(!page||page.querySelector('.ce-page-nav'))return;const first=page.firstElementChild;if(!first)return;
@@ -79,9 +92,9 @@
     const oldPartner=$('partnerNav');if(oldPartner)oldPartner.style.display='none';
   }
   function install(){
-    if(!document.querySelector('nav[aria-label="Navigation principale"]'))return;style();hideExtraNav();markCards();
+    if(!document.querySelector('nav[aria-label="Navigation principale"]'))return;style();ensurePrimaryButtons();hideExtraNav();markCards();
     makeSubnav('pro',[['pro-chiffrage','Chiffrage'],['pro-materiaux','Matériaux'],['pro-machines','Machines / outils'],['pro-dechets','Déchets / évacuation'],['pro-resultat','Résultat'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
-    makeSubnav('particulier',[['part-estimation','Estimation'],['part-dechets','Déchets'],['part-comparaison','Comparaison'],['demande-particulier','Demande de devis'],['factures-particulier','Factures']]);
+    makeSubnav('particulier',[['part-estimation','Estimation'],['part-dechets','Déchets'],['part-comparaison','Comparaison'],['demande-particulier','Demande de devis'],['factures-particulier','Factures'],['historique','Historique']]);
     makeSubnav('devis',[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
     makeSubnav('historique',[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']]);
     addTools();

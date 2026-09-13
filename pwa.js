@@ -1,9 +1,11 @@
 (()=>{
   'use strict';
 
-  // Accueil : conserver la maquette, mais utiliser une source vectorielle nette.
+  // Accueil : utiliser l'image PNG validée et conserver les zones de clic.
   const fixHomeLayout=()=>{
     if(document.getElementById('ce-home-layout-fix')) return;
+    const img=document.querySelector('.home img');
+    if(img) img.src='./file_00000000cef88246bb6203174d2ac629.png';
     const style=document.createElement('style');
     style.id='ce-home-layout-fix';
     style.textContent=`

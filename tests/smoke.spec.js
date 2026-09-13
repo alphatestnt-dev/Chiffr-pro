@@ -1,74 +1,19 @@
 const { test, expect } = require('@playwright/test');
 const url = 'http://127.0.0.1:4173/index.html';
 const hero = './file_00000000cef88246bb6203174d2ac629.png';
+async function openFresh(page){await page.goto(url,{waitUntil:'networkidle'});await expect(page.locator('#accueil')).toBeVisible();await expect(page.locator('.home')).toBeVisible()}
+async function go(page,id){await page.locator(`nav button[data-p="${id}"]`).click();await expect(page.locator(`#${id}`)).toBeVisible()}
 
-async function openFresh(page){
-  await page.goto(url,{waitUntil:'networkidle'});
-  await expect(page.locator('#accueil')).toBeVisible();
-  await expect(page.locator('.home')).toBeVisible();
-}
-async function go(page,id){
-  await page.locator(`nav button[data-p="${id}"]`).click();
-  await expect(page.locator(`#${id}`)).toBeVisible();
-}
+test('fresh user and exact home asset',async({page,request})=>{const errors=[];page.on('pageerror',e=>errors.push(String(e)));await openFresh(page);await expect(page.locator('.home img')).toHaveAttribute('src',hero);await expect(page.locator('.home-copy')).toBeHidden();await expect(page.locator('.home-links button')).toHaveCount(2);const img=await page.locator('.home img').evaluate(el=>({w:el.clientWidth,h:el.clientHeight,nw:el.naturalWidth,nh:el.naturalHeight}));expect(img.nw).toBeGreaterThan(0);expect(img.nh).toBeGreaterThan(0);expect(img.w).toBeGreaterThan(0);expect(img.h).toBeGreaterThan(0);const res=await request.get('http://127.0.0.1:4173/file_00000000cef88246bb6203174d2ac629.png');expect(res.ok()).toBeTruthy();expect((await res.body()).length).toBeGreaterThan(100000);await page.setViewportSize({width:390,height:844});const mobile=await page.locator('.home img').evaluate(el=>({w:el.clientWidth,h:el.clientHeight,nw:el.naturalWidth,nh:el.naturalHeight}));expect(Math.abs(mobile.w/mobile.h-mobile.nw/mobile.nh)).toBeLessThan(0.02);await page.setViewportSize({width:1280,height:900});expect(errors).toEqual([])});
 
+test('six pages and horizontal menus',async({page})=>{await openFresh(page);const nav=page.locator('nav[aria-label="Navigation principale"]');expect(await nav.locator('button:visible').allTextContents()).toEqual(['Accueil','Professionnel','Particulier','🌱 Écologie','Aides / Informations','Compte / Paramètres']);await page.setViewportSize({width:390,height:844});const p=await nav.evaluate(el=>({wrap:getComputedStyle(el).flexWrap,scroll:el.scrollWidth,client:el.clientWidth}));expect(p.wrap).toBe('nowrap');expect(p.scroll).toBeGreaterThan(p.client);await go(page,'pro');const pn=page.locator('#pro .ce-page-nav');expect(await pn.locator('button').allTextContents()).toContain('Factures');const pm=await pn.evaluate(el=>({wrap:getComputedStyle(el).flexWrap,white:getComputedStyle(el).whiteSpace,scroll:el.scrollWidth,client:el.clientWidth}));expect(pm.wrap).toBe('nowrap');expect(pm.white).toBe('nowrap');expect(pm.scroll).toBeGreaterThan(pm.client);await go(page,'particulier');expect(await page.locator('#particulier .ce-page-nav').locator('button').allTextContents()).toContain('Demande de devis');await page.setViewportSize({width:1280,height:900});for(const id of ['eco','aides','param'])await go(page,id)});
 
-test('fresh user and exact home asset',async({page,request})=>{
-  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-  await openFresh(page);
-  await expect(page.locator('.home img')).toHaveAttribute('src',hero);
-  await expect(page.locator('.home-copy')).toBeHidden();
-  await expect(page.locator('.home-links button')).toHaveCount(2);
-  const img=await page.locator('.home img').evaluate(el=>({w:el.clientWidth,h:el.clientHeight,nw:el.naturalWidth,nh:el.naturalHeight}));
-  expect(img.nw).toBeGreaterThan(0);expect(img.nh).toBeGreaterThan(0);expect(img.w).toBeGreaterThan(0);expect(img.h).toBeGreaterThan(0);
-  const res=await request.get('http://127.0.0.1:4173/file_00000000cef88246bb6203174d2ac629.png');
-  expect(res.ok()).toBeTruthy();expect((await res.body()).length).toBeGreaterThan(100000);
-  await page.setViewportSize({width:390,height:844});
-  const mobile=await page.locator('.home img').evaluate(el=>({w:el.clientWidth,h:el.clientHeight,nw:el.naturalWidth,nh:el.naturalHeight}));
-  expect(Math.abs(mobile.w/mobile.h-mobile.nw/mobile.nh)).toBeLessThan(0.02);
-  await page.setViewportSize({width:1280,height:900});
-  expect(errors).toEqual([]);
-});
+test('professional chiffrage materials tools waste metrics',async({page})=>{await openFresh(page);await page.locator('.home-links button').first().click();await page.locator('#entreprise').fill('EcoPro Test');await page.locator('#client').fill('Client Test');await page.locator('#hours').fill('3');await page.locator('#rate').fill('25');await page.locator('#margin').fill('30');await page.locator('#mn').fill('Terreau');await page.locator('#mq').fill('2');await page.locator('#mp').fill('15');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(0).click();await page.locator('#th').fill('2');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(1).click();await page.locator('#wl').fill('2');await page.locator('#ww').fill('1');await page.locator('#wh').fill('0.5');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('1.00 m³');await page.getByRole('button',{name:'Ajouter au chiffrage'}).click();await page.locator('#wmode').selectOption('volume');await page.locator('#wv').fill('3.25');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('3.25 m³');await page.getByRole('button',{name:'Calculer le prix'}).click();await expect(page.locator('#res')).toBeVisible();await expect(page.locator('#ht')).not.toHaveText('');await expect(page.locator('#ttc')).not.toHaveText('')});
 
-test('six pages and horizontal menus',async({page})=>{
-  await openFresh(page);const nav=page.locator('nav[aria-label="Navigation principale"]');
-  expect(await nav.locator('button:visible').allTextContents()).toEqual(['Accueil','Professionnel','Particulier','🌱 Écologie','Aides / Informations','Compte / Paramètres']);
-  await page.setViewportSize({width:390,height:844});
-  const p=await nav.evaluate(el=>({wrap:getComputedStyle(el).flexWrap,scroll:el.scrollWidth,client:el.clientWidth}));expect(p.wrap).toBe('nowrap');expect(p.scroll).toBeGreaterThan(p.client);
-  await go(page,'pro');const pn=page.locator('#pro .ce-page-nav');expect(await pn.locator('button').allTextContents()).toContain('Factures');
-  const pm=await pn.evaluate(el=>({wrap:getComputedStyle(el).flexWrap,white:getComputedStyle(el).whiteSpace,scroll:el.scrollWidth,client:el.clientWidth}));expect(pm.wrap).toBe('nowrap');expect(pm.white).toBe('nowrap');expect(pm.scroll).toBeGreaterThan(pm.client);
-  await go(page,'particulier');expect(await page.locator('#particulier .ce-page-nav').locator('button').allTextContents()).toContain('Demande de devis');
-  await page.setViewportSize({width:1280,height:900});for(const id of ['eco','aides','param'])await go(page,id);
-});
+test('quote accept then invoice and persistent history',async({page})=>{await openFresh(page);await page.locator('.home-links button').first().click();await page.locator('#client').fill('Client Document');await page.locator('#hours').fill('2');await page.locator('#rate').fill('30');await page.getByRole('button',{name:'Calculer le prix'}).click();await page.getByRole('button',{name:'Préparer le devis'}).click();await expect(page.locator('#devis')).toBeVisible();await expect(page.locator('#quote')).toContainText('DEVIS');await page.getByRole('button',{name:'Accepter le devis'}).click();await page.getByRole('button',{name:'Transformer en facture'}).click();await expect(page.locator('#factures-pro')).toBeVisible();await expect(page.locator('#factures-pro')).toContainText('FACTURE');expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_quotes')||'[]').length)).toBe(1);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_invoices')||'[]').length)).toBe(1);await page.reload({waitUntil:'networkidle'});await go(page,'pro');await page.locator('#pro .ce-page-nav button',{hasText:'Factures'}).click();await expect(page.locator('#invoiceProList .item')).toHaveCount(1);await page.locator('#pro .ce-page-nav button',{hasText:'Historique'}).click();await expect(page.locator('#historique')).toBeVisible();await expect(page.locator('#ceDocumentHistory')).toBeVisible();await expect(page.locator('#ce-doc-results')).toContainText('Devis');await expect(page.locator('#ce-doc-results')).toContainText('Facture')});
 
-test('professional chiffrage materials tools waste metrics',async({page})=>{
-  await openFresh(page);await page.locator('.home-links button').first().click();
-  await page.locator('#entreprise').fill('EcoPro Test');await page.locator('#client').fill('Client Test');
-  await page.locator('#hours').fill('3');await page.locator('#rate').fill('25');await page.locator('#margin').fill('30');
-  await page.locator('#mn').fill('Terreau');await page.locator('#mq').fill('2');await page.locator('#mp').fill('15');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(0).click();
-  await page.locator('#th').fill('2');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(1).click();
-  await page.locator('#wl').fill('2');await page.locator('#ww').fill('1');await page.locator('#wh').fill('0.5');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('1.00 m³');await page.getByRole('button',{name:'Ajouter au chiffrage'}).click();
-  await page.locator('#wmode').selectOption('volume');await page.locator('#wv').fill('3.25');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('3.25 m³');
-  await page.getByRole('button',{name:'Calculer le prix'}).click();await expect(page.locator('#res')).toBeVisible();await expect(page.locator('#ht')).not.toHaveText('');await expect(page.locator('#ttc')).not.toHaveText('');
-});
+test('particular estimation request and factures view',async({page})=>{await openFresh(page);await go(page,'particulier');await page.locator('#pq').fill('20');await page.locator('#pd').selectOption('Difficile');await page.getByRole('button',{name:"Obtenir l'estimation"}).click();await expect(page.locator('#pr')).toBeVisible();await page.locator('#particulier .ce-page-nav button',{hasText:'Demande de devis'}).click();await page.locator('#req-project').fill('Création terrasse');await page.locator('#req-qty').fill('25');await page.locator('#req-notes').fill('Accès par portail');await page.getByRole('button',{name:'Enregistrer la demande'}).click();await expect(page.locator('#requestList .item')).toHaveCount(1);await go(page,'particulier');await page.locator('#particulier .ce-page-nav button',{hasText:'Factures'}).click();await expect(page.locator('#factures-particulier')).toBeVisible()});
 
-test('quote accept then invoice and persistent history',async({page})=>{
-  await openFresh(page);await page.locator('.home-links button').first().click();await page.locator('#client').fill('Client Document');await page.locator('#hours').fill('2');await page.locator('#rate').fill('30');await page.getByRole('button',{name:'Calculer le prix'}).click();
-  await page.getByRole('button',{name:'Préparer le devis'}).click();await expect(page.locator('#devis')).toBeVisible();await expect(page.locator('#quote')).toContainText('DEVIS');
-  await page.getByRole('button',{name:'Accepter le devis'}).click();await page.getByRole('button',{name:'Transformer en facture'}).click();await expect(page.locator('#factures-pro')).toBeVisible();await expect(page.locator('#factures-pro')).toContainText('FACTURE');
-  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_quotes')||'[]').length)).toBe(1);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_invoices')||'[]').length)).toBe(1);
-  await page.reload({waitUntil:'networkidle'});await go(page,'pro');await page.locator('#pro .ce-page-nav button',{hasText:'Factures'}).click();await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
-  await go(page,'historique');await expect(page.locator('#ceDocumentHistory')).toBeVisible();await expect(page.locator('#ce-doc-results')).toContainText('Devis');await expect(page.locator('#ce-doc-results')).toContainText('Facture');
-});
-
-test('particular estimation request and factures view',async({page})=>{
-  await openFresh(page);await go(page,'particulier');await page.locator('#pq').fill('20');await page.locator('#pd').selectOption('Difficile');await page.getByRole('button',{name:"Obtenir l'estimation"}).click();await expect(page.locator('#pr')).toBeVisible();
-  await page.locator('#particulier .ce-page-nav button',{hasText:'Demande de devis'}).click();await page.locator('#req-project').fill('Création terrasse');await page.locator('#req-qty').fill('25');await page.locator('#req-notes').fill('Accès par portail');await page.getByRole('button',{name:'Enregistrer la demande'}).click();await expect(page.locator('#requestList .item')).toHaveCount(1);
-  await page.locator('#particulier .ce-page-nav button',{hasText:'Factures'}).click();await expect(page.locator('#factures-particulier')).toBeVisible();
-});
-
-test('ecology aids partners settings and no page errors',async({page})=>{
-  const errors=[];page.on('pageerror',e=>errors.push(String(e)));await openFresh(page);await go(page,'eco');await expect(page.locator('#score')).toBeVisible();await page.locator('#eco .ce-tools-nav button',{hasText:'Partenaires'}).click();await expect(page.locator('#partnersPage')).toBeVisible();await go(page,'aides');await expect(page.locator('#aid')).not.toHaveText('');await go(page,'param');await expect(page.locator('#dn')).toBeVisible();expect(errors).toEqual([]);
-});
+test('ecology aids partners settings and no page errors',async({page})=>{const errors=[];page.on('pageerror',e=>errors.push(String(e)));await openFresh(page);await go(page,'eco');await expect(page.locator('#score')).toBeVisible();await page.locator('#eco .ce-tools-nav button',{hasText:'Partenaires'}).click();await expect(page.locator('#partnersPage')).toBeVisible();await go(page,'aides');await expect(page.locator('#aid')).not.toHaveText('');await go(page,'param');await expect(page.locator('#dn')).toBeVisible();expect(errors).toEqual([])});
 
 test('PWA survives reload',async({page})=>{await openFresh(page);await page.reload({waitUntil:'networkidle'});await expect(page.locator('#accueil')).toBeVisible();const active=await page.evaluate(async()=>('serviceWorker'in navigator)?!!(await navigator.serviceWorker.ready).active:false);expect(active).toBeTruthy()});

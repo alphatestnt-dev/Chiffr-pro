@@ -1,94 +1,21 @@
 <!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Les Gardiens de la Planète — La plage propre</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Les Gardiens de la Planète — La plage propre</title>
 <style>
-:root{--ink:#17324d;--green:#43a047;--sand:#f5dfaa;--panel:#fffaf0}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#7dd9ee;color:var(--ink)}
-body{display:flex;justify-content:center;padding:12px}main{width:min(1180px,100%)}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border:3px solid #d79b45;border-radius:18px;padding:10px 14px;box-shadow:0 5px 0 #b87932;margin-bottom:10px}
-h1{font-size:clamp(20px,3vw,32px);margin:0;color:#2e7d32}h1 span{display:block;font-size:13px;color:#527083;font-weight:700}
-.stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.stat{background:#fff;border:2px solid #d8e3e8;border-radius:13px;padding:7px 12px;font-weight:800}.stat b{color:#2e7d32}
-#wrap{position:relative;border-radius:22px;overflow:hidden;border:4px solid #fff;box-shadow:0 8px 0 #3b91a8;background:#55c8e2}
-canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
-.overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(16,55,70,.35);padding:20px}.card{max-width:520px;background:var(--panel);border:4px solid #d79b45;border-radius:22px;padding:24px;text-align:center;box-shadow:0 8px 0 #a66f30}.card h2{margin:0 0 8px;color:#2e7d32;font-size:30px}.card p{margin:8px 0 18px;line-height:1.45}.btn{border:0;border-radius:14px;background:#43a047;color:white;font-size:20px;font-weight:900;padding:12px 26px;box-shadow:0 5px 0 #2e6f31;cursor:pointer}.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #2e6f31}
-#help{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:10px;background:var(--panel);border-radius:16px;padding:10px 14px;border:2px solid #d79b45;font-size:14px}.tip{font-weight:750}.legend{display:flex;gap:7px;flex-wrap:wrap}.pill{padding:5px 9px;border-radius:999px;background:#fff;border:1px solid #ccd9df;font-weight:800}
-#touch{display:none;position:absolute;left:14px;bottom:14px;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:5px}.touch{border:2px solid #fff;background:rgba(27,83,103,.72);color:#fff;border-radius:13px;font-size:22px;font-weight:900;touch-action:none}.up{grid-column:2}.down{grid-column:2}.left{grid-column:1;grid-row:2}.right{grid-column:3;grid-row:2}
-@media(max-width:700px){body{padding:6px}header{align-items:flex-start}.stats{font-size:12px}.stat{padding:6px 8px}#help{font-size:12px;display:block}.legend{margin-top:7px}#touch{display:grid}}
-</style>
-</head>
-<body>
-<main>
-<header><h1>🌍 Les Gardiens de la Planète<span>Niveau 1 · La plage propre</span></h1><div class="stats"><div class="stat">⭐ Points <b id="score">0</b></div><div class="stat">🗑️ Déchets <b id="count">0/5</b></div><div class="stat">❤️ Vies <b id="lives">3</b></div></div></header>
-<div id="wrap">
-<canvas id="game" width="1100" height="650" aria-label="Jeu d'exploration écologique sur une plage"></canvas>
-<div id="overlay" class="overlay"><div class="card"><h2>🏖️ La plage propre</h2><p>Explore la plage, ramasse les déchets et apporte-les dans la bonne poubelle. Chaque bon geste rapporte des points !</p><p><strong>Clavier :</strong> flèches ou ZQSD · <strong>Mobile :</strong> boutons à l'écran</p><button class="btn" id="start">Jouer</button></div></div>
-<div id="touch" aria-label="Commandes tactiles"><button class="touch up" data-key="up">▲</button><button class="touch left" data-key="left">◀</button><button class="touch down" data-key="down">▼</button><button class="touch right" data-key="right">▶</button></div>
-</div>
-<div id="help"><div class="tip" id="message">💡 Conseil : une plage propre protège les animaux et la mer.</div><div class="legend"><span class="pill">🥤 plastique → jaune</span><span class="pill">📰 papier → bleu</span><span class="pill">🍌 organique → marron</span></div></div>
-</main>
-<script>
-'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
-const ui={score:document.getElementById('score'),count:document.getElementById('count'),lives:document.getElementById('lives'),message:document.getElementById('message'),overlay:document.getElementById('overlay')};
-const keys={up:false,down:false,left:false,right:false};
-let running=false,score=0,lives=3,collected=0,held=null,last=0,flash=0;
-const player={x:170,y:510,r:23,speed:230,carry:null};
-const bins=[{x:865,y:485,w:76,h:92,type:'plastic',color:'#f5b400',label:'PLASTIQUE',icon:'♻'},{x:965,y:485,w:76,h:92,type:'paper',color:'#2376c9',label:'PAPIER',icon:'♻'},{x:1060,y:485,w:76,h:92,type:'organic',color:'#795548',label:'ORGANIQUE',icon:'🍂'}];
-const items=[
- {x:320,y:420,type:'plastic',icon:'🥤',name:'bouteille'},
- {x:480,y:300,type:'paper',icon:'📰',name:'papier'},
- {x:650,y:455,type:'organic',icon:'🍌',name:'épluchure'},
- {x:770,y:250,type:'plastic',icon:'🥤',name:'bouteille'},
- {x:930,y:350,type:'paper',icon:'📦',name:'carton'}
-];
-const decor=[{x:90,y:150,s:1.1},{x:230,y:120,s:.8},{x:1010,y:150,s:1.15},{x:560,y:130,s:.9}];
-function reset(){score=0;lives=3;collected=0;player.x=170;player.y=510;player.carry=null;items.forEach((it,i)=>it.taken=false);ui.overlay.style.display='none';updateUI();running=true;last=performance.now();requestAnimationFrame(loop);say('🌱 Mission : trouve les 5 déchets !');}
-function updateUI(){ui.score.textContent=score;ui.count.textContent=collected+'/5';ui.lives.textContent=lives;}
-function say(t){ui.message.textContent=t;}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
-function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
-function drawBackground(){
- const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#62cfe6');g.addColorStop(.42,'#8ee2ef');g.addColorStop(.43,'#f3d993');g.addColorStop(1,'#f6dfaa');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- // sea
- ctx.fillStyle='rgba(255,255,255,.55)';for(let y=215;y<285;y+=22){ctx.beginPath();ctx.moveTo(0,y);for(let x=0;x<=W;x+=40)ctx.quadraticCurveTo(x+20,y-7,x+40,y);ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=5;ctx.stroke();}
- // islands
- ctx.fillStyle='#5da873';ctx.beginPath();ctx.moveTo(720,180);ctx.quadraticCurveTo(800,115,880,180);ctx.quadraticCurveTo(940,110,1020,180);ctx.lineTo(1020,215);ctx.lineTo(720,215);ctx.fill();
- // lighthouse
- ctx.fillStyle='#fff';ctx.fillRect(830,120,18,70);ctx.fillStyle='#e95b45';ctx.fillRect(830,140,18,10);ctx.fillRect(830,165,18,10);ctx.fillStyle='#e95b45';ctx.beginPath();ctx.moveTo(824,120);ctx.lineTo(854,120);ctx.lineTo(839,103);ctx.fill();
- // waterline
- ctx.fillStyle='rgba(34,137,164,.25)';ctx.fillRect(0,280,W,10);
- // shells and stones
- for(let i=0;i<18;i++){const x=(i*97+43)%W,y=315+(i*61)%260;ctx.fillStyle=i%2?'#d2b37a':'#c6a56d';ctx.beginPath();ctx.ellipse(x,y,7,4,0,0,Math.PI*2);ctx.fill();}
- // trees
- decor.forEach(d=>{ctx.save();ctx.translate(d.x,d.y);ctx.scale(d.s,d.s);ctx.fillStyle='#8a5b35';ctx.fillRect(-7,35,14,48);ctx.fillStyle='#2f8f4b';[[0,10,-38],[28,22,0],[-28,22,0],[0,-8,0]].forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],34,0,Math.PI*2);ctx.fill();});ctx.restore();});
- // sun
- ctx.fillStyle='#ffd54f';ctx.beginPath();ctx.arc(90,75,38,0,Math.PI*2);ctx.fill();
- // message board
- ctx.fillStyle='#b47b43';rounded(35,335,170,78,12);ctx.fillStyle='#fff5dc';rounded(43,343,154,62,9);ctx.fillStyle='#245b39';ctx.font='bold 18px system-ui';ctx.textAlign='center';ctx.fillText('Petits gestes,',120,368);ctx.fillText('grands héros !',120,392);
-}
-function drawBins(){bins.forEach(b=>{ctx.save();ctx.translate(b.x,b.y);ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(0,52,46,10,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=b.color;rounded(-b.w/2,0,b.w,b.h,12);ctx.fillStyle='rgba(255,255,255,.92)';ctx.font='bold 30px system-ui';ctx.textAlign='center';ctx.fillText(b.icon,0,34);ctx.font='bold 11px system-ui';ctx.fillText(b.label,0,57);ctx.restore();});}
-function drawItems(){items.forEach(it=>{if(it.taken)return;ctx.save();ctx.translate(it.x,it.y);ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(0,18,22,7,0,0,Math.PI*2);ctx.fill();ctx.font='31px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(it.icon,0,0);if(dist(player,it)<48&&!player.carry){ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.beginPath();ctx.arc(0,0,29,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}ctx.restore();});}
-function drawPlayer(){ctx.save();ctx.translate(player.x,player.y);ctx.fillStyle='rgba(0,0,0,.14)';ctx.beginPath();ctx.ellipse(0,28,25,8,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#2e7d32';ctx.fillRect(-17,14,12,25);ctx.fillRect(5,14,12,25);ctx.fillStyle='#f5f5f5';ctx.beginPath();ctx.arc(0,-7,23,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f0a06b';ctx.beginPath();ctx.arc(0,-5,17,0,Math.PI*2);ctx.fill();ctx.fillStyle='#2f7e3f';ctx.beginPath();ctx.arc(0,-18,25,Math.PI,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(-25,-18,50,7);ctx.fillStyle='#17324d';ctx.beginPath();ctx.arc(-7,-5,2.5,0,Math.PI*2);ctx.arc(7,-5,2.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#43a047';rounded(-16,12,32,23,7);ctx.fillStyle='#fff';ctx.font='14px serif';ctx.textAlign='center';ctx.fillText('🌿',0,29);if(player.carry){ctx.font='25px serif';ctx.fillText(player.carry.icon,0,-38);}ctx.restore();}
-function update(dt){
- let dx=(keys.right?1:0)-(keys.left?1:0),dy=(keys.down?1:0)-(keys.up?1:0);if(dx||dy){const l=Math.hypot(dx,dy);dx/=l;dy/=l;player.x+=dx*player.speed*dt;player.y+=dy*player.speed*dt;}
- player.x=clamp(player.x,35,W-35);player.y=clamp(player.y,310,H-55);
- if(!player.carry){const it=items.find(i=>!i.taken&&dist(player,i)<42);if(it){it.taken=true;player.carry=it;say('👐 Tu as trouvé '+it.name+' ! Apporte-le à la bonne poubelle.');}}
- if(player.carry){const b=bins.find(x=>Math.abs(player.x-x.x)<52&&Math.abs(player.y-(x.y+40))<65);if(b){if(b.type===player.carry.type){score+=20;collected++;say('🎉 Bravo ! Bon tri : +20 points.');player.carry=null;updateUI();if(collected===5){finish(true);return;}}else{lives--;score=Math.max(0,score-5);say('🤔 Pas cette poubelle. Essaie encore !');player.x-=25;updateUI();if(lives<=0){finish(false);return;}}}}
-}
-function finish(win){running=false;ui.overlay.style.display='grid';const card=ui.overlay.querySelector('.card');card.innerHTML=win?'<h2>🌍 Mission réussie !</h2><p>Tu as nettoyé toute la plage et bien trié les déchets.</p><p><strong>⭐ '+score+' points</strong> · 🏆 Badge « Gardien de la plage »</p><button class="btn" id="restart">Rejouer</button>':'<h2>💚 Presque !</h2><p>Les déchets peuvent parfois être trompeurs. Recommence pour devenir un Gardien de la Planète.</p><p><strong>⭐ '+score+' points</strong></p><button class="btn" id="restart">Recommencer</button>';document.getElementById('restart').onclick=reset;}
-function loop(t){if(!running)return;const dt=Math.min(.035,(t-last)/1000);last=t;update(dt);draw();requestAnimationFrame(loop);}
-function draw(){ctx.clearRect(0,0,W,H);drawBackground();drawBins();drawItems();drawPlayer();if(player.carry){ctx.fillStyle='rgba(255,255,255,.9)';rounded(380,560,340,50,18);ctx.fillStyle='#245b39';ctx.font='bold 18px system-ui';ctx.textAlign='center';ctx.fillText('➡️ Apporte le déchet à la bonne poubelle',550,592);}}
-function key(e,on){const k=e.key.toLowerCase();if(['arrowup','z','w'].includes(k))keys.up=on;if(['arrowdown','s'].includes(k))keys.down=on;if(['arrowleft','q','a'].includes(k))keys.left=on;if(['arrowright','d'].includes(k))keys.right=on;if(on&&['arrowup','arrowdown','arrowleft','arrowright','z','q','s','d','w','a'].includes(k))e.preventDefault();}
-window.addEventListener('keydown',e=>key(e,true));window.addEventListener('keyup',e=>key(e,false));
-document.querySelectorAll('.touch').forEach(btn=>{const k=btn.dataset.key;const down=e=>{e.preventDefault();keys[k]=true};const up=e=>{e.preventDefault();keys[k]=false};btn.addEventListener('pointerdown',down);btn.addEventListener('pointerup',up);btn.addEventListener('pointercancel',up);btn.addEventListener('pointerleave',up);});
-document.getElementById('start').onclick=reset;
-// Initial scene before starting.
-draw();
-</script>
-</body>
-</html>
+*{box-sizing:border-box}body{margin:0;background:#79d6e9;font-family:system-ui,sans-serif;color:#17324d;padding:8px}main{max-width:1180px;margin:auto}header,.help{background:#fffaf0;border:3px solid #d79b45;border-radius:18px;padding:10px 14px;box-shadow:0 5px 0 #b87932;margin-bottom:10px}header{display:flex;justify-content:space-between;gap:10px;align-items:center}h1{margin:0;color:#2e7d32;font-size:clamp(21px,3vw,32px)}h1 small{display:block;color:#527083;font-size:13px}.stats{display:flex;gap:7px;flex-wrap:wrap}.stat{background:white;border:2px solid #d8e3e8;border-radius:12px;padding:7px 10px;font-weight:800}.stat b{color:#2e7d32}#wrap{position:relative;border:4px solid white;border-radius:22px;overflow:hidden;box-shadow:0 8px 0 #3b91a8}canvas{display:block;width:100%;height:auto;touch-action:none}.overlay{position:absolute;inset:0;display:grid;place-items:center;background:#10374666;padding:18px}.card{max-width:510px;text-align:center;background:#fffaf0;border:4px solid #d79b45;border-radius:22px;padding:22px;box-shadow:0 8px 0 #a66f30}.card h2{color:#2e7d32;margin:0 0 8px;font-size:30px}.card p{line-height:1.45}.btn{border:0;border-radius:14px;background:#43a047;color:white;font-size:20px;font-weight:900;padding:12px 27px;box-shadow:0 5px 0 #2e6f31}.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #2e6f31}.help{display:flex;justify-content:space-between;gap:10px;margin-top:10px;margin-bottom:0;font-size:14px}.pill{display:inline-block;background:white;border:1px solid #ccd9df;border-radius:999px;padding:5px 8px;font-weight:800}.touch{display:none;position:absolute;left:12px;bottom:12px;grid-template-columns:repeat(3,48px);gap:5px}.touch button{width:48px;height:48px;border:2px solid white;border-radius:12px;background:#1b5367bb;color:white;font-size:22px;font-weight:900}.up{grid-column:2}.left{grid-column:1}.down{grid-column:2}.right{grid-column:3}@media(max-width:700px){header{align-items:flex-start}.help{display:block}.touch{display:grid}}
+</style></head><body><main>
+<header><h1>🌍 Les Gardiens de la Planète<small>Niveau 1 · La plage propre</small></h1><div class="stats"><div class="stat">⭐ <b id="score">0</b></div><div class="stat">🗑️ <b id="count">0/5</b></div><div class="stat">❤️ <b id="lives">3</b></div></div></header>
+<div id="wrap"><canvas id="game" width="1100" height="650"></canvas><div class="overlay" id="overlay"><div class="card"><h2>🏖️ La plage propre</h2><p>Promène-toi sur la plage, trouve les déchets et dépose chacun dans la bonne poubelle.</p><p><b>Ordinateur :</b> flèches ou ZQSD<br><b>Tablette/téléphone :</b> boutons à l'écran</p><button class="btn" id="start">Jouer</button></div></div><div class="touch"><button class="up" data-k="u">▲</button><button class="left" data-k="l">◀</button><button class="down" data-k="d">▼</button><button class="right" data-k="r">▶</button></div></div>
+<div class="help"><div id="msg">💡 Une plage propre protège la mer et les animaux.</div><div><span class="pill">🥤 plastique → jaune</span> <span class="pill">📰 papier → bleu</span> <span class="pill">🍌 organique → marron</span></div></div>
+</main><script>
+'use strict';const c=document.getElementById('game'),x=c.getContext('2d'),W=c.width,H=c.height,scoreEl=document.getElementById('score'),countEl=document.getElementById('count'),lifeEl=document.getElementById('lives'),msg=document.getElementById('msg'),overlay=document.getElementById('overlay');const K={u:0,d:0,l:0,r:0};let score=0,lives=3,got=0,play=false,last=0;const p={x:170,y:510,s:235,carry:null};const bins=[{x:860,t:'plastic',col:'#f5b400',lab:'PLASTIQUE',ico:'♻'},{x:960,t:'paper',col:'#2376c9',lab:'PAPIER',ico:'♻'},{x:1060,t:'organic',col:'#795548',lab:'ORGANIQUE',ico:'🍂'}];const trash=[{x:320,y:420,t:'plastic',ico:'🥤',n:'bouteille'},{x:480,y:350,t:'paper',ico:'📰',n:'papier'},{x:650,y:455,t:'organic',ico:'🍌',n:'épluchure'},{x:770,y:360,t:'plastic',ico:'🥤',n:'bouteille'},{x:930,y:390,t:'paper',ico:'📦',n:'carton'}];
+function ui(){scoreEl.textContent=score;countEl.textContent=got+'/5';lifeEl.textContent=lives}function say(s){msg.textContent=s}function d(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}function rr(a,b,w,h,r){x.beginPath();x.roundRect(a,b,w,h,r);x.fill()}
+function bg(){let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#62cfe6');g.addColorStop(.44,'#8ee2ef');g.addColorStop(.45,'#f3d993');g.addColorStop(1,'#f6dfaa');x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle='#5da873';x.beginPath();x.moveTo(710,205);x.quadraticCurveTo(800,120,890,205);x.quadraticCurveTo(960,125,1030,205);x.lineTo(1030,225);x.lineTo(710,225);x.fill();x.fillStyle='#fff';x.fillRect(830,130,18,72);x.fillStyle='#e95b45';x.fillRect(830,150,18,11);x.fillRect(830,176,18,11);x.beginPath();x.moveTo(824,130);x.lineTo(854,130);x.lineTo(839,112);x.fill();x.strokeStyle='#fff8';x.lineWidth=5;for(let y=220;y<285;y+=22){x.beginPath();x.moveTo(0,y);for(let z=0;z<=W;z+=40)x.quadraticCurveTo(z+20,y-7,z+40,y);x.stroke()}x.fillStyle='#ffd54f';x.beginPath();x.arc(90,75,38,0,7);x.fill();for(let i=0;i<16;i++){let a=i*.9,z=320+(i*71)%260;x.fillStyle=i%2?'#d2b37a':'#c6a56d';x.beginPath();x.ellipse((i*103+47)%W,z,7,4,0,0,7);x.fill()}}
+function drawBins(){bins.forEach(b=>{x.save();x.translate(b.x,b.y);x.fillStyle='#0002';x.beginPath();x.ellipse(0,55,45,10,0,0,7);x.fill();x.fillStyle=b.col;rr(-38,0,76,92,12);x.fillStyle='white';x.font='bold 29px system-ui';x.textAlign='center';x.fillText(b.ico,0,35);x.font='bold 10px system-ui';x.fillText(b.lab,0,58);x.restore()})}
+function drawTrash(){trash.forEach(t=>{if(t.taken)return;x.save();x.translate(t.x,t.y);x.fillStyle='#0002';x.beginPath();x.ellipse(0,18,22,7,0,0,7);x.fill();x.font='31px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(t.ico,0,0);if(!p.carry&&d(p,t)<48){x.strokeStyle='white';x.lineWidth=3;x.setLineDash([5,4]);x.beginPath();x.arc(0,0,29,0,7);x.stroke();x.setLineDash([])}x.restore()})}
+function player(){x.save();x.translate(p.x,p.y);x.fillStyle='#0002';x.beginPath();x.ellipse(0,29,25,8,0,0,7);x.fill();x.fillStyle='#2e7d32';x.fillRect(-17,14,12,25);x.fillRect(5,14,12,25);x.fillStyle='#f0a06b';x.beginPath();x.arc(0,-5,17,0,7);x.fill();x.fillStyle='#2f7e3f';x.beginPath();x.arc(0,-18,25,Math.PI,7);x.fill();x.fillStyle='white';x.fillRect(-25,-18,50,7);x.fillStyle='#17324d';x.beginPath();x.arc(-7,-5,2.5,0,7);x.arc(7,-5,2.5,0,7);x.fill();x.fillStyle='#43a047';rr(-16,12,32,23,7);x.fillStyle='white';x.font='14px serif';x.textAlign='center';x.fillText('🌿',0,29);if(p.carry){x.font='25px serif';x.fillText(p.carry.ico,0,-38)}x.restore()}
+function draw(){x.clearRect(0,0,W,H);bg();drawBins();drawTrash();player();if(p.carry){x.fillStyle='#fff';rr(360,565,380,48,18);x.fillStyle='#245b39';x.font='bold 17px system-ui';x.textAlign='center';x.fillText('➡️ Apporte le déchet à la bonne poubelle',550,595)}}
+function finish(win){play=false;overlay.style.display='grid';overlay.querySelector('.card').innerHTML=win?`<h2>🌍 Mission réussie !</h2><p>Bravo ! Tu as nettoyé toute la plage et bien trié les déchets.</p><p><b>⭐ ${score} points</b><br>🏆 Badge « Gardien de la plage »</p><button class="btn" id="again">Rejouer</button>`:`<h2>💚 Essaie encore !</h2><p>Certains déchets sont trompeurs. Recommence et observe bien les couleurs.</p><p><b>⭐ ${score} points</b></p><button class="btn" id="again">Recommencer</button>`;document.getElementById('again').onclick=start}
+function update(dt){let dx=K.r-K.l,dy=K.d-K.u;if(dx||dy){let n=Math.hypot(dx,dy);p.x+=dx/n*p.s*dt;p.y+=dy/n*p.s*dt}p.x=Math.max(35,Math.min(W-35,p.x));p.y=Math.max(310,Math.min(H-55,p.y));if(!p.carry){let t=trash.find(q=>!q.taken&&d(p,q)<42);if(t){t.taken=true;p.carry=t;say('👐 '+t.n+' trouvé ! Apporte-le à la bonne poubelle.')}}if(p.carry){let b=bins.find(q=>Math.abs(p.x-q.x)<52&&Math.abs(p.y-(q.y+40))<65);if(b){if(b.t===p.carry.t){score+=20;got++;p.carry=null;say('🎉 Bravo ! Bon tri : +20 points.');ui();if(got===5)finish(true)}else{lives--;score=Math.max(0,score-5);p.x-=25;say('🤔 Pas cette poubelle. Essaie encore !');ui();if(lives<=0)finish(false)}}}}
+function loop(t){if(!play)return;let dt=Math.min(.035,(t-last)/1000);last=t;update(dt);draw();requestAnimationFrame(loop)}function start(){score=0;lives=3;got=0;p.x=170;p.y=510;p.carry=null;trash.forEach(t=>t.taken=false);ui();overlay.style.display='none';play=true;last=performance.now();say('🌱 Mission : trouve les 5 déchets !');requestAnimationFrame(loop)}
+function key(e,on){let k=e.key.toLowerCase();if(['arrowup','z','w'].includes(k))K.u=on;if(['arrowdown','s'].includes(k))K.d=on;if(['arrowleft','q','a'].includes(k))K.l=on;if(['arrowright','d'].includes(k))K.r=on;if(on&&['arrowup','arrowdown','arrowleft','arrowright','z','q','s','d','w','a'].includes(k))e.preventDefault()}window.addEventListener('keydown',e=>key(e,1));window.addEventListener('keyup',e=>key(e,0));document.querySelectorAll('.touch button').forEach(b=>{let k=b.dataset.k;b.onpointerdown=e=>{e.preventDefault();K[k]=1};b.onpointerup=b.onpointercancel=b.onpointerleave=e=>{e.preventDefault();K[k]=0}});document.getElementById('start').onclick=start;ui();draw();
+</script></body></html>

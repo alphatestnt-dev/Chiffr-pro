@@ -4,6 +4,9 @@
   const eur=v=>Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
   const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
+  // Slogan validé : affiché directement sous le nom Chiffr’EcoPro, sans modifier l’accueil.
+  const setValidatedSlogan=()=>{const el=document.querySelector('header .tag');if(el)el.textContent='Construisons aujourd’hui un monde plus propre demain';};
+
   if(typeof window.pWaste!=='function') window.pWaste=()=>{
     const v=Math.max(0,(+$('pwl')?.value||0)*(+$('pww')?.value||0)*(+$('pwh')?.value||0));
     if($('pvol')) $('pvol').textContent=v.toFixed(2)+' m³';
@@ -23,5 +26,5 @@
   const report=(kind,error)=>{console.error('[Chiffr’EcoPro]',kind,error);if(document.body&&!$('ceRuntimeError')){const box=document.createElement('div');box.id='ceRuntimeError';box.setAttribute('role','alert');box.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#fff5d6;border:1px solid #d8a72b;color:#3b2d08;border-radius:12px;padding:12px;font:14px system-ui;box-shadow:0 8px 30px rgba(0,0,0,.18)';box.innerHTML='<b>Chiffr’EcoPro a rencontré une erreur.</b><br><span>La page reste accessible. Rechargez la page et, si le problème persiste, ouvrez la console pour le diagnostic.</span>';document.body.appendChild(box)}};
   window.addEventListener('error',e=>report('JavaScript',e.error||e.message),true);window.addEventListener('unhandledrejection',e=>report('Promise',e.reason),true);
   const ensureDocumentAccess=()=>{if(document.querySelector('script[src="./document-access-v1.js"]'))return;const s=document.createElement('script');s.src='./document-access-v1.js';s.defer=true;s.onload=()=>window.__ceDocumentAccessReady=true;document.head.appendChild(s)};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{window.compareRender?.();ensureDocumentAccess()},{once:true});else{window.compareRender?.();ensureDocumentAccess()}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess()},{once:true});else{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess()}
 })();

@@ -4,7 +4,6 @@
   const eur=v=>Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
   const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 
-  // Slogan validé : affiché directement sous le nom Chiffr’EcoPro, sans modifier l’accueil.
   const setValidatedSlogan=()=>{const el=document.querySelector('header .tag');if(el)el.textContent='Construisons aujourd’hui un monde plus propre demain';};
 
   if(typeof window.pWaste!=='function') window.pWaste=()=>{
@@ -22,61 +21,70 @@
   };
   if(typeof window.compareRender!=='function') window.compareRender=()=>{const el=$('cl');if(!el)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');el.innerHTML=a.length?a.map((x,i)=>`<div class=\"item\"><span>${esc(x.n)}</span><b>${eur(x.p)}</b><button type=\"button\" data-cmp-del=\"${i}\">×</button></div>`).join(''):'<p class=\"muted\">Aucun devis.</p>';el.querySelectorAll('[data-cmp-del]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cmpDel,a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.splice(i,1);localStorage.setItem('ce_cmp',JSON.stringify(a));window.compareRender()})};
   if(typeof window.exportData!=='function') window.exportData=()=>{const payload={application:'Chiffr’EcoPro',version:'stable',date:new Date().toISOString(),chiffrages:JSON.parse(localStorage.getItem('ce_history')||'[]'),parametres:JSON.parse(localStorage.getItem('ce_settings')||'{}'),comparaison:JSON.parse(localStorage.getItem('ce_cmp')||'[]')};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download='chiffrecopro-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-  if(typeof window.resetAll!=='function') window.resetAll=()=>{document.querySelectorAll('#pro input,#pro select,#pro textarea').forEach(el=>{if(el.type==='checkbox')el.checked=false;else if(el.id==='qty')el.value='1';else if(el.id==='hours')el.value='3';else if(el.id==='rate')el.value='16';else if(el.id==='margin')el.value='35';else if(el.id==='vat')el.value='20';else el.value=''});['ml','tl','wlst'].forEach(id=>{if($(id))$(id).innerHTML='<p class=\"muted\">Aucun élément.</p>'});['mt','tt'].forEach(id=>{if($(id))$(id).textContent='0 €'});if($('res'))$('res').classList.add('hide');if(typeof window.profession==='function')window.profession();if(typeof window.previewWaste==='function')window.previewWaste()};
+  if(typeof window.resetAll!=='function') window.resetAll=()=>{document.querySelectorAll('#pro input,#pro select,#pro textarea').forEach(el=>{if(el.type==='checkbox')el.checked=false;else if(el.id==='qty')el.value='1';else if(el.id==='hours')el.value='3';else if(el.id==='rate')el.value='16';else if(el.id==='margin')el.value='25';else if(el.id==='vat')el.value='20';else el.value=''});['ml','tl','wlst'].forEach(id=>{if($(id))$(id).innerHTML='<p class=\"muted\">Aucun élément.</p>'});['mt','tt'].forEach(id=>{if($(id))$(id).textContent='0 €'});if($('res'))$('res').classList.add('hide');if(typeof window.profession==='function')window.profession();if(typeof window.previewWaste==='function')window.previewWaste()};
   const report=(kind,error)=>{console.error('[Chiffr’EcoPro]',kind,error);if(document.body&&!$('ceRuntimeError')){const box=document.createElement('div');box.id='ceRuntimeError';box.setAttribute('role','alert');box.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#fff5d6;border:1px solid #d8a72b;color:#3b2d08;border-radius:12px;padding:12px;font:14px system-ui;box-shadow:0 8px 30px rgba(0,0,0,.18)';box.innerHTML='<b>Chiffr’EcoPro a rencontré une erreur.</b><br><span>La page reste accessible. Rechargez la page et, si le problème persiste, ouvrez la console pour le diagnostic.</span>';document.body.appendChild(box)}};
   window.addEventListener('error',e=>report('JavaScript',e.error||e.message),true);window.addEventListener('unhandledrejection',e=>report('Promise',e.reason),true);
   const ensureDocumentAccess=()=>{if(document.querySelector('script[src=\"./document-access-v1.js\"]'))return;const s=document.createElement('script');s.src='./document-access-v1.js';s.defer=true;s.onload=()=>window.__ceDocumentAccessReady=true;document.head.appendChild(s)};
 
-  // Simplification V1 : uniquement le volume m³ est demandé dans le chiffrage PRO.
-  // Les anciens champs dimensions restent dans le DOM pour compatibilité, mais sont masqués.
+  const simplifyMaterialsPro=()=>{
+    const card=$('mn')?.closest('.card');
+    if(!card || card.dataset.simpleMaterials==='1')return;
+    const name=$('mn'), qty=$('mq'), price=$('mp');
+    if(!name||!qty||!price)return;
+    card.dataset.simpleMaterials='1';
+    const materials=[
+      ['Peinture murale standard 10 L',49,'seau'],['Peinture plafond 10 L',45,'seau'],['Peinture façade 10 L',60,'seau'],
+      ['Sous-couche 10 L',42,'seau'],['Enduit de rebouchage 5 kg',12,'sac'],['Enduit de lissage 15 kg',18,'sac'],
+      ['Ciment 25 kg',7,'sac'],['Mortier 25 kg',9,'sac'],['Béton prêt à l’emploi 25 kg',7,'sac'],['Colle carrelage 25 kg',14,'sac'],
+      ['Joint carrelage 5 kg',10,'sac'],['Ragréage 25 kg',18,'sac'],['Plâtre 25 kg',11,'sac'],['Chaux 25 kg',12,'sac'],
+      ['Parpaing 20×20×50',2.5,'unité'],['Brique standard',1.2,'unité'],['Plaque de plâtre BA13',5.5,'plaque'],
+      ['Rail placo 3 m',4.5,'unité'],['Montant placo 3 m',5.5,'unité'],['Laine de verre 10 m²',35,'rouleau'],
+      ['Laine de roche 10 m²',45,'rouleau'],['Carrelage standard',18,'m²'],['Parquet stratifié standard',18,'m²'],
+      ['Sous-couche parquet 15 m²',30,'rouleau'],['Plinthe 2,5 m',5,'unité'],['Lame PVC / vinyle',25,'m²'],
+      ['Bois traité 3 m',10,'unité'],['Tasseau 2,4 m',4,'unité'],['Vis / chevilles (boîte)',8,'boîte'],
+      ['Silicone / mastic',7,'cartouche'],['Mousse expansive',8,'bombe'],['Colle de montage',7,'cartouche'],
+      ['Film de protection',12,'rouleau'],['Bâche chantier',15,'unité'],['Sable 35 kg',5,'sac'],['Gravier 35 kg',6,'sac'],
+      ['Terreau 50 L',8,'sac'],['Paillage 50 L',9,'sac'],['Engrais 25 kg',25,'sac'],['Gazon 25 kg',90,'sac'],
+      ['Bordure béton 1 m',4,'unité'],['Grillage rigide 2,5 m',35,'panneau'],['Poteau clôture',15,'unité'],
+      ['Géotextile 25 m²',30,'rouleau'],['Tuyau PE 25 mm 25 m',30,'rouleau'],['Gouttière PVC 4 m',18,'unité']
+    ];
+    name.style.display='none';
+    const select=document.createElement('select');select.id='ceMaterialSelect';select.setAttribute('aria-label','Matériau ou fourniture');
+    select.innerHTML='<option value="">Choisir un matériau ou une fourniture</option>'+materials.map((m,i)=>`<option value="${i}">${esc(m[0])} — env. ${eur(m[1])}/${m[2]}</option>`).join('')+'<option value="custom">Autre — saisir le prix manuellement</option>';
+    name.parentNode.insertBefore(select,name);
+    price.readOnly=true;price.placeholder='Prix indicatif automatique';price.style.fontWeight='700';
+    const note=document.createElement('small');note.className='muted';note.id='ceMaterialNote';note.textContent='Prix indicatifs de fourniture, volontairement prudents et non majorés. Vérifiez le prix local avant devis.';price.parentNode.appendChild(note);
+    const refresh=()=>{const v=select.value;if(v==='custom'){price.readOnly=false;price.value='';price.placeholder='Prix unitaire €';note.textContent='Autre fourniture : saisissez votre prix d’achat réel.'}else if(v!==''){const m=materials[+v];price.readOnly=true;price.value=m[1].toFixed(2);note.textContent=`Indicatif : ${eur(m[1])} / ${m[2]}. Prix à confirmer selon marque, quantité et fournisseur.`}else{price.readOnly=true;price.value='';note.textContent='Prix indicatifs de fourniture, volontairement prudents et non majorés. Vérifiez le prix local avant devis.'}};
+    select.onchange=refresh;
+    window.__ceMaterialPreset={select,materials,refresh};
+    window.addMat=()=>{const v=select.value,q=+qty.value||0,p=+price.value||0;if(v&&q>0&&p>=0){const label=v==='custom'?'Autre fourniture':materials[+v][0];if(typeof window.__ceAddMaterial==='function')window.__ceAddMaterial(label,q,p);else{const old=window.addMat;void old}select.value='';qty.value='';price.value='';refresh()}};
+    const originalAdd=window.addMat;
+    setTimeout(()=>{
+      if(typeof originalAdd==='function' && originalAdd!==window.addMat){
+        window.__ceAddMaterial=(label,q,p)=>{const oldMn=name.value;name.value=label;qty.value=q;price.value=p;originalAdd();name.value=oldMn;refresh()};
+      }
+    },0);
+    refresh();
+  };
+
   const simplifyWastePro=()=>{
     const card=$('wl')?.closest('.card');
     if(!card || card.dataset.simpleWaste==='1') return;
     const volume=$('wv'), mode=$('wmode'), calcBtn=card.querySelector('button:not(.primary)');
     if(!volume || !mode) return;
-    card.dataset.simpleWaste='1';
-    mode.value='volume';
+    card.dataset.simpleWaste='1';mode.value='volume';
     ['wl','ww','wh','wmode'].forEach(id=>{const el=$(id);if(el){el.style.display='none';el.setAttribute('aria-hidden','true');}});
     if(calcBtn) calcBtn.style.display='none';
-    const oldLabel=volume.previousElementSibling;
-    if(oldLabel && oldLabel.tagName==='LABEL') oldLabel.style.display='none';
-    volume.placeholder='Volume de déchets en m³';
-    volume.setAttribute('aria-label','Volume de déchets en mètres cubes');
-    volume.step='0.1';
-    volume.min='0';
-    volume.style.fontSize='18px';
-    volume.style.fontWeight='700';
-
+    volume.placeholder='Volume de déchets en m³';volume.setAttribute('aria-label','Volume de déchets en mètres cubes');volume.step='0.1';volume.min='0';volume.style.fontSize='18px';volume.style.fontWeight='700';
     let title=card.querySelector('[data-simple-waste-title]');
-    if(!title){
-      title=document.createElement('div');
-      title.dataset.simpleWasteTitle='1';
-      title.innerHTML='<label style="font-size:17px;margin-top:14px">📦 Volume estimé</label><p class="muted" style="margin:0 0 8px">Indiquez simplement le volume en m³. Le coût se calcule automatiquement.</p>';
-      const grid=volume.closest('.grid3');
-      grid?.parentNode.insertBefore(title,grid);
-    }
-
+    if(!title){title=document.createElement('div');title.dataset.simpleWasteTitle='1';title.innerHTML='<label style="font-size:17px;margin-top:14px">📦 Volume estimé</label><p class="muted" style="margin:0 0 8px">Indiquez simplement le volume en m³. Le coût se calcule automatiquement.</p>';const grid=volume.closest('.grid3');grid?.parentNode.insertBefore(title,grid)}
     let quick=card.querySelector('[data-simple-waste-quick]');
-    if(!quick){
-      quick=document.createElement('div');
-      quick.dataset.simpleWasteQuick='1';
-      quick.innerHTML='<label style="margin-top:10px">Je ne connais pas le volume</label><select aria-label="Estimation rapide du volume"><option value="">Choisir une estimation rapide</option><option value="1">Petite quantité — env. 1 m³</option><option value="3">Quantité moyenne — env. 3 m³</option><option value="5">Grosse quantité — env. 5 m³</option><option value="10">Très grosse quantité — env. 10 m³</option></select>';
-      const grid=volume.closest('.grid3');
-      grid?.parentNode.insertBefore(quick,grid);
-      const q=quick.querySelector('select');
-      q.onchange=()=>{if(q.value){volume.value=q.value;update();}};
-    }
-
-    const update=()=>{
-      mode.value='volume';
-      if(typeof window.previewWaste==='function') window.previewWaste();
-      else if(typeof window.previewV13==='function') window.previewV13();
-    };
-    volume.addEventListener('input',update);
-    volume.addEventListener('change',update);
-    update();
+    if(!quick){quick=document.createElement('div');quick.dataset.simpleWasteQuick='1';quick.innerHTML='<label style="margin-top:10px">Je ne connais pas le volume</label><select aria-label="Estimation rapide du volume"><option value="">Choisir une estimation rapide</option><option value="1">Petite quantité — env. 1 m³</option><option value="3">Quantité moyenne — env. 3 m³</option><option value="5">Grosse quantité — env. 5 m³</option><option value="10">Très grosse quantité — env. 10 m³</option></select>';const grid=volume.closest('.grid3');grid?.parentNode.insertBefore(quick,grid);const q=quick.querySelector('select');q.onchange=()=>{if(q.value){volume.value=q.value;update()}}}
+    const update=()=>{mode.value='volume';if(typeof window.previewWaste==='function')window.previewWaste();else if(typeof window.previewV13==='function')window.previewV13()};
+    volume.addEventListener('input',update);volume.addEventListener('change',update);update();
   };
 
-  const afterAppLoaded=()=>{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess();setTimeout(simplifyWastePro,150);setTimeout(simplifyWastePro,700);};
+  const setMarginDefault=()=>{const m=$('margin');if(m){m.value='25';m.dataset.manual='1';m.title='25 % par défaut — modifiable selon le chantier';}};
+  const afterAppLoaded=()=>{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess();setTimeout(()=>{setMarginDefault();simplifyMaterialsPro();simplifyWastePro()},150);setTimeout(()=>{setMarginDefault();simplifyMaterialsPro();simplifyWastePro()},700);};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',afterAppLoaded,{once:true});else afterAppLoaded();
 })();

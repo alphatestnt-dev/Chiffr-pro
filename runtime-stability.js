@@ -2,7 +2,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const eur=v=>Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
-  const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 
   // Slogan validé : affiché directement sous le nom Chiffr’EcoPro, sans modifier l’accueil.
   const setValidatedSlogan=()=>{const el=document.querySelector('header .tag');if(el)el.textContent='Construisons aujourd’hui un monde plus propre demain';};
@@ -20,11 +20,63 @@
     const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.push({n,p});localStorage.setItem('ce_cmp',JSON.stringify(a));
     if($('cn')) $('cn').value='';if($('cp')) $('cp').value='';window.compareRender?.();if(typeof window.go==='function'&&$('particulier'))window.go('particulier');
   };
-  if(typeof window.compareRender!=='function') window.compareRender=()=>{const el=$('cl');if(!el)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');el.innerHTML=a.length?a.map((x,i)=>`<div class="item"><span>${esc(x.n)}</span><b>${eur(x.p)}</b><button type="button" data-cmp-del="${i}">×</button></div>`).join(''):'<p class="muted">Aucun devis.</p>';el.querySelectorAll('[data-cmp-del]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cmpDel,a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.splice(i,1);localStorage.setItem('ce_cmp',JSON.stringify(a));window.compareRender()})};
+  if(typeof window.compareRender!=='function') window.compareRender=()=>{const el=$('cl');if(!el)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');el.innerHTML=a.length?a.map((x,i)=>`<div class=\"item\"><span>${esc(x.n)}</span><b>${eur(x.p)}</b><button type=\"button\" data-cmp-del=\"${i}\">×</button></div>`).join(''):'<p class=\"muted\">Aucun devis.</p>';el.querySelectorAll('[data-cmp-del]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cmpDel,a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.splice(i,1);localStorage.setItem('ce_cmp',JSON.stringify(a));window.compareRender()})};
   if(typeof window.exportData!=='function') window.exportData=()=>{const payload={application:'Chiffr’EcoPro',version:'stable',date:new Date().toISOString(),chiffrages:JSON.parse(localStorage.getItem('ce_history')||'[]'),parametres:JSON.parse(localStorage.getItem('ce_settings')||'{}'),comparaison:JSON.parse(localStorage.getItem('ce_cmp')||'[]')};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download='chiffrecopro-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-  if(typeof window.resetAll!=='function') window.resetAll=()=>{document.querySelectorAll('#pro input,#pro select,#pro textarea').forEach(el=>{if(el.type==='checkbox')el.checked=false;else if(el.id==='qty')el.value='1';else if(el.id==='hours')el.value='3';else if(el.id==='rate')el.value='16';else if(el.id==='margin')el.value='35';else if(el.id==='vat')el.value='20';else el.value=''});['ml','tl','wlst'].forEach(id=>{if($(id))$(id).innerHTML='<p class="muted">Aucun élément.</p>'});['mt','tt'].forEach(id=>{if($(id))$(id).textContent='0 €'});if($('res'))$('res').classList.add('hide');if(typeof window.profession==='function')window.profession();if(typeof window.previewWaste==='function')window.previewWaste()};
+  if(typeof window.resetAll!=='function') window.resetAll=()=>{document.querySelectorAll('#pro input,#pro select,#pro textarea').forEach(el=>{if(el.type==='checkbox')el.checked=false;else if(el.id==='qty')el.value='1';else if(el.id==='hours')el.value='3';else if(el.id==='rate')el.value='16';else if(el.id==='margin')el.value='35';else if(el.id==='vat')el.value='20';else el.value=''});['ml','tl','wlst'].forEach(id=>{if($(id))$(id).innerHTML='<p class=\"muted\">Aucun élément.</p>'});['mt','tt'].forEach(id=>{if($(id))$(id).textContent='0 €'});if($('res'))$('res').classList.add('hide');if(typeof window.profession==='function')window.profession();if(typeof window.previewWaste==='function')window.previewWaste()};
   const report=(kind,error)=>{console.error('[Chiffr’EcoPro]',kind,error);if(document.body&&!$('ceRuntimeError')){const box=document.createElement('div');box.id='ceRuntimeError';box.setAttribute('role','alert');box.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#fff5d6;border:1px solid #d8a72b;color:#3b2d08;border-radius:12px;padding:12px;font:14px system-ui;box-shadow:0 8px 30px rgba(0,0,0,.18)';box.innerHTML='<b>Chiffr’EcoPro a rencontré une erreur.</b><br><span>La page reste accessible. Rechargez la page et, si le problème persiste, ouvrez la console pour le diagnostic.</span>';document.body.appendChild(box)}};
   window.addEventListener('error',e=>report('JavaScript',e.error||e.message),true);window.addEventListener('unhandledrejection',e=>report('Promise',e.reason),true);
-  const ensureDocumentAccess=()=>{if(document.querySelector('script[src="./document-access-v1.js"]'))return;const s=document.createElement('script');s.src='./document-access-v1.js';s.defer=true;s.onload=()=>window.__ceDocumentAccessReady=true;document.head.appendChild(s)};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess()},{once:true});else{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess()}
+  const ensureDocumentAccess=()=>{if(document.querySelector('script[src=\"./document-access-v1.js\"]'))return;const s=document.createElement('script');s.src='./document-access-v1.js';s.defer=true;s.onload=()=>window.__ceDocumentAccessReady=true;document.head.appendChild(s)};
+
+  // Simplification V1 : uniquement le volume m³ est demandé dans le chiffrage PRO.
+  // Les anciens champs dimensions restent dans le DOM pour compatibilité, mais sont masqués.
+  const simplifyWastePro=()=>{
+    const card=$('wl')?.closest('.card');
+    if(!card || card.dataset.simpleWaste==='1') return;
+    const volume=$('wv'), mode=$('wmode'), calcBtn=card.querySelector('button:not(.primary)');
+    if(!volume || !mode) return;
+    card.dataset.simpleWaste='1';
+    mode.value='volume';
+    ['wl','ww','wh','wmode'].forEach(id=>{const el=$(id);if(el){el.style.display='none';el.setAttribute('aria-hidden','true');}});
+    if(calcBtn) calcBtn.style.display='none';
+    const oldLabel=volume.previousElementSibling;
+    if(oldLabel && oldLabel.tagName==='LABEL') oldLabel.style.display='none';
+    volume.placeholder='Volume de déchets en m³';
+    volume.setAttribute('aria-label','Volume de déchets en mètres cubes');
+    volume.step='0.1';
+    volume.min='0';
+    volume.style.fontSize='18px';
+    volume.style.fontWeight='700';
+
+    let title=card.querySelector('[data-simple-waste-title]');
+    if(!title){
+      title=document.createElement('div');
+      title.dataset.simpleWasteTitle='1';
+      title.innerHTML='<label style="font-size:17px;margin-top:14px">📦 Volume estimé</label><p class="muted" style="margin:0 0 8px">Indiquez simplement le volume en m³. Le coût se calcule automatiquement.</p>';
+      const grid=volume.closest('.grid3');
+      grid?.parentNode.insertBefore(title,grid);
+    }
+
+    let quick=card.querySelector('[data-simple-waste-quick]');
+    if(!quick){
+      quick=document.createElement('div');
+      quick.dataset.simpleWasteQuick='1';
+      quick.innerHTML='<label style="margin-top:10px">Je ne connais pas le volume</label><select aria-label="Estimation rapide du volume"><option value="">Choisir une estimation rapide</option><option value="1">Petite quantité — env. 1 m³</option><option value="3">Quantité moyenne — env. 3 m³</option><option value="5">Grosse quantité — env. 5 m³</option><option value="10">Très grosse quantité — env. 10 m³</option></select>';
+      const grid=volume.closest('.grid3');
+      grid?.parentNode.insertBefore(quick,grid);
+      const q=quick.querySelector('select');
+      q.onchange=()=>{if(q.value){volume.value=q.value;update();}};
+    }
+
+    const update=()=>{
+      mode.value='volume';
+      if(typeof window.previewWaste==='function') window.previewWaste();
+      else if(typeof window.previewV13==='function') window.previewV13();
+    };
+    volume.addEventListener('input',update);
+    volume.addEventListener('change',update);
+    update();
+  };
+
+  const afterAppLoaded=()=>{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess();setTimeout(simplifyWastePro,150);setTimeout(simplifyWastePro,700);};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',afterAppLoaded,{once:true});else afterAppLoaded();
 })();

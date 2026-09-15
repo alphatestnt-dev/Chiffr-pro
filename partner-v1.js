@@ -42,6 +42,28 @@
     page.querySelectorAll('[data-pending]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.pending);if(p)setStatus(p,'En attente d’autorisation');});
     page.querySelectorAll('[data-approved]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.approved);if(p){if(confirm('Confirmez-vous que l’autorisation écrite de '+p.name+' a bien été obtenue ?'))setStatus(p,'Autorisation obtenue');}});
   }
+  function addEcoSortingLinks(){
+    const waste=document.getElementById('wt');
+    if(!waste || document.getElementById('ecoSortingLinks')) return;
+    const card=waste.closest('.card');
+    if(!card) return;
+    const box=document.createElement('div');
+    box.id='ecoSortingLinks';
+    box.className='box eco';
+    box.style.marginTop='14px';
+    box.innerHTML=`<h3 style="margin-top:0">🌱 Trouver une filière de tri / valorisation</h3>
+      <p class="muted" style="margin-bottom:10px">Selon le type de déchet sélectionné, consultez les filières officielles et les partenaires spécialisés. Les liens n’impliquent aucune affiliation avec Chifr’EcoPro.</p>
+      <div class="actions" style="margin-top:0">
+        <a href="https://www.ademe.fr/" target="_blank" rel="noopener">ADEME — informations officielles</a>
+        <a href="https://www.recyclage.veolia.fr/gerer-mes-dechets/entreprises/solutions-services/tri-8-flux-dechets" target="_blank" rel="noopener">Veolia — tri 6/8 flux</a>
+        <a href="https://www.recyclage.veolia.fr/gerer-mes-dechets/entreprises/solutions-services/recyclinn-pro-decheteries-professionnelles" target="_blank" rel="noopener">Veolia — déchèteries pro</a>
+        <a href="https://www.suez.fr/fr-fr/entreprises" target="_blank" rel="noopener">SUEZ — solutions entreprises</a>
+        <a href="https://www.citeo.com/" target="_blank" rel="noopener">CITEO — tri et recyclage</a>
+        <a href="https://www.valobat.fr/" target="_blank" rel="noopener">Valobat — REP bâtiment</a>
+        <a href="https://www.ecomaison.com/" target="_blank" rel="noopener">Ecomaison — réemploi / recyclage</a>
+      </div>`;
+    card.appendChild(box);
+  }
   function init(){
     const nav=document.querySelector('nav'),main=document.querySelector('main');
     if(!nav||!main)return;
@@ -50,6 +72,8 @@
     let page=document.getElementById('partnersPage');
     if(!page){page=document.createElement('section');page.id='partnersPage';page.className='page';main.appendChild(page);}
     render();
+    addEcoSortingLinks();
+    setTimeout(addEcoSortingLinks,700);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

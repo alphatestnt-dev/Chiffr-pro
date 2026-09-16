@@ -1,0 +1,69 @@
+name: Espace écologique Chiffr’EcoPro
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  eco-space:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ajouter les calculateurs écologiques
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+
+          # Nettoyer l'accueil : le bloc écologique doit rester dans les espaces dédiés.
+          card='<div class="card eco"><h2>🌱 Une démarche écologique volontaire</h2><p>Tri, séparation des flux, réemploi, valorisation, broyage et optimisation des déplacements sont proposés sans pénalité automatique.</p><p class="muted">Aucune économie, remise ou aide n’est présentée comme garantie sans confirmation réelle. Les dispositifs publics restent indicatifs jusqu’à vérification.</p></div>'
+          s=s.replace(card,'',1)
+
+          nav_anchor='<button data-p="eco">🌱 Écologie</button>'
+          if 'data-p="ecologie"' not in s and nav_anchor in s:
+              s=s.replace(nav_anchor,nav_anchor+'<button data-p="ecologie">🌿 Espace écologique</button>',1)
+
+          # Créer l'espace dédié s'il n'existe pas encore.
+          if 'id="ecologie"' not in s:
+              special='''<section id="ecologie" class="page"><div class="card eco"><h1>🌿 Espace écologique</h1><p>Un espace dédié pour mesurer les volumes de déchets, le niveau de tri et les actions environnementales d’un projet.</p></div></section>'''
+              marker='<section id="eco" class="page">'
+              pos=s.find(marker)
+              if pos>=0:
+                  end=s.find('</section>',pos)
+                  if end>=0:
+                      end+=len('</section>')
+                      s=s[:end]+special+s[end:]
+
+          calc='''<div id="ecoCalculators" class="card"><h2>🧮 Calculateurs écologiques</h2><p class="muted">Des indicateurs simples pour aider à évaluer un projet. Ils ne constituent pas un bilan carbone certifié.</p><div class="card eco"><h3>♻️ Calcul du tri</h3><div class="grid3"><div><label>Déchets totaux (kg)</label><input id="ectTotal" type="number" min="0" step="0.1" value="100"></div><div><label>Déchets triés (kg)</label><input id="ectSorted" type="number" min="0" step="0.1" value="60"></div><div><label>Déchets réemployés / valorisés (kg)</label><input id="ectReuse" type="number" min="0" step="0.1" value="20"></div></div><div class="actions"><button class="primary" onclick="ecoCalcTri()">Calculer le taux de tri</button></div><div id="ectResult" class="box">Taux de tri : <b>—</b><br>Taux de valorisation : <b>—</b><br>Déchets restant à traiter : <b>—</b></div></div><div class="card"><h3>🗑️ Calcul des déchets</h3><div class="grid3"><div><label>Type</label><select id="ecdType"><option value="0.15">🌿 Déchets verts</option><option value="0.25">🪵 Bois</option><option value="1.5">🧱 Gravats</option><option value="1.6">🌍 Terre</option><option value="0.7">📦 Papier / carton</option><option value="0.05">♻️ Plastiques légers</option><option value="0.2">🗑️ Déchets mélangés</option></select></div><div><label>Longueur (m)</label><input id="ecdL" type="number" min="0" step="0.01" value="2"></div><div><label>Largeur (m)</label><input id="ecdW" type="number" min="0" step="0.01" value="1"></div></div><div class="grid3"><div><label>Hauteur (m)</label><input id="ecdH" type="number" min="0" step="0.01" value="0.5"></div><div><label>Ou volume direct (m³)</label><input id="ecdV" type="number" min="0" step="0.01" placeholder="Facultatif"></div></div><div class="actions"><button class="primary" onclick="ecoCalcDechet()">Calculer volume et poids indicatif</button></div><div id="ecdResult" class="box">Volume : <b>—</b><br>Poids indicatif : <b>—</b></div><p class="muted">Les densités sont des valeurs indicatives et peuvent varier selon l’humidité, la composition et le compactage.</p></div><div class="card"><h3>🌱 Évaluation écologique du projet</h3><p>Coche les actions réellement prévues ou réalisables sur le chantier.</p><div class="grid"><label><input id="eceTri" type="checkbox"> Tri des flux</label><label><input id="eceReuse" type="checkbox"> Réemploi / valorisation</label><label><input id="eceGrind" type="checkbox"> Broyage ou traitement local</label><label><input id="eceTravel" type="checkbox"> Déplacements optimisés</label><label><input id="eceLocal" type="checkbox"> Ressources / fournisseurs locaux étudiés</label><label><input id="eceWaste" type="checkbox"> Filière de déchets identifiée</label></div><div class="actions"><button class="primary" onclick="ecoEval()">Évaluer le projet</button></div><div id="eceResult" class="box">Indicateur écologique : <b>—</b></div><p class="muted">Cet indicateur est un outil interne basé sur les options cochées ; il ne mesure pas directement les émissions de CO₂.</p></div></div>'''
+
+          # Insérer les calculateurs dans la page dédiée, une seule fois.
+          if 'id="ecoCalculators"' not in s and 'id="ecologie"' in s:
+              marker='<section id="ecologie" class="page">'
+              pos=s.find(marker)
+              end=s.find('</section>',pos)
+              if pos>=0 and end>=0:
+                  s=s[:end]+calc+s[end:]
+
+          js='''<script>
+          function ecoNum(id){const n=parseFloat(document.getElementById(id)?.value);return Number.isFinite(n)?Math.max(0,n):0;}
+          function ecoCalcTri(){const t=ecoNum('ectTotal'),s=ecoNum('ectSorted'),r=ecoNum('ectReuse');const tri=t?Math.min(100,s/t*100):0;const val=t?Math.min(100,r/t*100):0;const rest=Math.max(0,t-s);document.getElementById('ectResult').innerHTML=`Taux de tri : <b>${tri.toFixed(1)} %</b><br>Taux de valorisation : <b>${val.toFixed(1)} %</b><br>Déchets restant à traiter : <b>${rest.toFixed(1)} kg</b>`;}
+          function ecoCalcDechet(){const v=ecoNum('ecdV')||ecoNum('ecdL')*ecoNum('ecdW')*ecoNum('ecdH');const d=parseFloat(document.getElementById('ecdType').value)||0;document.getElementById('ecdResult').innerHTML=`Volume : <b>${v.toFixed(2)} m³</b><br>Poids indicatif : <b>${(v*d).toFixed(1)} kg</b>`;}
+          function ecoEval(){const ids=['eceTri','eceReuse','eceGrind','eceTravel','eceLocal','eceWaste'];const pts=ids.reduce((n,id)=>n+(document.getElementById(id)?.checked?1:0),0);const score=Math.round(pts/ids.length*100);let niveau=score>=80?'Très bon niveau d’actions prévues':score>=50?'Niveau intermédiaire d’actions prévues':'Quelques actions à étudier';document.getElementById('eceResult').innerHTML=`Indicateur écologique : <b>${score}/100</b><br>${niveau}`;}
+          </script>'''
+          if 'function ecoCalcTri' not in s:
+              s=s.replace('</body>',js+'</body>',1)
+
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Ajouter les calculateurs écologiques tri déchets évaluation'
+          git push

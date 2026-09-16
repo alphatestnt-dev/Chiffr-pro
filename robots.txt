@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://www.chiffrecopro.fr/sitemap.xml
+Sitemap: https://chiffreco-pro.fr/sitemap.xml

@@ -1,0 +1,33 @@
+name: Tune accueil Chiffr’EcoPro
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tune:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply subtle bottom blend
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          old='.home{position:relative;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 3px 18px #17352a14}'
+          new='.home{position:relative;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 3px 18px #17352a14}.home:after{content:"";position:absolute;left:0;right:0;bottom:0;height:24%;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(20,107,74,.16));pointer-events:none;z-index:1}'
+          if 'home:after' not in s and old in s:
+              p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+      - name: Commit change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Ajuster subtilement le fondu naturel de l’accueil'
+          git push

@@ -41,6 +41,19 @@
     page.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.copy);if(p)copy(baseMessage(p));});
     page.querySelectorAll('[data-pending]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.pending);if(p)setStatus(p,'En attente d’autorisation');});
     page.querySelectorAll('[data-approved]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.approved);if(p){if(confirm('Confirmez-vous que l’autorisation écrite de '+p.name+' a bien été obtenue ?'))setStatus(p,'Autorisation obtenue');}});
+    renderAidsPartners();
+  }
+  function renderAidsPartners(){
+    const aid=document.getElementById('aid'); if(!aid || aid.dataset.partnersReady==='1')return;
+    aid.dataset.partnersReady='1';
+    const box=document.createElement('div');
+    box.className='card eco';
+    box.innerHTML=`<h2>🤝 Organismes et partenaires à consulter</h2>
+      <p class="muted">Ces organismes peuvent être utiles selon le projet et le territoire. Les liens sont des accès officiels ; ils ne signifient pas que Chifr’EcoPro dispose d’un partenariat ou d’une aide garantie.</p>
+      <div class="grid2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+        ${partners.map(p=>`<div class="box"><h3 style="margin-top:0">${esc(p.name)}</h3><p>${esc(p.type)}</p><a href="${esc(p.contact)}" target="_blank" rel="noopener" style="font-weight:800">Contacter / consulter →</a></div>`).join('')}
+      </div>`;
+    aid.appendChild(box);
   }
   function addEcoSortingLinks(){
     const waste=document.getElementById('wt');

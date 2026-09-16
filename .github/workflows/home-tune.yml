@@ -13,19 +13,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply accueil adjustments
+      - name: Organiser l’espace écologique
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
+
+          # Conserver le fondu discret de l’accueil.
           old='.home{position:relative;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 3px 18px #17352a14}'
           new='.home{position:relative;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 3px 18px #17352a14}.home:after{content:"";position:absolute;left:0;right:0;bottom:0;height:24%;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(20,107,74,.16));pointer-events:none;z-index:1}'
           if 'home:after' not in s and old in s:
               s=s.replace(old,new,1)
+
           card='<div class="card eco"><h2>🌱 Une démarche écologique volontaire</h2><p>Tri, séparation des flux, réemploi, valorisation, broyage et optimisation des déplacements sont proposés sans pénalité automatique.</p><p class="muted">Aucune économie, remise ou aide n’est présentée comme garantie sans confirmation réelle. Les dispositifs publics restent indicatifs jusqu’à vérification.</p></div>'
-          if card in s:
-              s=s.replace(card,'',1)
+
+          # Retirer le bloc de l’accueil s’il y est encore.
+          s=s.replace(card,'',1)
+
+          # Placer le bloc dans la page Eco existante, une seule fois.
+          eco_anchor='<section id="eco" class="page">'
+          if card not in s and eco_anchor in s:
+              s=s.replace(eco_anchor,eco_anchor+card,1)
+
+          # Ajouter une page dédiée à l’écologie et son bouton de navigation.
+          nav_anchor='<button data-p="eco">🌱 Écologie</button>'
+          nav_new=nav_anchor+'<button data-p="ecologie">🌿 Espace écologique</button>'
+          if 'data-p="ecologie"' not in s and nav_anchor in s:
+              s=s.replace(nav_anchor,nav_new,1)
+
+          special='''<section id="ecologie" class="page"><div class="card eco"><h1>🌿 Espace écologique</h1><p>Un espace dédié pour comprendre et intégrer les choix environnementaux dans les projets, sans les imposer.</p></div><div class="card"><h2>♻️ Réduire et mieux valoriser</h2><div class="grid3"><div class="box"><h3>Tri</h3><p>Séparer les flux lorsque cela est pertinent et possible.</p></div><div class="box"><h3>Réemploi</h3><p>Rechercher les possibilités de réutilisation et de valorisation.</p></div><div class="box"><h3>Broyage</h3><p>Identifier les matières pouvant être broyées ou valorisées.</p></div></div></div><div class="card"><h2>🚚 Déplacements et ressources</h2><p>Regrouper les interventions, optimiser les déplacements et limiter les transports inutiles lorsque le projet le permet.</p><p class="muted">Les bénéfices environnementaux ou économiques restent à évaluer selon la situation réelle. Aucun dispositif public n’est présenté comme garanti sans vérification.</p></div><div class="card"><h2>🌱 Les choix du projet</h2><p>Les options écologiques restent volontaires : tri, réemploi, valorisation, broyage et optimisation des déplacements peuvent être étudiés selon les contraintes du chantier.</p></div></section>'''
+          if 'id="ecologie"' not in s:
+              marker='<section id="eco" class="page">'
+              pos=s.find(marker)
+              if pos>=0:
+                  # Insérer la page dédiée juste après la page Eco existante.
+                  end=s.find('</section>',pos)
+                  if end>=0:
+                      end+=len('</section>')
+                      s=s[:end]+special+s[end:]
+
           p.write_text(s,encoding='utf-8')
           PY
       - name: Commit change
@@ -33,5 +60,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Supprimer le bloc écologique de l’accueil'
+          git diff --cached --quiet || git commit -m 'Créer l’espace écologique et déplacer le bloc accueil'
           git push

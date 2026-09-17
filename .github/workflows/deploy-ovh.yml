@@ -1,0 +1,28 @@
+name: Deploy Chiffr’EcoPro to OVH
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to OVH FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.cluster129.hosting.ovh.net
+          username: chiffri
+          password: ${{ secrets.OVH_FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          server-dir: ./www/
+          exclude: |
+            **/.git*/**
+            **/.github/**
+            **/node_modules/**
+            **/*.md

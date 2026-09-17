@@ -12,6 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Deploy the current main branch directly to OVH /www
       - name: Deploy to OVH FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:

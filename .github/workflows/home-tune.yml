@@ -26,6 +26,23 @@ jobs:
           if 'margin-left:-1%;margin-right:-1%' not in s and old in s:
               s=s.replace(old,new,1)
 
+          # Garder l’image d’accueil dans ses proportions naturelles.
+          old_home='.home{position:relative;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 3px 18px #17352a14;margin-left:-1%;margin-right:-1%;height:calc(100vh - 145px);min-height:520px}'
+          new_home='.home{position:relative;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 3px 18px #17352a14;margin-left:-1%;margin-right:-1%;height:auto;min-height:0}'
+          if old_home in s:
+              s=s.replace(old_home,new_home,1)
+          old_img='.home img{display:block;width:100%;height:100%;object-fit:fill}'
+          new_img='.home img{display:block;width:100%;height:auto;object-fit:contain}'
+          if old_img in s:
+              s=s.replace(old_img,new_img,1)
+          old_mobile='.home{height:calc(100vh - 175px);min-height:480px}'
+          new_mobile='.home{height:auto;min-height:0}'
+          if old_mobile in s:
+              s=s.replace(old_mobile,new_mobile,1)
+
+          # Utiliser le visuel sélectionné, sans toucher aux zones cliquables.
+          s=s.replace('file_00000000cef88246bb6203174d2ac629.png','hero-home-selected.webp',1)
+
           card='<div class="card eco"><h2>🌱 Une démarche écologique volontaire</h2><p>Tri, séparation des flux, réemploi, valorisation, broyage et optimisation des déplacements sont proposés sans pénalité automatique.</p><p class="muted">Aucune économie, remise ou aide n’est présentée comme garantie sans confirmation réelle. Les dispositifs publics restent indicatifs jusqu’à vérification.</p></div>'
           s=s.replace(card,'',1)
           eco_anchor='<section id="eco" class="page">'
@@ -55,5 +72,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Étendre légèrement l’accueil'
+          git diff --cached --quiet || git commit -m 'Corriger les proportions de l’accueil'
           git push

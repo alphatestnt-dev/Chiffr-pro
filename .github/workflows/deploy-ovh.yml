@@ -12,14 +12,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to OVH SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+      - name: Deploy to OVH FTP
+        uses: step-security/ftp-deploy-action@v4
         with:
           server: ftp.cluster129.hosting.ovh.net
-          port: 22
+          port: 21
           username: chiffri
           password: ${{ secrets.OVH_FTP_PASSWORD }}
-          sftp_only: true
-          local_path: './*'
-          remote_path: './www/'
-          sftpArgs: '-o ConnectTimeout=10'
+          protocol: ftp
+          local-dir: ./
+          server-dir: ./www/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            **/node_modules/**

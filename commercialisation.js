@@ -129,7 +129,7 @@
   }
 
   async function showSubscription(){
-    let s;try{s=await api('/subscription-state',{method:'POST',body:'{}');}catch(e){s={plan:'—',subscription_status:'indisponible'};}
+    let s;try{s=await api('/subscription-state',{method:'POST',body:'{}'});}catch(e){s={plan:'—',subscription_status:'indisponible'};}
     shell('Mon abonnement',`<div class="cc-status"><p><b>Offre :</b> ${esc(s.plan||'Aucune')}</p><p><b>Statut :</b> ${esc(s.subscription_status||'—')}</p><p><b>Début :</b> ${esc(s.started_at||'—')}</p><p><b>Échéance :</b> ${esc(s.current_period_end||'—')}</p><p><b>Annulation en fin de période :</b> ${s.cancel_at_period_end?'Oui':'Non'}</p></div><div class="cc-actions"><button class="cc-btn cc-btn-primary" id="cc-portal">Gérer mon abonnement</button></div><p class="cc-note">La résiliation est effectuée dans le portail Stripe ; le webhook synchronise ensuite le statut.</p>`);
     overlay.querySelector('#cc-portal').onclick=async()=>{try{const d=await api('/customer-portal',{method:'POST',body:'{}'});if(d.portal_url)location.href=d.portal_url;}catch(e){alert(e.message);}};
   }

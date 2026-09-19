@@ -66,10 +66,10 @@
   }
 
   CC.close=close;
-  CC.open=async page=>{
+  CC.open=async (page,plan)=>{
     if(page==='offers') return showOffers();
     if(page==='choose') return requireAuth(()=>showChoose());
-    if(page==='payment') return requireAuth(()=>showPayment());
+    if(page==='payment') return requireAuth(()=>showPayment(plan||'particulier'));
     if(page==='success') return requireAuth(()=>showSuccess());
     if(page==='subscription') return requireAuth(()=>showSubscription());
     if(page==='pro') return requireAuth(()=>showPro());

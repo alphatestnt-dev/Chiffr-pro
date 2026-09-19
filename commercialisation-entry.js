@@ -22,7 +22,7 @@
   async function startProFlow(){
     try{
       const s=await window.ccCommercialisation.api('/subscription-state',{method:'POST',body:'{}'});
-      if(s.professional_verification_status==='verified') return window.ccCommercialisation.open('payment');
+      if(s.professional_verification_status==='verified') return window.ccCommercialisation.open('payment','professionnel');
     }catch(e){}
     return window.ccCommercialisation.open('pro');
   }

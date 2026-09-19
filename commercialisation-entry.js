@@ -16,15 +16,18 @@
   }
   async function consume(){
     try{return {allowed:true,data:await window.ccCommercialisation.api('/consume-evaluation',{method:'POST',body:'{}'})};}
-    catch(e){if(e.code==='AUTH_REQUIRED'){window.ccCommercialisation.open('offers');}else if(e.message)window.ccCommercialisation.open('offers');return {allowed:false,error:e};}
+    catch(e){window.ccCommercialisation.open('offers');return {allowed:false,error:e};}
   }
   function installEvaluationGate(){
     document.addEventListener('click',async e=>{
-      const b=e.target.closest('button');if(!b||b.dataset.ccGate==='1')return;
+      const b=e.target.closest('button');
+      if(!b||b.dataset.ccGate==='1')return;
+      if(!b.closest('#particulier'))return;
       const action=b.getAttribute('onclick')||'';
-      if(!/\b(calc|estimate|calculer|estimateParticulier|creerDevis)\s*\(\)/.test(action))return;
+      if(!/\bestimate\s*\(\)/.test(action))return;
       b.dataset.ccGate='1';e.preventDefault();e.stopImmediatePropagation();
-      const r=await consume();b.dataset.ccGate='0';if(!r.allowed)return;
+      const r=await consume();b.dataset.ccGate='0';
+      if(!r.allowed)return;
       try{new Function(action).call(b);}catch(err){console.error(err);}
     },true);
   }

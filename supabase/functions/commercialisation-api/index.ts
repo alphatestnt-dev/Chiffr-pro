@@ -62,12 +62,12 @@ Deno.serve(async(req)=>{
   if(req.method==="OPTIONS")return new Response("ok",{headers});
   const urlObj=new URL(req.url);
   const path=urlObj.pathname.replace(/^\/functions\/v1\/commercialisation-api/,"")||"/";
-  if(req.method==="HEAD"&&(path==="/"||path==="/health"))return new Response(null,{status:200,headers});
   
   try{
-    if((req.method==="GET"||req.method==="HEAD")&&(path==="/"||path==="/health")){
+    if(path==="/"||path==="/health"){
+      if(req.method==="HEAD")return new Response(null,{status:200,headers});
       const [part,pro]=await Promise.all([validatePrice(PRICE_PARTICULIER,299),validatePrice(PRICE_PROFESSIONNEL,999)]);
-      return json({ok:true,stripe_mode:part.livemode?"live":"test",particulier:{price_id:part.id,amount:part.unit_amount,currency:part.currency,interval:part.recurring?.interval??null},professionnel:{price_id:pro.id,amount:pro.unit_amount,currency:pro.currency,interval:pro.recurring?.interval??null},public_app_url_configured:Boolean(PUBLIC_APP_URL)});
+      return json({ok:true,stripe_mode:part.livemode?"live":"test",particulier:{price_id:part.id,amount:part.unit_amount,currency:part.currency,interval:part.recurring?.interval??null},professionnel:{price_id:pro.id,amount:pro.unit_amount,currency:pro.currency,interval:pro.recurring?.interval??null},public_app_url_configured:Boolean(PUBLIC_APP_URL),secrets_configured:{stripe_secret:Boolean(Deno.env.get("STRIPE_SECRET_KEY")),webhook_secret:Boolean(Deno.env.get("STRIPE_WEBHOOK_SECRET")),supabase_service_role:Boolean(SERVICE_ROLE_KEY)}});
     }
     if(req.method!=="POST")return err("Méthode non autorisée",405);
     const auth=await userFromAuth(req);

@@ -19,7 +19,6 @@ function msg(t,bad){const e=$('ce-auth-msg');if(e){e.className=bad?'ce-auth-msg 
 async function checkout(plan){const {data:{session}}=await client.auth.getSession();if(!session)return openAuth();const r=await fetch(API+'/create-checkout-session',{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({plan})});const d=await r.json();if(!r.ok){msg(d.error||'Impossible de créer le paiement',true);return}location.href=d.checkout_url}
 async function consume(){const {data:{session}}=await client.auth.getSession();if(!session){openAuth();return false}const r=await fetch(API+'/consume-evaluation',{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'}});const d=await r.json();if(!r.ok){if(d.code==='FREE_EVALUATIONS_EXHAUSTED'){openAuth();msg('Les 3 évaluations gratuites sont utilisées. Choisissez une offre.',true);return false}msg(d.error||'Évaluation impossible',true);return false}window.ceCommercialState=d;return true}
 const oldEstimate=window.estimate;window.estimate=async()=>{if(!(await consume()))return;if(typeof oldEstimate==='function')oldEstimate()};
-window.ceAuth={open:openAuth,refresh,checkout,consume};
-}
+window.ceAuth={open:openAuth,refresh,checkout,consume}; 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,500),{once:true});else setTimeout(init,500);
 })();

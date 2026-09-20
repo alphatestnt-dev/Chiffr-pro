@@ -27,4 +27,20 @@ const simplifyWastePro=()=>{const card=$('wl')?.closest('.card');if(!card||card.
 const setMarginDefault=()=>{const m=$('margin');if(m){m.value='25';m.dataset.manual='1';m.title='25 % par défaut — modifiable selon le chantier'}};
 const afterAppLoaded=()=>{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess();setTimeout(()=>{setMarginDefault();simplifyMaterialsPro();simplifyWastePro()},150);setTimeout(()=>{setMarginDefault();simplifyMaterialsPro();simplifyWastePro()},700)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',afterAppLoaded,{once:true});else afterAppLoaded();
+const ensureHomeFallback=()=>{
+  const main=document.querySelector('main');
+  if(!main || document.getElementById('accueil')) return;
+  const section=document.createElement('section');
+  section.id='accueil';
+  section.className='page active';
+  section.innerHTML='<div class="card" style="min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center"><div><h1 style="font-size:32px;margin:0 0 10px">Chiffr’EcoPro</h1><p style="font-size:20px;font-weight:700">Construisons aujourd’hui un monde plus propre demain</p><p class="muted">Accueil Chiffr’EcoPro</p></div></div>';
+  main.insertBefore(section,main.firstElementChild);
+  document.querySelectorAll('.page').forEach(x=>{if(x!==section)x.classList.remove('active')});
+  document.querySelectorAll('nav button').forEach(b=>{
+    const label=(b.textContent||'').trim().toLowerCase();
+    if(label.includes('compte') && label.includes('param')) b.remove();
+  });
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureHomeFallback,{once:true});else ensureHomeFallback();
+
 })();

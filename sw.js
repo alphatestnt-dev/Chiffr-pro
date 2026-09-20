@@ -1,4 +1,4 @@
-const CACHE='chifrecopro-stable-v15';
+const CACHE='chifrecopro-stable-v16';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./hero-home-selected.webp','./app-v13.js','./partner-v1.js','./pwa.js','./navigation-v2.js','./navigation-bridge-v1.js','./document-access-v1.js','./document-workflow-access-v2.js','./runtime-stability.js','./documents-v2.js','./barometre-pro-v1.js','./workflow-particulier-v1.js'];
 self.addEventListener('install',event=>{event.waitUntil((async()=>{const cache=await caches.open(CACHE);await Promise.all(ASSETS.map(async asset=>{try{const r=await fetch(asset,{cache:'no-store'});if(r.ok)await cache.put(asset,r.clone())}catch(_){}}));await self.skipWaiting()})())});
 self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('chifrecopro-')&&k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim()})())});

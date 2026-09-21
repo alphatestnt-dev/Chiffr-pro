@@ -44,6 +44,76 @@ function runQuickSearch(inputId,resultId,catalog,selectId){
 }
 function searchMaterialsV13(){runQuickSearch('matSearch','matQuickResults',materialCatalog,'mn')}
 function searchPlantsV13(){runQuickSearch('plantSearch','plantQuickResults',plantCatalog,'plantName')}
+const tradeCatalog={
+'espaces-verts':{
+'Plantes & arbustes':[['Olivier',45],['Laurier-rose',18],['Laurier-palme',16],['Photinia',22],['Troène',12],['Eleagnus',18],['Pittosporum',25],['Cyprès',20],['Thuya',22],['Fusain',16],['Arbousier',28],['Grenadier',35],['Citronnier',32],['Oranger',32],['Figuier',35],['Rosier',18],['Hortensia',22],['Bougainvillier',28],['Jasmin',18],['Bambou',25],['Palmier',85],['Washingtonia',120],['Mimosa',45],['Magnolia',55],['Albizia',50],['Cerisier du Japon',60],['Buis',15],['Viburnum',20],['Ciste',12],['Lavande',8],['Romarin',7],['Thym',5],['Agapanthe',9],['Yucca',22]],
+'Gazon & semences':[['Gazon en rouleau (m²)',8],['Gazon rustique (kg)',9],['Gazon sport (kg)',11],['Gazon ombre (kg)',12],['Graines prairie fleurie (kg)',18],['Semences couvre-sol (kg)',16]],
+'Terreaux & amendements':[['Terreau universel (50 L)',9],['Terreau plantation (50 L)',11],['Terreau horticole (50 L)',12],['Terreau gazon (50 L)',10],['Terreau agrumes (50 L)',13],['Compost végétal (50 L)',8],['Amendement organique (25 kg)',14],['Engrais gazon (25 kg)',28],['Engrais organique (25 kg)',25],['Chaux (25 kg)',12]],
+'Paillage & sols':[['Paillage bois (50 L)',9],['Écorces de pin (50 L)',11],['Pouzzolane (25 kg)',12],['Graviers décoratifs (25 kg)',10],['Sable horticole (25 kg)',8],['Terre végétale (m³)',45],['Tout-venant (m³)',35]],
+'Protection & plantation':[['Géotextile (m²)',2.5],['Toile de paillage (m²)',2.2],['Agrafe de paillage',0.25],['Piquet bois',3],['Tuteur arbre',5],['Lien de tuteurage',2],['Grillage',6],['Brise-vue (m²)',8]]
+},
+'btp':{
+'Ciments & liants':[['Ciment 25 kg',7],['Mortier 25 kg',8],['Chaux 25 kg',10],['Béton prêt à l’emploi 25 kg',8]],
+'Granulats & terres':[['Sable 0/4 (tonne)',35],['Gravier (tonne)',40],['Gravillon (tonne)',45],['Tout-venant (tonne)',30],['Terre végétale (m³)',45]],
+'Maçonnerie':[['Parpaing standard',2.5],['Brique',2.8],['Bloc béton',3.5],['Pierre naturelle (m²)',45],['Pavé (m²)',30],['Dalle béton (m²)',25]],
+'Ferraillage & coffrage':[['Treillis soudé',25],['Fer à béton',4],['Fil de fer',4],['Bois de coffrage',12]],
+'Fixations':[['Vis',0.15],['Cheville',0.25],['Boulon',0.6],['Clou',0.08]]
+},
+'peinture':{
+'Peintures':[['Peinture intérieure 10 L',70],['Peinture extérieure 10 L',95],['Peinture façade 10 L',100],['Sous-couche 10 L',55],['Crépi 25 kg',45],['Lasure 5 L',55],['Vernis 5 L',50]],
+'Préparation':[['Enduit 15 kg',25],['Enduit de façade 25 kg',35],['Mastic',8],['Silicone',7],['Résine 5 kg',60]],
+'Protection':[['Bâche de protection',8],['Ruban de masquage',5],['Film de protection',6]]
+},
+'plomberie':{
+'Tuyauterie':[['Tube PVC',4],['Tube cuivre',12],['Tube multicouche',6],['Raccord PVC',2],['Raccord cuivre',4]],
+'Sanitaire':[['Robinet',35],['Siphon',12],['Flexible',8],['Joint',1],['Mécanisme WC',25]],
+'Etanchéité & fixation':[['Silicone sanitaire',8],['Filasse',6],['Téflon',3],['Collier',1.5]]
+},
+'electricite':{
+'Câbles & gaines':[['Câble électrique (m)',2],['Gaine ICTA (m)',0.8],['Gaine technique (m)',1.5]],
+'Appareillage':[['Prise',6],['Interrupteur',6],['Boîte d’encastrement',1.5],['Tableau électrique',80]],
+'Protection':[['Disjoncteur',12],['Interrupteur différentiel',45],['Goulotte (m)',3]]
+},
+'menuiserie':{
+'Bois & panneaux':[['Planche bois',12],['Tasseau',4],['Bastaing',15],['OSB (m²)',12],['Contreplaqué (m²)',18]],
+'Fixations & quincaillerie':[['Vis bois',0.15],['Cheville',0.25],['Charnière',4],['Poignée',8],['Équerre',3]],
+'Protection bois':[['Lasure 5 L',55],['Vernis 5 L',50],['Traitement bois 5 L',45]]
+},
+'carrelage':{
+'Carrelage':[['Carrelage sol (m²)',25],['Carrelage mur (m²)',22],['Faïence (m²)',24],['Pavé extérieur (m²)',30]],
+'Pose':[['Colle carrelage 25 kg',18],['Mortier-colle 25 kg',20],['Joint 5 kg',12],['Primaire 5 L',20]],
+'Préparation':[['Ragréage 25 kg',25],['Enduit de lissage 20 kg',22]]
+},
+'isolation':{
+'Isolants':[['Laine de verre (m²)',8],['Laine de roche (m²)',10],['Polystyrène (m²)',12],['Mousse expansive',9]],
+'Etanchéité':[['Membrane d’étanchéité (m²)',8],['Bande d’étanchéité',10],['Mastic',8]],
+'Fixation':[['Cheville isolation',0.5],['Rondelle',0.3]]
+},
+'cloture':{
+'Clôtures':[['Grillage (m)',6],['Panneau rigide',35],['Brise-vue (m²)',8],['Piquet',6],['Portillon',180]],
+'Fixations':[['Collier',0.5],['Platine',8],['Vis',0.15],['Cheville',0.25]]
+},
+'nettoyage':{
+'Produits':[['Détergent 5 L',18],['Désinfectant 5 L',25],['Nettoyant vitres 5 L',15],['Dégraissant 5 L',22]],
+'Consommables':[['Sac poubelle',0.4],['Éponge',1],['Chiffon microfibre',2],['Brosse',5]]
+}
+};
+function setupMaterialCatalogV13(){
+ const m=$('matMetier'),c=$('matCategorie');if(!m||!c)return;
+ const refreshCats=()=>{const cats=Object.keys(tradeCatalog[m.value]||{});c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');searchTradeProductsV13()};
+ m.onchange=refreshCats;c.onchange=searchTradeProductsV13;refreshCats();
+ $('matSearch')?.addEventListener('input',searchTradeProductsV13);
+}
+function searchTradeProductsV13(){
+ const m=$('matMetier')?.value,c=$('matCategorie')?.value,q=normMat($('matSearch')?.value||'').trim(),box=$('matQuickResults');if(!box)return;
+ const all=Object.values(tradeCatalog[m]||{}).flat().map(x=>({n:x[0],p:x[1]}));
+ const pool=c?(tradeCatalog[m]?.[c]||[]).map(x=>({n:x[0],p:x[1]})):all;
+ const terms=q.split(/\\s+/).filter(Boolean);
+ const hits=(q?pool.filter(x=>terms.every(t=>normMat(x.n).includes(t))):pool).slice(0,20);
+ box.classList.remove('hide');
+ box.innerHTML=hits.length?hits.map(x=>`<button type="button" style="display:block;width:100%;text-align:left;margin:4px 0;padding:10px;border:1px solid #cbd8d1;border-radius:8px;background:#fff;cursor:pointer" data-prod="${esc(x.n)}" data-price="${x.p}"><b>${esc(x.n)}</b> — ${eur(x.p)} indicatif</button>`).join(''):'<span class="muted">Aucun produit trouvé dans cette catégorie.</span>';
+ box.querySelectorAll('[data-prod]').forEach(b=>b.onclick=()=>{$('mn').value=b.dataset.prod;$('mp').value=b.dataset.price;$('matSearch').value=b.dataset.prod;box.classList.add('hide');$('mq')?.focus()});
+}
 function matQuickV13(){
   const q=normMat($('matSearch')?.value);
   const box=$('matQuickResults');
@@ -78,7 +148,7 @@ function ecoLeverPage(){if($('eco-lever'))return;const n=document.querySelector(
 function aidsV13(){const el=$('aid');if(!el)return;const cards=[['Études d’écoconception — ADEME','Écoconception — informations indicatives à vérifier sur la fiche officielle.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/etudes-decoconception-des-produits-et-des-services'],['Investissements d’écoconception — ADEME','Dispositif soumis à conditions : vérifier la fiche officielle avant toute décision.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/investissements-decoconception-pour-ameliorer-la-performance-environnementale'],['Réemploi, réutilisation et réparation — ADEME','Dispositif à vérifier selon projet, secteur et période.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/soutien-aux-investissements-pour-le-reemploi-reutilisation-et-la-reparation-hors-emballages'],['Catalogue des aides ADEME','Catalogue officiel pour vérifier les aides disponibles.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue']];el.innerHTML=cards.map(x=>`<div class="item"><div><b>${esc(x[0])}</b><p class="muted">${esc(x[1])}</p><a href="${x[2]}" target="_blank" rel="noopener">Source officielle</a></div></div>`).join('')}
 function settingsV13(){const s=JSON.parse(localStorage.getItem('ce_settings')||'{}');if($('dn'))$('dn').value=s.n||'';if($('dv'))$('dv').value=s.v||20;if($('da'))$('da').value=s.a||'';if($('dt'))$('dt').value=s.t||'';if($('de'))$('de').value=s.e||'';if($('ds'))$('ds').value=s.s||'';if($('entreprise'))$('entreprise').value=s.n||'';if($('vat'))$('vat').value=s.v||20}window.settingsSave=()=>{const s={n:$('dn').value,v:$('dv').value,a:$('da').value,t:$('dt').value,e:$('de').value,s:$('ds').value};localStorage.setItem('ce_settings',JSON.stringify(s));settingsV13()};
 function goV13(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));const target=$(id)||document.getElementById(id);if(target)target.classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===id));if(id==='historique')histV13();if(id==='eco')ecoV13();if(id==='aides')aidsV13()}window.go=goV13;window.calc=calcV13;window.save=saveV13;window.makeQuote=quoteV13;window.profession=professionV13;window.pSub=pSubV13;window.previewWaste=previewV13;window.addWaste=addWasteV13;window.estimate=estimateV13;window.addPlant=addPlantV13;window.__ceRemovePlant=i=>{plants.splice(i,1);plantRenderV13();};
-function init(){const metier=$('metier');if(metier){addOptions('metier',Object.keys(professions));metier.onchange=professionV13}const pf=$('pf');if(pf){addOptions('pf',Object.keys(professions));pf.onchange=pSubV13}professionV13();pSubV13();setupToolsV13();matRenderV13();toolRenderV13();$('matSearch')?.addEventListener('input',searchMaterialsV13);$('plantSearch')?.addEventListener('input',searchPlantsV13);plantRenderV13();wasteRenderV13();histV13();settingsV13();aidsV13();ecoLeverPage();document.querySelectorAll('nav button').forEach(b=>{if(!b.dataset.v13){b.dataset.v13='1';b.onclick=()=>goV13(b.dataset.p)}});$('margin')?.addEventListener('input',e=>e.target.dataset.manual='1');['sort','reuse','grind','opt'].forEach(id=>$(id)?.addEventListener('change',ecoV13));$('wmode')?.addEventListener('change',previewV13);['wl','ww','wh','wv'].forEach(id=>$(id)?.addEventListener('input',previewV13));previewV13()}
+function init(){const metier=$('metier');if(metier){addOptions('metier',Object.keys(professions));metier.onchange=professionV13}const pf=$('pf');if(pf){addOptions('pf',Object.keys(professions));pf.onchange=pSubV13}professionV13();pSubV13();setupToolsV13();matRenderV13();toolRenderV13();$('plantSearch')?.addEventListener('input',searchPlantsV13);plantRenderV13();wasteRenderV13();histV13();settingsV13();aidsV13();ecoLeverPage();document.querySelectorAll('nav button').forEach(b=>{if(!b.dataset.v13){b.dataset.v13='1';b.onclick=()=>goV13(b.dataset.p)}});$('margin')?.addEventListener('input',e=>e.target.dataset.manual='1');['sort','reuse','grind','opt'].forEach(id=>$(id)?.addEventListener('change',ecoV13));$('wmode')?.addEventListener('change',previewV13);['wl','ww','wh','wv'].forEach(id=>$(id)?.addEventListener('input',previewV13));previewV13()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 
 // Small compatibility layer for features that were previously embedded in index.html.

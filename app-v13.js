@@ -18,7 +18,7 @@ const energy={electric:.20,petrol:2.15,diesel:2.30,battery:.20,none:0},wasteRate
 let mats=[],toolsList=[],wastes=[],current=null;
 const materialCatalog=[
 'Ciment','Béton prêt à l’emploi','Mortier','Sable','Gravier','Gravillon','Tout-venant','Terre végétale','Terreau','Paillage','Écorces de pin',
-'Gazon','Graines de gazon','Engrais','Compost','Piquets bois','Planches bois','Tasseaux','Bastaings','OSB','Contreplaqué','Bois de coffrage',
+'Gazon en rouleau','Gazon synthétique','Graines de gazon','Terreau universel','Terreau plantation','Terreau horticole','Terreau gazon','Terreau agrumes','Terreau plantes méditerranéennes','Compost végétal','Compost enrichi','Amendement organique','Engrais gazon','Engrais organique','Engrais à libération lente','Chaux','Paillage bois','Paillage minéral','Écorces de pin','Pouzzolane','Graviers décoratifs','Sable horticole','Sable pour gazon','Graines prairie fleurie','Semences couvre-sol','Gazon rustique','Gazon sport','Gazon ombre','Géotextile anti-mauvaises herbes','Toile de paillage','Agrafes de paillage','Piquets bois','Planches bois','Tasseaux','Bastaings','OSB','Contreplaqué','Bois de coffrage',
 'Parpaing','Brique','Bloc béton','Pierre naturelle','Pavé','Dalle béton','Carrelage','Faïence','Colle carrelage','Joint carrelage',
 'Plâtre','Plaque de plâtre BA13','Enduit','Enduit de façade','Mortier-colle','Peinture intérieure','Peinture extérieure','Sous-couche peinture',
 'Crépi','Résine','Vernis','Lasure','Silicone','Mastic','Colle','Vis','Chevilles','Boulons','Clous','Fil de fer',

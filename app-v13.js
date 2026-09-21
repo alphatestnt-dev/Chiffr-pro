@@ -99,6 +99,9 @@ const tradeCatalog={
 'Consommables':[['Sac poubelle',0.4],['Éponge',1],['Chiffon microfibre',2],['Brosse',5]]
 }
 };
+function setupDedicatedCatalogV13(){const m=$('catalogMetier'),c=$('catalogCategorie'),s=$('catalogSearch'),box=$('catalogResults');if(!m||!c||!box)return;const render=()=>{const cats=Object.keys(tradeCatalog[m.value]||{});c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');renderDedicatedCatalogV13()};m.onchange=render;c.onchange=render;s?.addEventListener('input',renderDedicatedCatalogV13);render()}
+function renderDedicatedCatalogV13(){const m=$('catalogMetier')?.value,c=$('catalogCategorie')?.value,q=normMat($('catalogSearch')?.value||'').trim(),box=$('catalogResults');if(!box)return;const pool=(tradeCatalog[m]?.[c]||[]).map(x=>({n:x[0],p:x[1]}));const terms=q.split(/\\s+/).filter(Boolean);const hits=(q?pool.filter(x=>terms.every(t=>normMat(x.n).includes(t))):pool).slice(0,50);box.innerHTML=hits.length?hits.map(x=>`<div class="item"><span><b>${esc(x.n)}</b><br><small class="muted">${eur(x.p)} indicatif</small></span><button type="button" onclick="useCatalogProductV13(this)" data-prod="${esc(x.n)}" data-price="${x.p}">Ajouter au chiffrage</button></div>`).join(''):'<span class="muted">Aucun produit trouvé.</span>'}
+window.useCatalogProductV13=b=>{$('mn')&&($('mn').value=b.dataset.prod);$('mp')&&($('mp').value=b.dataset.price);goV13('pro');$('mq')?.focus()};
 function setupMaterialCatalogV13(){
  const m=$('matMetier'),c=$('matCategorie');if(!m||!c)return;
  const refreshCats=()=>{const cats=Object.keys(tradeCatalog[m.value]||{});c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');searchTradeProductsV13()};

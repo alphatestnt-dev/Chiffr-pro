@@ -10,11 +10,38 @@ const status={
 free_confirmed:['🟢','Gratuit confirmé'],free_conditions:['🟡','Gratuit sous conditions'],aid_possible:['🔵','Aide possible'],price_to_check:['🟠','Tarif à vérifier'],mandatory_specialist:['🔴','Filière spécialisée obligatoire / à vérifier'],optimize:['🟣','À optimiser']};
 const frDept=['01 Ain','02 Aisne','03 Allier','04 Alpes-de-Haute-Provence','05 Hautes-Alpes','06 Alpes-Maritimes','07 Ardèche','08 Ardennes','09 Ariège','10 Aube','11 Aude','12 Aveyron','13 Bouches-du-Rhône','14 Calvados','15 Cantal','16 Charente','17 Charente-Maritime','18 Cher','19 Corrèze','2A Corse-du-Sud','2B Haute-Corse','21 Côte-d’Or','22 Côtes-d’Armor','23 Creuse','24 Dordogne','25 Doubs','26 Drôme','27 Eure','28 Eure-et-Loir','29 Finistère','30 Gard','31 Haute-Garonne','32 Gers','33 Gironde','34 Hérault','35 Ille-et-Vilaine','36 Indre','37 Indre-et-Loire','38 Isère','39 Jura','40 Landes','41 Loir-et-Cher','42 Loire','43 Haute-Loire','44 Loire-Atlantique','45 Loiret','46 Lot','47 Lot-et-Garonne','48 Lozère','49 Maine-et-Loire','50 Manche','51 Marne','52 Haute-Marne','53 Mayenne','54 Meurthe-et-Moselle','55 Meuse','56 Morbihan','57 Moselle','58 Nièvre','59 Nord','60 Oise','61 Orne','62 Pas-de-Calais','63 Puy-de-Dôme','64 Pyrénées-Atlantiques','65 Hautes-Pyrénées','66 Pyrénées-Orientales','67 Bas-Rhin','68 Haut-Rhin','69 Rhône','70 Haute-Saône','71 Saône-et-Loire','72 Sarthe','73 Savoie','74 Haute-Savoie','75 Paris','76 Seine-Maritime','77 Seine-et-Marne','78 Yvelines','79 Deux-Sèvres','80 Somme','81 Tarn','82 Tarn-et-Garonne','83 Var','84 Vaucluse','85 Vendée','86 Vienne','87 Haute-Vienne','88 Vosges','89 Yonne','90 Territoire de Belfort','91 Essonne','92 Hauts-de-Seine','93 Seine-Saint-Denis','94 Val-de-Marne','95 Val-d’Oise','971 Guadeloupe','972 Martinique','973 Guyane','974 La Réunion','976 Mayotte'];
 const api=async(path,params={})=>{const q=new URLSearchParams(params);const r=await fetch(SB_URL+'/rest/v1/'+path+'?'+q,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});if(!r.ok)throw new Error('API '+r.status);return r.json()};
+async function loadJurisdictions(){
+ const country=document.getElementById('wAidCountry')?.value||'FR';
+ const reg=document.getElementById('wAidRegion'),dep=document.getElementById('wAidDept');
+ if(!reg||!dep)return;
+ reg.innerHTML='<option value="">Sélectionner</option>'; dep.innerHTML='<option value="">Sélectionner</option>';
+ const level=country==='CH'?'canton':'region';
+ try{
+  const rows=await api('waste_jurisdictions',{select:'id,code,name,slug',country_code:'eq.'+country,level:'eq.'+level,active:'eq.true',order:'name.asc'});
+  rows.forEach(x=>reg.add(new Option(x.name,x.code)));
+  if(country==='FR') dep.innerHTML='<option value="">Sélectionner le département</option>';
+ }catch(e){}
+}
+async function loadDepartments(){
+ const country=document.getElementById('wAidCountry')?.value||'FR',regCode=document.getElementById('wAidRegion')?.value,dep=document.getElementById('wAidDept');
+ if(!dep)return;
+ dep.innerHTML='<option value="">Sélectionner</option>';
+ if(!regCode)return;
+ try{
+  const level=country==='FR'?'department':(country==='BE'||country==='ES'||country==='IT'||country==='DE'||country==='AT'?'province':'municipality');
+  const parentLevel=country==='CH'?'canton':'region';
+  const parents=await api('waste_jurisdictions',{select:'id',country_code:'eq.'+country,level:'eq.'+parentLevel,code:'eq.'+regCode,active:'eq.true'});
+  if(parents[0]){
+   const rows=await api('waste_jurisdictions',{select:'id,code,name,slug',parent_id:'eq.'+parents[0].id,active:'eq.true',order:'name.asc'});
+   rows.forEach(x=>dep.add(new Option(x.name,x.code)));
+  }
+ }catch(e){}
+}
 function setJurisdictionDefaults(){
- const reg=document.getElementById('wAidRegion'); if(reg&&!reg.options.length)Object.entries(regions).forEach(([v,n])=>reg.add(new Option(n,v)));
- const dep=document.getElementById('wAidDept'); if(dep&&!dep.options.length){dep.add(new Option('Sélectionner le département',''));frDept.forEach(x=>dep.add(new Option(x,x.slice(0,x.indexOf(' ')))));}
- const met=document.getElementById('wAidMetier'); if(met&&!met.options.length)métiers.forEach(x=>met.add(new Option(x,x)));
- const typ=document.getElementById('wAidType'); if(typ&&!typ.options.length)Object.entries(streams).forEach(([v,x])=>typ.add(new Option(x[0]+' '+x[1],v)));
+ const met=document.getElementById('wAidMetier'),typ=document.getElementById('wAidType');
+ if(met&&!met.options.length)métiers.forEach(x=>met.add(new Option(x,x)));
+ if(typ&&!typ.options.length)Object.entries(streams).forEach(([v,x])=>typ.add(new Option(x[0]+' '+x[1],v)));
+ loadJurisdictions();
 }
 function escLink(url,label){return '<a href="'+escD(url)+'" target="_blank" rel="noopener">'+escD(label)+'</a>'}
 async function evaluateWasteAid(){
@@ -48,5 +75,5 @@ async function evaluateWasteAid(){
  }catch(e){res.innerHTML='<div class="card notice"><b>Recherche locale indisponible.</b><p>La règle de sécurité reste : ne pas déposer le déchet dans une filière non prévue. Réessayez ou vérifiez la source officielle du territoire.</p></div>'}
 }
 window.evaluateWasteAid=evaluateWasteAid;
-document.addEventListener('DOMContentLoaded',setJurisdictionDefaults);
+document.addEventListener('DOMContentLoaded',()=>{setJurisdictionDefaults();document.getElementById('wAidCountry')?.addEventListener('change',loadJurisdictions);document.getElementById('wAidRegion')?.addEventListener('change',loadDepartments);});
 })();

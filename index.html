@@ -87,6 +87,27 @@
 <div class="actions"><button class="primary" onclick="findTransitionAid()">🔎 Chercher les dispositifs</button></div>
 <div id="transitionAidResult" class="box" style="margin-top:12px">Une piste à la fois : pas de catalogue interminable.</div>
 </div>
+<div class="card eco">
+<h2>🌱 Créer une demande d’aide financière</h2>
+<p>Quelques renseignements suffisent pour préparer une demande claire. Les informations inutiles ne sont pas demandées.</p>
+<div class="grid3">
+<div><label>Nom / organisme</label><input id="demNom" placeholder="Votre nom ou organisme"></div>
+<div><label>Statut</label><select id="demStatut"><option>Particulier</option><option>Indépendant / TPE</option><option>PME</option><option>ETI / grande entreprise</option><option>Collectivité / association</option></select></div>
+<div><label>SIRET (si applicable)</label><input id="demSiret" placeholder="14 chiffres"></div>
+<div><label>Email</label><input id="demEmail" type="email" placeholder="nom@exemple.fr"></div>
+<div><label>Téléphone</label><input id="demTel" placeholder="06..."></div>
+<div><label>Localisation</label><input id="demLieu" placeholder="Commune / département"></div>
+<div><label>Projet</label><select id="demProjet"><option>Je ne sais pas encore</option><option>Réduire / valoriser les déchets</option><option>Recyclage / réemploi</option><option>Biodéchets / compostage</option><option>Créer ou moderniser une installation</option><option>Économies d’énergie / performance</option><option>Décarbonation</option><option>Formation / accompagnement</option><option>Autre projet écologique</option></select></div>
+<div><label>Type de déchet (si concerné)</label><select id="demDechet"><option>Non concerné</option><option>Déchets verts</option><option>Biodéchets</option><option>Bois</option><option>Gravats</option><option>Métaux</option><option>Carton</option><option>Plastiques</option><option>Verre</option><option>Déchets dangereux</option><option>Je ne sais pas</option></select></div>
+<div><label>Quantité / volume</label><input id="demQuantite" placeholder="Ex. 15 m³/mois ou 2 t/an"></div>
+<div><label>Coût actuel (€)</label><input id="demCout" type="number" min="0" step="0.01" placeholder="Si connu"></div>
+<div><label>Montant recherché (€)</label><input id="demMontant" type="number" min="0" step="0.01" placeholder="Si connu"></div>
+<div><label>Objet de la demande</label><select id="demObjet"><option>Identifier une aide adaptée</option><option>Financer un investissement</option><option>Financer une étude / diagnostic</option><option>Financer une action de recyclage / réemploi</option><option>Financer une action de réduction des déchets</option><option>Financer une formation / accompagnement</option><option>Autre</option></select></div>
+</div>
+<div><label>Décrivez simplement votre besoin</label><textarea id="demDescription" rows="4" placeholder="Que voulez-vous mettre en place ? Qu'est-ce qui vous bloque aujourd'hui ?"></textarea></div>
+<div class="actions"><button class="primary" onclick="buildAidRequest()">📝 Préparer ma demande</button><button onclick="window.open('https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue','_blank','noopener,noreferrer')">🔗 Accéder à l’ADEME</button></div>
+<div id="aidRequestResult" class="box" style="margin-top:12px;display:none"></div>
+</div>
 <div class="card">
 <h2>📚 Sources officielles</h2>
 <div class="grid3">
@@ -117,4 +138,11 @@ function findTransitionAid(){
  else links.push('<b>France :</b> commencez par le catalogue national puis vérifiez les conditions territoriales du dispositif.');
  r.innerHTML='<h3>🧭 Pistes pour votre projet</h3><ul><li>'+links.join('</li><li>')+'</li></ul><div class="notice"><b>À préparer :</b> type de déchet, volume annuel, coût actuel, solution recherchée et éléments montrant le blocage. L’aide reste à confirmer par l’organisme financeur.</div>';
 }
-</script></body></html>
+function aidVal(id){return (document.getElementById(id)?.value||'').trim()||'Non renseigné';}
+function buildAidRequest(){
+ const nom=aidVal('demNom'), statut=aidVal('demStatut'), siret=aidVal('demSiret'), email=aidVal('demEmail'), tel=aidVal('demTel'), lieu=aidVal('demLieu'), projet=aidVal('demProjet'), dechet=aidVal('demDechet'), quantite=aidVal('demQuantite'), cout=aidVal('demCout'), montant=aidVal('demMontant'), objet=aidVal('demObjet'), desc=aidVal('demDescription');
+ const r=document.getElementById('aidRequestResult');
+ const date=new Date().toLocaleDateString('fr-FR');
+ r.innerHTML='<h3>📄 Demande préparée</h3><p><b>Objet : '+objet+'</b></p><p>Madame, Monsieur,</p><p>Je soussigné(e) <b>'+nom+'</b>, agissant en qualité de <b>'+statut+'</b>, sollicite un accompagnement financier pour le projet suivant : <b>'+projet+'</b>.</p><p><b>Localisation :</b> '+lieu+'<br><b>Type de déchet :</b> '+dechet+'<br><b>Quantité :</b> '+quantite+'<br><b>Coût actuel :</b> '+cout+' €<br><b>Montant recherché :</b> '+montant+' €</p><p><b>Description du besoin :</b><br>'+desc+'</p><p>Je souhaite identifier le dispositif de soutien correspondant à mon projet et connaître les conditions d’éligibilité ainsi que les pièces nécessaires à son dépôt.</p><p>Je reste disponible pour fournir les éléments complémentaires nécessaires.</p><p>Cordialement,<br>'+nom+'<br>'+email+'<br>'+tel+'<br>SIRET : '+siret+'<br>'+date+'</p><div class="actions"><button onclick="window.print()">🖨️ Imprimer / PDF</button><button class="primary" onclick="window.open('https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue','_blank','noopener,noreferrer')">🔗 Ouvrir l’ADEME pour le dépôt</button></div>';
+ r.style.display='block'; r.scrollIntoView({behavior:'smooth',block:'start'});
+}\n</script></body></html>

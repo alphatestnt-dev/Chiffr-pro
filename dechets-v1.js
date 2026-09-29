@@ -22,12 +22,17 @@ async function evaluateWasteAid(){
  const type=document.getElementById('wAidType').value||'melange',region=document.getElementById('wAidRegion').value,dept=document.getElementById('wAidDept').value,commune=document.getElementById('wAidCommune').value.trim(),authority=document.getElementById('wAidAuthority').value.trim(),metier=document.getElementById('wAidMetier').value||'Autre',audience=document.getElementById('wAidAudience').value||'professional',vol=Math.max(0,+document.getElementById('wAidVol').value||0),res=document.getElementById('wAidResult');
  res.innerHTML='<div class="card" style="margin-top:12px"><b>Recherche en cours…</b><p class="muted">Juridiction → règle → filière → point de reprise → coût.</p></div>';
  try{
-  let rules=await api('waste_rules',{select:'status,instruction,conditions,prohibited,priority,source_id,jurisdiction_id',stream_code:'eq.'+type,audience:'eq.'+audience,active:'eq.true',order:'priority.asc'});
-  const isAmp=region==='PAC'&&dept==='13'&&/aix|marseille|provence/i.test(authority+' '+commune);
+  const country=document.getElementById('wAidCountry').value||'FR';
+  const isAmp=country==='FR'&&region==='PAC'&&dept==='13'&&/aix|marseille|provence/i.test(authority+' '+commune);
+  const jurisdictionSlug=isAmp?'fr-amp':(country==='FR'?(dept?'fr-dept-'+String(dept).toLowerCase().replace(/^2/,'c'):region?'fr-'+region.toLowerCase():'france'):country.toLowerCase());
+  const js=await api('waste_jurisdictions',{select:'id,name,level,country_code,slug',slug:'eq.'+jurisdictionSlug,active:'eq.true'});
+  const jid=js[0]?.id;
+  const rules=jid?await api('waste_rules',{select:'status,instruction,conditions,prohibited,priority,source_id,jurisdiction_id',jurisdiction_id:'eq.'+jid,stream_code:'eq.'+type,audience:'eq.'+audience,active:'eq.true',order:'priority.asc'}):[];
+  const franceRules=country==='FR'&&jurisdictionSlug!=='france'?await api('waste_rules',{select:'status,instruction,conditions,prohibited,priority,source_id,jurisdiction_id',jurisdiction_id:'eq.'+(await api('waste_jurisdictions',{select:'id',slug:'eq.france'}))[0]?.id,stream_code:'eq.'+type,audience:'eq.'+audience,active:'eq.true'}):[];
   const sources=await api('waste_sources',{select:'id,name,url,publisher,verified_at',active:'eq.true'});
   const sourceMap=Object.fromEntries(sources.map(s=>[s.id,s]));
-  const chosen=rules.find(r=>isAmp && r.jurisdiction_id)||rules.find(r=>!r.jurisdiction_id)||rules[0];
-  const facilities=isAmp?await api('waste_facilities',{select:'name,operator,address,accepted_streams,audience,access_conditions,pricing_note,source_id,verified_at',active:'eq.true'}):[];
+  const chosen=rules[0]||franceRules[0];
+  const facilities=jid?await api('waste_facilities',{select:'name,operator,address,accepted_streams,audience,access_conditions,pricing_note,source_id,verified_at',jurisdiction_id:'eq.'+jid,active:'eq.true'}):[];
   const localRules=rules.filter(r=>r.jurisdiction_id);
   let title=streams[type]?.[1]||type, st=chosen?.status||'price_to_check', s=status[st]||status.price_to_check;
   let jurisdiction=(authority||commune||dept||region)?['France',region?regions[region]:'',dept?'département '+dept:'',commune,authority].filter(Boolean).join(' → '):'France — juridiction nationale';
@@ -36,7 +41,7 @@ async function evaluateWasteAid(){
   if(isAmp)html+='<div class="notice"><b>⚠️ Aix-Marseille-Provence :</b> les déchèteries métropolitaines ne sont plus accessibles aux professionnels depuis le 1er juillet 2025. Il faut utiliser une solution professionnelle adaptée.</div>';
   const relevant=facilities.filter(f=>Array.isArray(f.accepted_streams)&&f.accepted_streams.includes(type));
   if(relevant.length){html+='<h4>📍 Point professionnel identifié</h4>';relevant.forEach(f=>{const src=sourceMap[f.source_id];html+='<div class="box"><b>'+escD(f.name)+'</b><br>'+escD(f.address||'')+'<p>'+escD(f.access_conditions||'')+'</p><p><b>Conditions / coût :</b> '+escD(f.pricing_note||'À vérifier')+'</p>'+(src?'<p>'+escLink(src.url,'Source vérifiée')+' · '+escD(src.publisher||'')+' · vérifiée le '+escD(src.verified_at||'')+'</p>':'')+'</div>'})}
-  if(!isAmp)html+='<div class="box"><b>🔎 Recherche locale à compléter :</b> la base nationale donne la règle générale. Pour obtenir un point de dépôt précis, saisir la commune et l’intercommunalité ; les règles locales et les filières professionnelles seront ensuite rattachées à cette juridiction.</div>';
+  if(!jid)html+='<div class="box"><b>🔎 Territoire encore à documenter :</b> la structure est prête, mais aucune règle locale suffisamment sourcée n’est affichée. L’application ne transforme pas une règle générale en consigne locale.</div>';if(jid&&country!=='FR'&&!rules.length)html+='<div class="box"><b>🇪🇺 Cadre européen :</b> le territoire est enregistré, mais ses règles locales de dépôt doivent être documentées avec des sources nationales/régionales avant de proposer une consigne précise.</div>'
   html+='<h4>🧭 Ordre de recherche Chiffr’EcoPro</h4><ol><li>Réemploi / don / réutilisation</li><li>Reprise gratuite ou filière REP, si confirmée</li><li>Point professionnel gratuit sous conditions</li><li>Aide ou dispositif applicable</li><li>Solution professionnelle payante la moins coûteuse compatible</li><li>Élimination en dernier recours</li></ol>';
   html+='<p class="muted">⚠️ Chiffr’EcoPro ne transforme jamais une possibilité en garantie : gratuité, aide, acceptation et prix sont liés au flux, au volume, au statut et à la juridiction en vigueur.</p></div>';
   res.innerHTML=html;

@@ -1,30 +1,47 @@
 (()=>{'use strict';
 const escD=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const rules={
-verts:['Déchets verts','Broyage, réemploi du broyat ou filière végétale locale.','Sous conditions'],
-gravats:['Gravats / béton / minéraux','PMCB : reprise sans frais possible lorsque les conditions de collecte séparée et de reprise sont remplies.','Sous conditions'],
-bois:['Bois','Tri séparé et filières de reprise/valorisation bois.','Sous conditions'],
-metaux:['Métaux','Séparer les métaux pour favoriser la valorisation matière et éviter le mélange.','Sous conditions'],
-plastique:['Plastiques','Identifier la filière correspondant au produit ; la gratuité n’est pas automatique.','À vérifier'],
-carton:['Papier / carton','Tri à la source et comparaison des solutions professionnelles locales.','À vérifier'],
-platre:['Plâtre','PMCB : privilégier le tri séparé et un point de reprise adapté.','Sous conditions'],
-verre:['Verre / menuiseries vitrées','Certains flux relèvent de la filière PMCB et peuvent être repris selon conditions.','Sous conditions'],
-dangereux:['Déchets chimiques / dangereux','Ne pas mélanger ; identifier la filière spécialisée avant transport.','À vérifier'],
-mobilier:['Mobilier professionnel','Des solutions REP existent ; Ecomaison propose notamment une Carte Pro sous conditions.','Sous conditions'],
-melange:['Déchets mélangés','Le mélange réduit les possibilités de reprise gratuite et peut augmenter le coût.','À optimiser']};
-const notes={'Espaces verts':['Broyage sur place','Réemploi du broyat en paillage','Filière déchets verts'],'Élagage / abattage':['Broyage du bois','Réemploi/valorisation du bois','Filière bois'],'Maçonnerie / gros œuvre':['Tri des minéraux','Reprise PMCB','Réemploi des matériaux'],'Rénovation':['Séparer bois, métaux, plâtre et inertes','Identifier les filières REP','Réemploi avant élimination'],'Peinture':['Séparer les déchets chimiques','Identifier la filière dédiée','Ne pas mélanger les produits'],'Plomberie':['Séparer métaux, plastiques et déchets dangereux','Valoriser les métaux'],'Électricité':['Séparer métaux et DEEE','Identifier la filière électrique','Assurer la traçabilité si nécessaire'],'Terrassement':['Réemploi/valorisation des terres lorsque possible','Séparer les minéraux'],'Menuiserie':['Séparer bois, métal et verre','Réemploi des éléments','Filière PMCB'],'Carrelage / faïence':['Séparer les inertes','Reprise PMCB à vérifier','Réemploi'],'Nettoyage':['Séparer emballages et produits dangereux','Identifier les filières adaptées'],'Autre':['Identifier le flux exact','Chercher une filière REP éventuelle','Comparer les solutions locales']};
-function evaluateWasteAid(){
-const type=document.getElementById('wAidType').value,zone=document.getElementById('wAidZone').value,metier=document.getElementById('wAidMetier').value,vol=Math.max(0,+document.getElementById('wAidVol').value||0),r=rules[type]||rules.melange,n=notes[metier]||notes.Autre;
-let orient=zone==='amp'?'À Aix-Marseille-Provence, rechercher une solution professionnelle adaptée au flux.':'Rechercher un point de reprise ou prestataire professionnel adapté au flux et au territoire.';
-if(type==='bois'&&zone==='amp')orient='Veolia Aygalades indique des apports gratuits pour le bois ; vérifier les conditions et le flux accepté.';
-if(type==='metaux'&&zone==='amp')orient='Veolia Aygalades indique des apports gratuits pour métaux/ferrailles ; vérifier les conditions d’accès.';
-if(type==='verre'&&zone==='amp')orient='Veolia Aygalades indique des apports gratuits pour les menuiseries vitrées ; vérifier les conditions.';
-let links='';
-if(['gravats','bois','platre','verre'].includes(type))links+='<a href="https://www.ecologie.gouv.fr/politiques-publiques/produits-materiaux-construction-du-secteur-batiment-pmcb" target="_blank" rel="noopener">Règles officielles PMCB</a> · ';
-if(zone==='amp')links+='<a href="https://dechets.ampmetropole.fr/pro/votre-mode-de-collecte/je-trouve-ma-decheterie-professionnelle/" target="_blank" rel="noopener">Solutions professionnelles Aix-Marseille</a> · ';
-if(['bois','metaux','verre'].includes(type))links+='<a href="https://www.recyclage.veolia.fr/nous-trouver/centre-tri-aygalades-marseille" target="_blank" rel="noopener">Veolia Aygalades</a> · ';
-if(type==='mobilier')links+='<a href="https://ecomaison.com/professionnels/services-de-collecte-et-reprise/nos-solutions-decollecte-et-reprise/decouvrez-la-carte-pro/" target="_blank" rel="noopener">Ecomaison Carte Pro</a> · ';
-if(type==='dangereux')links+='<a href="https://www.ecodds.com/" target="_blank" rel="noopener">EcoDDS</a> · ';
-document.getElementById('wAidResult').innerHTML='<div class="card" style="margin-top:12px"><span class="pill">'+escD(r[2])+'</span><h3>'+escD(r[0])+'</h3><p><b>Règle :</b> '+escD(r[1])+'</p><p><b>Pour '+escD(metier)+' :</b> '+n.map(escD).join(' · ')+'</p><p><b>Volume :</b> '+vol.toFixed(2)+' m³</p><p><b>Orientation :</b> '+escD(orient)+'</p>'+(zone==='amp'?'<div class="notice">Les déchèteries métropolitaines ne sont pas ouvertes aux professionnels depuis le 1er juillet 2025.</div>':'')+'<div class="box"><b>Objectif Chiffr’EcoPro :</b> chercher d’abord réemploi, tri, reprise sans frais ou valorisation, puis calculer le coût payant restant.</div><p class="muted">La gratuité ou une aide n’est jamais garantie : elle dépend du déchet, du tri, du point de reprise, du volume, du territoire et des conditions en vigueur.</p><p>'+links+'</p></div>';}
+const SB_URL='https://ltehjhvxrnwatbqplmxr.supabase.co';
+const SB_KEY='sb_publishable_GwgM9WAAvVGwNxUQEFf9yQ_YDWbI0xa';
+const regions={
+'ARA':'Auvergne-Rhône-Alpes','BFC':'Bourgogne-Franche-Comté','BRE':'Bretagne','CVL':'Centre-Val de Loire','COR':'Corse','GES':'Grand Est','HDF':'Hauts-de-France','IDF':'Île-de-France','NOR':'Normandie','NAQ':'Nouvelle-Aquitaine','OCC':'Occitanie','PDL':'Pays de la Loire','PAC':'Provence-Alpes-Côte d’Azur','GUA':'Guadeloupe','MAR':'Martinique','GUY':'Guyane','REU':'La Réunion','MAY':'Mayotte'};
+const streams={verts:['🌿','Déchets verts / biodéchets'],gravats:['🧱','Gravats / béton / minéraux'],bois:['🪵','Bois'],metaux:['🔩','Métaux'],plastique:['♻️','Plastiques'],carton:['📦','Papier / carton'],platre:['◻️','Plâtre'],verre:['🪟','Verre / menuiseries vitrées'],dangereux:['⚠️','Déchets dangereux / chimiques'],mobilier:['🪑','Mobilier professionnel'],melange:['🗑️','Déchets mélangés']};
+const métiers=['Espaces verts','Élagage / abattage','Maçonnerie / gros œuvre','Rénovation','Peinture','Plomberie','Électricité','Terrassement','Menuiserie','Carrelage / faïence','Nettoyage','Autre'];
+const status={
+free_confirmed:['🟢','Gratuit confirmé'],free_conditions:['🟡','Gratuit sous conditions'],aid_possible:['🔵','Aide possible'],price_to_check:['🟠','Tarif à vérifier'],mandatory_specialist:['🔴','Filière spécialisée obligatoire / à vérifier'],optimize:['🟣','À optimiser']};
+const frDept=['01 Ain','02 Aisne','03 Allier','04 Alpes-de-Haute-Provence','05 Hautes-Alpes','06 Alpes-Maritimes','07 Ardèche','08 Ardennes','09 Ariège','10 Aube','11 Aude','12 Aveyron','13 Bouches-du-Rhône','14 Calvados','15 Cantal','16 Charente','17 Charente-Maritime','18 Cher','19 Corrèze','2A Corse-du-Sud','2B Haute-Corse','21 Côte-d’Or','22 Côtes-d’Armor','23 Creuse','24 Dordogne','25 Doubs','26 Drôme','27 Eure','28 Eure-et-Loir','29 Finistère','30 Gard','31 Haute-Garonne','32 Gers','33 Gironde','34 Hérault','35 Ille-et-Vilaine','36 Indre','37 Indre-et-Loire','38 Isère','39 Jura','40 Landes','41 Loir-et-Cher','42 Loire','43 Haute-Loire','44 Loire-Atlantique','45 Loiret','46 Lot','47 Lot-et-Garonne','48 Lozère','49 Maine-et-Loire','50 Manche','51 Marne','52 Haute-Marne','53 Mayenne','54 Meurthe-et-Moselle','55 Meuse','56 Morbihan','57 Moselle','58 Nièvre','59 Nord','60 Oise','61 Orne','62 Pas-de-Calais','63 Puy-de-Dôme','64 Pyrénées-Atlantiques','65 Hautes-Pyrénées','66 Pyrénées-Orientales','67 Bas-Rhin','68 Haut-Rhin','69 Rhône','70 Haute-Saône','71 Saône-et-Loire','72 Sarthe','73 Savoie','74 Haute-Savoie','75 Paris','76 Seine-Maritime','77 Seine-et-Marne','78 Yvelines','79 Deux-Sèvres','80 Somme','81 Tarn','82 Tarn-et-Garonne','83 Var','84 Vaucluse','85 Vendée','86 Vienne','87 Haute-Vienne','88 Vosges','89 Yonne','90 Territoire de Belfort','91 Essonne','92 Hauts-de-Seine','93 Seine-Saint-Denis','94 Val-de-Marne','95 Val-d’Oise','971 Guadeloupe','972 Martinique','973 Guyane','974 La Réunion','976 Mayotte'];
+const api=async(path,params={})=>{const q=new URLSearchParams(params);const r=await fetch(SB_URL+'/rest/v1/'+path+'?'+q,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});if(!r.ok)throw new Error('API '+r.status);return r.json()};
+function setJurisdictionDefaults(){
+ const reg=document.getElementById('wAidRegion'); if(reg&&!reg.options.length)Object.entries(regions).forEach(([v,n])=>reg.add(new Option(n,v)));
+ const dep=document.getElementById('wAidDept'); if(dep&&!dep.options.length){dep.add(new Option('Sélectionner le département',''));frDept.forEach(x=>dep.add(new Option(x,x.slice(0,x.indexOf(' ')))));}
+ const met=document.getElementById('wAidMetier'); if(met&&!met.options.length)métiers.forEach(x=>met.add(new Option(x,x)));
+ const typ=document.getElementById('wAidType'); if(typ&&!typ.options.length)Object.entries(streams).forEach(([v,x])=>typ.add(new Option(x[0]+' '+x[1],v)));
+}
+function escLink(url,label){return '<a href="'+escD(url)+'" target="_blank" rel="noopener">'+escD(label)+'</a>'}
+async function evaluateWasteAid(){
+ setJurisdictionDefaults();
+ const type=document.getElementById('wAidType').value||'melange',region=document.getElementById('wAidRegion').value,dept=document.getElementById('wAidDept').value,commune=document.getElementById('wAidCommune').value.trim(),authority=document.getElementById('wAidAuthority').value.trim(),metier=document.getElementById('wAidMetier').value||'Autre',audience=document.getElementById('wAidAudience').value||'professional',vol=Math.max(0,+document.getElementById('wAidVol').value||0),res=document.getElementById('wAidResult');
+ res.innerHTML='<div class="card" style="margin-top:12px"><b>Recherche en cours…</b><p class="muted">Juridiction → règle → filière → point de reprise → coût.</p></div>';
+ try{
+  let rules=await api('waste_rules',{select:'status,instruction,conditions,prohibited,priority,source_id,jurisdiction_id',stream_code:'eq.'+type,audience:'eq.'+audience,active:'eq.true',order:'priority.asc'});
+  const isAmp=region==='PAC'&&dept==='13'&&/aix|marseille|provence/i.test(authority+' '+commune);
+  const sources=await api('waste_sources',{select:'id,name,url,publisher,verified_at',active:'eq.true'});
+  const sourceMap=Object.fromEntries(sources.map(s=>[s.id,s]));
+  const chosen=rules.find(r=>isAmp && r.jurisdiction_id)||rules.find(r=>!r.jurisdiction_id)||rules[0];
+  const facilities=isAmp?await api('waste_facilities',{select:'name,operator,address,accepted_streams,audience,access_conditions,pricing_note,source_id,verified_at',active:'eq.true'}):[];
+  const localRules=rules.filter(r=>r.jurisdiction_id);
+  let title=streams[type]?.[1]||type, st=chosen?.status||'price_to_check', s=status[st]||status.price_to_check;
+  let jurisdiction=(authority||commune||dept||region)?['France',region?regions[region]:'',dept?'département '+dept:'',commune,authority].filter(Boolean).join(' → '):'France — juridiction nationale';
+  let html='<div class="card" style="margin-top:12px"><span class="pill">'+s[0]+' '+s[1]+'</span><h3>'+streams[type][0]+' '+escD(title)+'</h3><p><b>Juridiction analysée :</b> '+escD(jurisdiction)+'</p><p><b>Métier :</b> '+escD(metier)+' · <b>Volume :</b> '+vol.toFixed(2)+' m³</p>';
+  if(chosen)html+='<div class="box"><p><b>Que faire :</b> '+escD(chosen.instruction)+'</p><p><b>Conditions :</b> '+escD(chosen.conditions||'À vérifier auprès du point de reprise.')+'</p>'+(chosen.prohibited?'<p class="danger"><b>À ne pas faire :</b> '+escD(chosen.prohibited)+'</p>':'')+'</div>';
+  if(isAmp)html+='<div class="notice"><b>⚠️ Aix-Marseille-Provence :</b> les déchèteries métropolitaines ne sont plus accessibles aux professionnels depuis le 1er juillet 2025. Il faut utiliser une solution professionnelle adaptée.</div>';
+  const relevant=facilities.filter(f=>Array.isArray(f.accepted_streams)&&f.accepted_streams.includes(type));
+  if(relevant.length){html+='<h4>📍 Point professionnel identifié</h4>';relevant.forEach(f=>{const src=sourceMap[f.source_id];html+='<div class="box"><b>'+escD(f.name)+'</b><br>'+escD(f.address||'')+'<p>'+escD(f.access_conditions||'')+'</p><p><b>Conditions / coût :</b> '+escD(f.pricing_note||'À vérifier')+'</p>'+(src?'<p>'+escLink(src.url,'Source vérifiée')+' · '+escD(src.publisher||'')+' · vérifiée le '+escD(src.verified_at||'')+'</p>':'')+'</div>'})}
+  if(!isAmp)html+='<div class="box"><b>🔎 Recherche locale à compléter :</b> la base nationale donne la règle générale. Pour obtenir un point de dépôt précis, saisir la commune et l’intercommunalité ; les règles locales et les filières professionnelles seront ensuite rattachées à cette juridiction.</div>';
+  html+='<h4>🧭 Ordre de recherche Chiffr’EcoPro</h4><ol><li>Réemploi / don / réutilisation</li><li>Reprise gratuite ou filière REP, si confirmée</li><li>Point professionnel gratuit sous conditions</li><li>Aide ou dispositif applicable</li><li>Solution professionnelle payante la moins coûteuse compatible</li><li>Élimination en dernier recours</li></ol>';
+  html+='<p class="muted">⚠️ Chiffr’EcoPro ne transforme jamais une possibilité en garantie : gratuité, aide, acceptation et prix sont liés au flux, au volume, au statut et à la juridiction en vigueur.</p></div>';
+  res.innerHTML=html;
+ }catch(e){res.innerHTML='<div class="card notice"><b>Recherche locale indisponible.</b><p>La règle de sécurité reste : ne pas déposer le déchet dans une filière non prévue. Réessayez ou vérifiez la source officielle du territoire.</p></div>'}
+}
 window.evaluateWasteAid=evaluateWasteAid;
+document.addEventListener('DOMContentLoaded',setJurisdictionDefaults);
 })();

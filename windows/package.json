@@ -1,0 +1,42 @@
+{
+  "name": "chiffrecopro-windows",
+  "version": "1.0.0",
+  "description": "Chiffr’EcoPro pour Windows",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^38.2.2",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "fr.chiffrecopro.app",
+    "productName": "Chiffr’EcoPro",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

@@ -1,8 +1,11 @@
-plugins { id("com.android.application") }
+plugins {
+    id("com.android.application")
+}
 
 android {
     namespace = "fr.chiffrecopro.app"
     compileSdk = 36
+
     defaultConfig {
         applicationId = "fr.chiffrecopro.app"
         minSdk = 23
@@ -10,8 +13,12 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+
     buildTypes {
-        release { minifyEnabled = false; shrinkResources = false }
+        getByName("release") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
     }
 }
 

@@ -3,12 +3,10 @@ plugins {
 }
 
 android {
-    // Namespace stays aligned with the existing MainActivity Java package.
     namespace = "fr.chiffrecopro.app"
     compileSdk = 36
 
     defaultConfig {
-        // Must match the application already registered in Google Play.
         applicationId = "fr.chiffreco.pro"
         minSdk = 23
         targetSdk = 36
@@ -22,6 +20,14 @@ android {
             isShrinkResources = false
         }
     }
+}
+
+configurations.configureEach {
+    resolutionStrategy.force(
+        "org.jetbrains.kotlin:kotlin-stdlib:1.8.22",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22"
+    )
 }
 
 dependencies {

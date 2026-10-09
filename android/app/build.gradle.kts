@@ -3,15 +3,17 @@ plugins {
 }
 
 android {
+    // Namespace stays aligned with the existing MainActivity Java package.
     namespace = "fr.chiffrecopro.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "fr.chiffrecopro.app"
+        // Must match the application already registered in Google Play.
+        applicationId = "fr.chiffreco.pro"
         minSdk = 23
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
     }
 
     buildTypes {

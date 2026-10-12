@@ -17,7 +17,7 @@ Ces quatre points sont corrigés dans cette branche de diagnostic : scripts crit
 
 ## Point de logique à ne pas confondre
 
-Dans `app-v13.js`, le total professionnel est calculé avec les heures, le taux horaire, le coefficient du baromètre, les matériaux, les outils, les déchets, le déplacement et les autres coûts. Le champ `qty` / `unit` est enregistré et affiché dans le devis, mais n'entre pas directement dans la formule du total. Cela explique pourquoi modifier seulement la quantité du chiffrage PRO ne recalcule pas le prix. Ce n'est pas, à lui seul, une formule qui fait baisser le prix; il faut conserver la distinction entre quantité de chantier et nombre total d'heures avant de changer cette formule.
+Dans `app-v13.js`, le total professionnel est calculé avec les heures, le taux horaire ajusté par le coefficient du baromètre, les matériaux, les outils, les déchets, le déplacement et les autres coûts. La quantité ne multiplie pas directement les heures : elle influe seulement sur le coefficient de difficulté selon l’unité. Le bug qui faisait chuter le total au passage de 2 à 3 unités venait de la majoration discontinue de 8 %, maintenant supprimée. Le test vérifie que le total ne baisse plus quand la quantité passe de 2 à 4 m².
 
 L'estimation particulier `estimateV13()`, elle, est proportionnelle à la quantité `pq` lorsque les autres paramètres restent identiques. Un passage de 1 à 6 ne doit donc pas réduire sa fourchette.
 

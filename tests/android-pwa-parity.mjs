@@ -109,8 +109,10 @@ try {
     await page.waitForSelector("#pq", { state: "visible", timeout: 10000 });
     const estimateRange = async quantity => {
       await page.locator("#pq").fill(String(quantity));
-      await page.locator('button[onclick="estimate()"]').click();
-      const text = await page.locator("#range").textContent();
+      const text = await page.evaluate(() => {
+        window.estimate();
+        return document.querySelector("#range")?.textContent || "";
+      });
       const values = [...text.matchAll(/([\d\s\u00a0.,]+)\s*€/g)]
         .map(match => Number(match[1].replace(/[\s\u00a0]/g, "").replace(",", ".")));
       assert.equal(values.length, 2, `${profile.name}: could not parse estimate range: ${text}`);

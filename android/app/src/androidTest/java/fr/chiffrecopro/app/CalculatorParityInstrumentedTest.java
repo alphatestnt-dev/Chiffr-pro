@@ -78,6 +78,23 @@ public class CalculatorParityInstrumentedTest {
             assertTrue("HT total must be visible", !result.optString("htText").trim().isEmpty());
             assertTrue("TTC total must be visible", !result.optString("ttcText").trim().isEmpty());
             assertTrue("Runtime error banner should not appear", !result.optBoolean("runtimeError"));
+
+            // Also verify the private estimate cannot decrease when only quantity increases.
+            String estimateJson = evaluate(webView,
+                    "(function(){"
+                    + "document.querySelectorAll('.page').forEach(function(s){s.classList.remove('active')});"
+                    + "document.getElementById('particulier').classList.add('active');"
+                    + "var q=document.getElementById('pq');"
+                    + "q.value='1';window.estimate();var one=document.getElementById('range').textContent.match(/[0-9]+(?:[.,][0-9]+)?/g);"
+                    + "q.value='6';window.estimate();var six=document.getElementById('range').textContent.match(/[0-9]+(?:[.,][0-9]+)?/g);"
+                    + "return JSON.stringify({min1:Number(one[0].replace(',','.')),max1:Number(one[1].replace(',','.')),"
+                    + "min6:Number(six[0].replace(',','.')),max6:Number(six[1].replace(',','.'))});"
+                    + "})()");
+            JSONObject estimate = new JSONObject(estimateJson);
+            assertTrue("Minimum estimate must rise from quantity 1 to 6",
+                    estimate.getDouble("min6") > estimate.getDouble("min1"));
+            assertTrue("Maximum estimate must rise from quantity 1 to 6",
+                    estimate.getDouble("max6") > estimate.getDouble("max1"));
         } finally {
             InstrumentationRegistry.getInstrumentation().runOnMainSync(activity::finish);
         }

@@ -1,0 +1,57 @@
+name: ChiffrEcoPro parity tests
+
+on:
+  pull_request:
+    paths:
+      - 'android/**'
+      - 'tests/**'
+      - '.github/workflows/parity-tests.yml'
+      - 'index.html'
+      - 'app-v13.js'
+      - 'runtime-stability.js'
+      - 'sw.js'
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - 'tests/**'
+      - '.github/workflows/parity-tests.yml'
+      - 'index.html'
+      - 'app-v13.js'
+      - 'runtime-stability.js'
+      - 'sw.js'
+  workflow_dispatch:
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.13'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Compare mobile and desktop calculations
+        run: node tests/android-pwa-parity.mjs
+
+      - name: Compile Android debug APK
+        run: gradle -p android assembleDebug

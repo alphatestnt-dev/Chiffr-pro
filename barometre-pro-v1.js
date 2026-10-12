@@ -16,9 +16,9 @@ function installBarometre(){
   if(/difficile|complexe|délicat|accès|hauteur|profondeur|urgence/.test(prest)){c+=0.10;why.push('prestation technique');}
   if(/élagage|abattage|toiture|charpente|terrassement|démolition/.test(metier)){c+=0.08;why.push('métier à contraintes');}
   if(unit==='m³')c+=Math.min(.10,q/100); else if(unit==='m²')c+=Math.min(.08,q/500);
-  if(q>0&&q<3)c+=0.08,why.push('petite quantité');
+  if(q>0&&q<3)why.push('petite quantité — vérifier le minimum de chantier');
   if(h>8)c+=0.05,why.push('durée importante');
-  const waste=document.getElementById('wlst');if(waste&&waste.children.length){c+=0.04;why.push('évacuation');}
+  const waste=document.getElementById('wlst');if(waste&&waste.querySelector('.item')){c+=0.04;why.push('évacuation');}
   if(document.getElementById('reuse')?.checked||document.getElementById('grind')?.checked||document.getElementById('opt')?.checked)c-=0.03,why.push('optimisation écologique/logistique');
   c=Math.max(.85,Math.min(1.45,c));
   let level=c<.95?'VERT · ÉCONOMIQUE':c<=1.08?'JAUNE · NORMAL':c<=1.22?'ORANGE · DIFFICILE':'ROUGE · TRÈS DIFFICILE';
@@ -34,8 +34,8 @@ function installBarometre(){
  window.ceBarometre=analyse;
  ['metier','prest','etat','qty','unit','hours','rate','margin','wt','wl','ww','wh','wv'].forEach(id=>document.getElementById(id)?.addEventListener('input',analyse));
  ['metier','prest','etat','unit','wt','wmode','sort','reuse','grind','opt'].forEach(id=>document.getElementById(id)?.addEventListener('change',analyse));
- const oldCalc=window.calc;
- if(typeof oldCalc==='function'&&!window.__ceCalcWrapped){window.__ceCalcWrapped=true;window.calc=function(){const coef=analyse();const r=document.getElementById('rate');if(!r||!oldCalc)return;const original=r.value;const base=parseFloat(original)||0;r.value=(base*coef).toFixed(2);try{return oldCalc.apply(this,arguments)}finally{r.value=original}}}
+ // calcV13 consumes this coefficient directly. Never mutate the visible hourly rate
+ // around a click: saves, estimates and documents must all use one calculation.
  analyse();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installBarometre);else installBarometre();

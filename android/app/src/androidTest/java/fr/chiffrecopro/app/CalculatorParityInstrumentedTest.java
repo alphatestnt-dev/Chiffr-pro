@@ -41,9 +41,9 @@ public class CalculatorParityInstrumentedTest {
             long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(90);
             while (System.nanoTime() < deadline) {
                 ready = evaluate(webView,
-                        "JSON.stringify({ready:document.readyState,calc:typeof window.calc,docs:window.makeQuote&&window.makeQuote.name==='createQuote',part:typeof window.cePartPrepareQuote==='function',runtimeCount:[...document.scripts].filter(s=>s.src.includes('runtime-stability.js')).length,qty:!!document.getElementById('hours')})");
+                        "JSON.stringify({ready:document.readyState,calc:typeof window.calc,docs:window.makeQuote&&window.makeQuote.name==='createQuote',part:typeof window.cePartPrepareQuote==='function',barometer:typeof window.ceBarometre==='function',runtimeCount:[...document.scripts].filter(s=>s.src.includes('runtime-stability.js')).length,qty:!!document.getElementById('hours')})");
                 JSONObject state = new JSONObject(ready);
-                if ("function".equals(state.optString("calc")) && state.optBoolean("docs") && state.optBoolean("part") && state.optInt("runtimeCount") == 1 && state.optBoolean("qty")) {
+                if ("function".equals(state.optString("calc")) && state.optBoolean("docs") && state.optBoolean("part") && state.optBoolean("barometer") && state.optInt("runtimeCount") == 1 && state.optBoolean("qty")) {
                     break;
                 }
                 Thread.sleep(500);
@@ -53,6 +53,7 @@ public class CalculatorParityInstrumentedTest {
             assertEquals("function", state.optString("calc"));
             assertTrue("Current quote handler should be ready", state.optBoolean("docs"));
             assertTrue("Private workflow should be ready", state.optBoolean("part"));
+            assertTrue("PRO barometer should be ready", state.optBoolean("barometer"));
             assertEquals("Runtime script should load once", 1, state.optInt("runtimeCount"));
 
             String resultJson = evaluate(webView,
@@ -63,6 +64,8 @@ public class CalculatorParityInstrumentedTest {
                     + "document.getElementById('other').value='0';"
                     + "document.getElementById('margin').value='25';"
                     + "document.getElementById('vat').value='20';"
+                    + "document.getElementById('qty').value='0';"
+                    + "document.getElementById('unit').value='forfait';"
                     + "var r=window.calc();"
                     + "return JSON.stringify({direct:r.direct,ht:r.ht,ttc:r.ttc,"
                     + "costText:document.getElementById('cost').textContent,"
@@ -78,6 +81,17 @@ public class CalculatorParityInstrumentedTest {
             assertTrue("HT total must be visible", !result.optString("htText").trim().isEmpty());
             assertTrue("TTC total must be visible", !result.optString("ttcText").trim().isEmpty());
             assertTrue("Runtime error banner should not appear", !result.optBoolean("runtimeError"));
+
+            String proQuantityJson = evaluate(webView,
+                    "(function(){"
+                    + "var q=document.getElementById('qty'),u=document.getElementById('unit');"
+                    + "u.value='m²';q.value='2';var two=window.calc().direct;"
+                    + "q.value='4';var four=window.calc().direct;"
+                    + "return JSON.stringify({two:two,four:four});"
+                    + "})()");
+            JSONObject proQuantity = new JSONObject(proQuantityJson);
+            assertTrue("PRO total must not fall when quantity rises from 2 to 4",
+                    proQuantity.getDouble("four") >= proQuantity.getDouble("two"));
 
             // Also verify the private estimate cannot decrease when only quantity increases.
             String estimateJson = evaluate(webView,

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.graphics.Color;
 import android.view.View;
 import android.webkit.CookieManager;
+import android.webkit.ServiceWorkerController;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -16,16 +17,20 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // The Android app deliberately uses the exact same live web app as the PWA.
+        // Do not create a second calculator implementation in the Android wrapper.
         webView = new WebView(this);
         setContentView(webView);
 
-        // The Android app loads the same live web application as the desktop site.
-        // Disable the WebView HTTP cache so old JavaScript cannot leave Android on a
-        // different calculation build after the website has been updated. This does
-        // not clear localStorage, saved estimates, or login data.
+        // Keep WebView's HTTP cache and the PWA service-worker cache from serving
+        // stale JavaScript after a website update. minSdk is 24, so this API exists.
         webView.clearCache(true);
         WebSettings settings = webView.getSettings();
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        ServiceWorkerController.getInstance()
+                .getServiceWorkerWebSettings()
+                .setCacheMode(WebSettings.LOAD_NO_CACHE);
+
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);

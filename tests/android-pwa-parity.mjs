@@ -109,9 +109,9 @@ try {
     await page.waitForSelector("#pq", { state: "visible", timeout: 10000 });
     const estimateRange = async quantity => {
       await page.locator("#pq").fill(String(quantity));
-      const estimateDebug = await page.evaluate(() => {
+      const estimateDebug = await page.evaluate(async () => {
         const type = typeof window.estimate;
-        if (type === "function") window.estimate();
+        if (type === "function") await window.estimate();
         return {
           type,
           quantity: document.querySelector("#pq")?.value,

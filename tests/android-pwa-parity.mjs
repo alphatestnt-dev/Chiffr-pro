@@ -109,10 +109,21 @@ try {
     await page.waitForSelector("#pq", { state: "visible", timeout: 10000 });
     const estimateRange = async quantity => {
       await page.locator("#pq").fill(String(quantity));
-      const text = await page.evaluate(() => {
-        window.estimate();
-        return document.querySelector("#range")?.textContent || "";
+      const estimateDebug = await page.evaluate(() => {
+        const type = typeof window.estimate;
+        if (type === "function") window.estimate();
+        return {
+          type,
+          quantity: document.querySelector("#pq")?.value,
+          branch: document.querySelector("#pf")?.value,
+          difficulty: document.querySelector("#pd")?.value,
+          state: document.querySelector("#pe")?.value,
+          range: document.querySelector("#range")?.textContent || "",
+          resultClass: document.querySelector("#pr")?.className
+        };
       });
+      console.log("Private estimate diagnostic:", JSON.stringify(estimateDebug));
+      const text = estimateDebug.range;
       const values = [...text.matchAll(/([\d\s\u00a0.,]+)\s*€/g)]
         .map(match => Number(match[1].replace(/[\s\u00a0]/g, "").replace(",", ".")));
       assert.equal(values.length, 2, `${profile.name}: could not parse estimate range: ${text}`);

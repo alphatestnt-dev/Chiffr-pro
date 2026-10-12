@@ -68,6 +68,8 @@ try {
     assert.ok(result.displayedHt, `${profile.name}: HT total is not displayed`);
     assert.ok(result.displayedTtc, `${profile.name}: TTC total is not displayed`);
     // Regression check for the report that increasing quantity can lower an estimate.
+    await page.evaluate(() => window.go("particulier"));
+    await page.waitForSelector("#pq", { state: "visible", timeout: 10000 });
     const estimateRange = async quantity => {
       await page.locator("#pq").fill(String(quantity));
       await page.locator('button[onclick="estimate()"]').click();

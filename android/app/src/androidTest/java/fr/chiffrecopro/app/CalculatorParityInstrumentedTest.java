@@ -1,0 +1,99 @@
+package fr.chiffrecopro.app;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * Runs the real native Android WebView, not just a mobile-sized desktop browser.
+ * Uses a calculation-only smoke test and does not save estimates or account data.
+ */
+@RunWith(AndroidJUnit4.class)
+public class CalculatorParityInstrumentedTest {
+    @Test
+    public void nativeWebViewUsesSharedCalculatorAndShowsExpectedTotals() throws Exception {
+        final Activity activity = InstrumentationRegistry.getInstrumentation().startActivitySync(
+                new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+
+        try {
+            final WebView webView = (WebView) ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
+            assertNotNull("MainActivity should expose its WebView as the content view", webView);
+
+            String ready = null;
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(90);
+            while (System.nanoTime() < deadline) {
+                ready = evaluate(webView,
+                        "JSON.stringify({ready:document.readyState,calc:typeof window.calc,qty:!!document.getElementById('hours')})");
+                JSONObject state = new JSONObject(ready);
+                if ("function".equals(state.optString("calc")) && state.optBoolean("qty")) {
+                    break;
+                }
+                Thread.sleep(500);
+            }
+            assertNotNull("The live Chiffr’EcoPro page did not finish loading its calculator", ready);
+            JSONObject state = new JSONObject(ready);
+            assertEquals("function", state.optString("calc"));
+
+            String resultJson = evaluate(webView,
+                    "(function(){"
+                    + "document.getElementById('hours').value='3';"
+                    + "document.getElementById('rate').value='16';"
+                    + "document.getElementById('travel').value='0';"
+                    + "document.getElementById('other').value='0';"
+                    + "document.getElementById('margin').value='25';"
+                    + "document.getElementById('vat').value='20';"
+                    + "var r=window.calc();"
+                    + "return JSON.stringify({direct:r.direct,ht:r.ht,ttc:r.ttc,"
+                    + "costText:document.getElementById('cost').textContent,"
+                    + "htText:document.getElementById('ht').textContent,"
+                    + "ttcText:document.getElementById('ttc').textContent,"
+                    + "runtimeError:!!document.getElementById('ceRuntimeError')});"
+                    + "})()");
+            JSONObject result = new JSONObject(resultJson);
+            assertEquals(48.0, result.getDouble("direct"), 0.001);
+            assertEquals(64.0, result.getDouble("ht"), 0.001);
+            assertEquals(76.8, result.getDouble("ttc"), 0.001);
+            assertTrue("Cost must be visible", !result.optString("costText").trim().isEmpty());
+            assertTrue("HT total must be visible", !result.optString("htText").trim().isEmpty());
+            assertTrue("TTC total must be visible", !result.optString("ttcText").trim().isEmpty());
+            assertTrue("Runtime error banner should not appear", !result.optBoolean("runtimeError"));
+        } finally {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(activity::finish);
+        }
+    }
+
+    private static String evaluate(WebView webView, String script) throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<String> result = new AtomicReference<>();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> webView.evaluateJavascript(script, value -> {
+                    result.set(value);
+                    latch.countDown();
+                }));
+        assertTrue("WebView JavaScript evaluation timed out", latch.await(15, TimeUnit.SECONDS));
+        String raw = result.get();
+        assertNotNull("WebView returned no JavaScript result", raw);
+        // evaluateJavascript JSON-encodes a returned JavaScript string.
+        if (raw.startsWith("\"") && raw.endsWith("\"")) {
+            raw = new org.json.JSONArray("[" + raw + "]").getString(0);
+        }
+        return raw;
+    }
+}

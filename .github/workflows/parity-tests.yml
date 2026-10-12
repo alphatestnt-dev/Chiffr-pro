@@ -53,5 +53,13 @@ jobs:
       - name: Compare mobile and desktop calculations
         run: node tests/android-pwa-parity.mjs
 
-      - name: Compile Android debug APK
-        run: gradle -p android assembleDebug
+      - name: Compile Android debug APK and instrumented tests
+        run: gradle -p android assembleDebug assembleDebugAndroidTest
+
+      - name: Run calculation test inside native Android WebView
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          disable-animations: true
+          script: gradle -p android connectedDebugAndroidTest

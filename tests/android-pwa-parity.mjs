@@ -101,6 +101,19 @@ try {
     assert.equal(quoteData.ht, await page.locator("#ht").textContent().then(value => value.trim()), `${profile.name}: quote HT differs from calculator`);
     assert.equal(await page.locator("#rate").inputValue(), "16", `${profile.name}: calculator unexpectedly changed the visible hourly rate`);
 
+    // Reset must clear only the in-progress estimate without reloading the WebView.
+    await page.evaluate(() => {
+      const originalConfirm = window.confirm;
+      window.confirm = () => true;
+      document.querySelector("#qty").value = "9";
+      document.querySelector("#hours").value = "7";
+      window.resetAll();
+      window.confirm = originalConfirm;
+    });
+    assert.equal(await page.locator("#qty").inputValue(), "1", `${profile.name}: reset did not restore quantity`);
+    assert.equal(await page.locator("#hours").inputValue(), "3", `${profile.name}: reset did not restore hours`);
+    assert.ok((await page.locator("#res").getAttribute("class")).includes("hide"), `${profile.name}: reset left the old calculation visible`);
+
     // Regression check for the report that increasing quantity can lower an estimate.
     await page.evaluate(() => {
       document.querySelectorAll(".page").forEach(section => section.classList.remove("active"));

@@ -65,8 +65,23 @@ try {
     assert.ok(result.displayedCost, `${profile.name}: total cost is not displayed`);
     assert.ok(result.displayedHt, `${profile.name}: HT total is not displayed`);
     assert.ok(result.displayedTtc, `${profile.name}: TTC total is not displayed`);
+    // Regression check for the report that increasing quantity can lower an estimate.
+    const estimateRange = async quantity => {
+      await page.locator("#pq").fill(String(quantity));
+      await page.locator('button[onclick="estimate()"]').click();
+      const text = await page.locator("#range").textContent();
+      const values = [...text.matchAll(/([\\d\\s\\u00a0.,]+)\\s*€/g)]
+        .map(match => Number(match[1].replace(/[\\s\\u00a0]/g, "").replace(",", ".")));
+      assert.equal(values.length, 2, `${profile.name}: could not parse estimate range: ${text}`);
+      return values;
+    };
+    const rangeForOne = await estimateRange(1);
+    const rangeForSix = await estimateRange(6);
+    assert.ok(rangeForSix[0] > rangeForOne[0], `${profile.name}: minimum estimate did not increase with quantity`);
+    assert.ok(rangeForSix[1] > rangeForOne[1], `${profile.name}: maximum estimate did not increase with quantity`);
+
     assert.deepEqual(pageErrors, [], `${profile.name}: uncaught JavaScript errors: ${pageErrors.join("; ")}`);
-    results.push({ profile: profile.name, direct: result.direct, ht: result.ht, ttc: result.ttc });
+    results.push({ profile: profile.name, direct: result.direct, ht: result.ht, ttc: result.ttc, estimate1: rangeForOne, estimate6: rangeForSix });
     await context.close();
   }
 
@@ -78,6 +93,7 @@ try {
 
   console.log("PASS: Android wrapper targets the shared site and disables HTTP/service-worker cache.");
   console.log("PASS: same known estimate on desktop and mobile:", JSON.stringify(results));
+  console.log("PASS: increasing the private estimate quantity from 1 to 6 increases both bounds.");
 } finally {
   await browser.close();
 }

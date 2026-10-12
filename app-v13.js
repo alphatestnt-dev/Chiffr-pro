@@ -162,11 +162,18 @@ function compareRender(){const el=$('cl');if(!el)return;const a=JSON.parse(local
 window.exportData=()=>{const data={application:'Chiffr’EcoPro',version:'stable',chiffrages:JSON.parse(localStorage.getItem('ce_history')||'[]'),parametres:JSON.parse(localStorage.getItem('ce_settings')||'{}'),comparaison:JSON.parse(localStorage.getItem('ce_cmp')||'[]')};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='chifrecopro-export.json';a.click();URL.revokeObjectURL(a.href)};
 window.resetAll=()=>{
  if(!confirm('Réinitialiser le chiffrage en cours ?'))return;
- // Reset only the current working estimate; preserve saved history, invoices and account settings.
- ['num','client'].forEach(id=>{if($(id))$(id).value=''});
- const defaults={qty:'1',hours:'3',rate:'16',margin:'25',vat:'20',travel:'0',other:'0'};
+ // Preserve business identity, saved documents, account data and estimate history.
+ ['num','client','mn','mq','mp','th','tc','wl','ww','wh','wv'].forEach(id=>{if($(id))$(id).value=''});
+ const defaults={qty:'1',hours:'3',rate:'16',travel:'0',other:'0',vat:'20'};
  Object.entries(defaults).forEach(([id,value])=>{if($(id))$(id).value=value});
+ if($('margin'))$('margin').dataset.manual='0';
  if($('metier')&&$('metier').options.length)$('metier').selectedIndex=0;
+ if($('unit'))$('unit').selectedIndex=0;
+ if($('wmode'))$('wmode').selectedIndex=0;
+ if($('sort'))$('sort').checked=false;
+ if($('reuse'))$('reuse').checked=false;
+ if($('grind'))$('grind').checked=false;
+ if($('opt'))$('opt').checked=false;
  mats=[];toolsList=[];wastes=[];plants=[];current=null;
  if(typeof professionV13==='function')professionV13();
  if(typeof pSubV13==='function')pSubV13();
@@ -175,6 +182,7 @@ window.resetAll=()=>{
  if(typeof wasteRenderV13==='function')wasteRenderV13();
  if(typeof plantRenderV13==='function')plantRenderV13();
  if(typeof calcV13==='function')calcV13();
+ if(typeof previewWaste==='function')previewWaste();
  if($('res'))$('res').classList.add('hide');
  if($('plantTotal'))$('plantTotal').textContent=eur(0);
  if(typeof ecoV13==='function')ecoV13();

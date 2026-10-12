@@ -67,10 +67,14 @@ try {
         tools: value.tools,
         wastes: value.wastes,
         travel: Number(document.querySelector("#travel").value),
-        other: Number(document.querySelector("#other").value)
+        other: Number(document.querySelector("#other").value),
+        qty: value.qty,
+        unit: value.unit,
+        barometerCoefficient: value.barometerCoefficient
       };
     });
 
+    console.log("Calculator diagnostic:", JSON.stringify(result));
     assert.equal(result.origin, new URL(baseUrl).origin);
     assert.ok(Math.abs(result.direct - expected.direct) < 0.001, `${profile.name}: wrong direct cost ${result.direct}`);
     assert.ok(Math.abs(result.ht - expected.ht) < 0.001, `${profile.name}: wrong HT total ${result.ht}`);

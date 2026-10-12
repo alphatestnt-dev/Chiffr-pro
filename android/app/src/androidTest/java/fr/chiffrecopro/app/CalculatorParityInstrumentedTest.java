@@ -40,7 +40,7 @@ public class CalculatorParityInstrumentedTest {
             long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(90);
             while (System.nanoTime() < deadline) {
                 ready = evaluate(webView,
-                        "JSON.stringify({ready:document.readyState,calc:typeof window.calc,docs:window.makeQuote&&window.makeQuote.name==='createQuote',part:typeof window.cePartPrepareQuote==='function',runtimeCount:document.querySelectorAll('script[src*=\\\"runtime-stability.js\\\"]').length,qty:!!document.getElementById('hours')})");
+                        "JSON.stringify({ready:document.readyState,calc:typeof window.calc,docs:window.makeQuote&&window.makeQuote.name==='createQuote',part:typeof window.cePartPrepareQuote==='function',runtimeCount:[...document.scripts].filter(s=>s.src.includes('runtime-stability.js')).length,qty:!!document.getElementById('hours')})");
                 JSONObject state = new JSONObject(ready);
                 if ("function".equals(state.optString("calc")) && state.optBoolean("docs") && state.optBoolean("part") && state.optInt("runtimeCount") == 1 && state.optBoolean("qty")) {
                     break;
@@ -50,6 +50,9 @@ public class CalculatorParityInstrumentedTest {
             assertNotNull("The live Chiffr’EcoPro page did not finish loading its calculator", ready);
             JSONObject state = new JSONObject(ready);
             assertEquals("function", state.optString("calc"));
+            assertTrue("Current quote handler should be ready", state.optBoolean("docs"));
+            assertTrue("Private workflow should be ready", state.optBoolean("part"));
+            assertEquals("Runtime script should load once", 1, state.optInt("runtimeCount"));
 
             String resultJson = evaluate(webView,
                     "(function(){"

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
-const baseUrl = process.env.CHIFRECO_URL || "https://chiffreco-pro.fr/";
+const baseUrl = process.env.CHIFRECO_URL || "http://127.0.0.1:4173/";
 const expected = { direct: 48, ht: 64, ttc: 76.8 };
 const results = [];
 const browser = await chromium.launch({ headless: true });

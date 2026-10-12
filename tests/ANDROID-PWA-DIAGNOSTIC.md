@@ -11,9 +11,10 @@
 1. **Chargement en double de `runtime-stability.js`.** La page charge déjà `runtime-stability.js?v=...`, mais `pwa.js` recherchait uniquement le chemin exact `./runtime-stability.js`. La requête avec paramètre de version ne correspondait pas au sélecteur, et le fichier était réinjecté.
 2. **Marge réinitialisée pendant le démarrage.** `runtime-stability.js` réappliquait 25 % à 150 ms puis 700 ms après le chargement, même si l'utilisateur avait commencé à saisir une autre marge. Sur des appareils plus lents, cela peut modifier le total après la saisie.
 3. **Le baromètre PRO faisait baisser le coefficient à certains seuils.** Il ajoutait 8 % quand la quantité était inférieure à 3, puis supprimait brutalement cette majoration à 3 unités. Passer de 2 à 3 ou 4 pouvait donc réduire le total. Il remplaçait aussi temporairement le taux horaire visible pendant le calcul, puis le restaurait : le total et la ligne de main-d’œuvre du devis pouvaient ne plus correspondre.
-4. **Course de chargement pour le devis.** `pwa.js` chargeait les modules documentaires de manière asynchrone après `DOMContentLoaded`; `documents-v2.js` ne remplaçait `window.makeQuote` qu'après un délai supplémentaire de 80 ms. Pendant cette fenêtre, le bouton pouvait appeler l'ancien générateur de devis défini dans `app-v13.js`, produisant un résultat différent.
+4. **Majoration déchets appliquée même sans déchets.** Le baromètre testait seulement si la liste avait un enfant HTML; le texte « Aucune évacuation » comptait comme un déchet et ajoutait 4 % à tous les chiffrages. Il vérifie maintenant la présence d’un véritable élément de ligne.
+5. **Course de chargement pour le devis.** `pwa.js` chargeait les modules documentaires de manière asynchrone après `DOMContentLoaded`; `documents-v2.js` ne remplaçait `window.makeQuote` qu'après un délai supplémentaire de 80 ms. Pendant cette fenêtre, le bouton pouvait appeler l'ancien générateur de devis défini dans `app-v13.js`, produisant un résultat différent.
 
-Ces quatre points sont corrigés dans cette branche de diagnostic : scripts critiques chargés une seule fois avant interaction, gestionnaire de devis installé dès le chargement du module, et marge manuelle préservée.
+Ces cinq points sont corrigés dans cette branche de diagnostic : scripts critiques chargés une seule fois avant interaction, gestionnaire de devis installé dès le chargement du module, et marge manuelle préservée.
 
 ## Point de logique à ne pas confondre
 

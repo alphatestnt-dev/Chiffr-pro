@@ -90,6 +90,17 @@ try {
     await page.locator("#qty").fill("4");
     const proTotalForFour = await page.evaluate(() => window.calc().direct);
     assert.ok(proTotalForFour >= proTotalForTwo, `${profile.name}: PRO total fell from quantity 2 to 4 (${proTotalForTwo} -> ${proTotalForFour})`);
+
+    // The quote must snapshot the same adjusted labor and total as the calculator.
+    await page.locator("#qty").fill("0");
+    await page.locator("#unit").selectOption("forfait");
+    const stableCalculation = await page.evaluate(() => window.calc());
+    const quoteData = await page.evaluate(() => window.makeQuote().data);
+    assert.equal(quoteData.labor, stableCalculation.labor, `${profile.name}: quote labor differs from calculator labor`);
+    assert.equal(quoteData.barometerCoefficient, stableCalculation.barometerCoefficient, `${profile.name}: quote coefficient differs from calculator`);
+    assert.equal(quoteData.ht, await page.locator("#ht").textContent().then(value => value.trim()), `${profile.name}: quote HT differs from calculator`);
+    assert.equal(await page.locator("#rate").inputValue(), "16", `${profile.name}: calculator unexpectedly changed the visible hourly rate`);
+
     // Regression check for the report that increasing quantity can lower an estimate.
     await page.evaluate(() => {
       document.querySelectorAll(".page").forEach(section => section.classList.remove("active"));

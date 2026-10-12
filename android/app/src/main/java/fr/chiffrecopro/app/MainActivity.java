@@ -48,7 +48,15 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient());
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
-        webView.loadUrl("https://chiffreco-pro.fr/");
+        // A local test URL is accepted only by debug builds and only for the CI host.
+        // Release builds always open the production website.
+        String testUrl = getIntent().getStringExtra("chiffreco_test_url");
+        if (BuildConfig.DEBUG && testUrl != null
+                && testUrl.startsWith("http://10.0.2.2:4173/")) {
+            webView.loadUrl(testUrl);
+        } else {
+            webView.loadUrl("https://chiffreco-pro.fr/");
+        }
     }
 
     @Override

@@ -94,24 +94,40 @@ public class CalculatorParityInstrumentedTest {
                     proQuantity.getDouble("four") >= proQuantity.getDouble("two"));
 
             // Also verify the private estimate cannot decrease when only quantity increases.
-            String estimateJson = evaluate(webView,
-                    "(function(){"
-                    + "document.querySelectorAll('.page').forEach(function(s){s.classList.remove('active')});"
-                    + "document.getElementById('particulier').classList.add('active');"
-                    + "var q=document.getElementById('pq');"
-                    + "q.value='1';window.estimate();var one=document.getElementById('range').textContent.match(/[0-9]+(?:[.,][0-9]+)?/g);"
-                    + "q.value='6';window.estimate();var six=document.getElementById('range').textContent.match(/[0-9]+(?:[.,][0-9]+)?/g);"
-                    + "return JSON.stringify({min1:Number(one[0].replace(',','.')),max1:Number(one[1].replace(',','.')),"
-                    + "min6:Number(six[0].replace(',','.')),max6:Number(six[1].replace(',','.'))});"
-                    + "})()");
-            JSONObject estimate = new JSONObject(estimateJson);
-            assertTrue("Minimum estimate must rise from quantity 1 to 6",
-                    estimate.getDouble("min6") > estimate.getDouble("min1"));
-            assertTrue("Maximum estimate must rise from quantity 1 to 6",
-                    estimate.getDouble("max6") > estimate.getDouble("max1"));
+            evaluate(webView,
+                    "(function(){document.querySelectorAll('.page').forEach(function(s){s.classList.remove('active')});"
+                    + "document.getElementById('particulier').classList.add('active');return 'ready'})()");
+            double[] estimateOne = parseRange(triggerEstimateAndRead(webView, "1"));
+            double[] estimateSix = parseRange(triggerEstimateAndRead(webView, "6"));
+            assertTrue("Minimum estimate must rise from quantity 1 to 6", estimateSix[0] > estimateOne[0]);
+            assertTrue("Maximum estimate must rise from quantity 1 to 6", estimateSix[1] > estimateOne[1]);
         } finally {
             InstrumentationRegistry.getInstrumentation().runOnMainSync(activity::finish);
         }
+    }
+
+    private static String triggerEstimateAndRead(WebView webView, String quantity) throws Exception {
+        evaluate(webView, "(function(){document.getElementById('pq').value='" + quantity
+                + "';document.getElementById('range').textContent='';window.estimate();return 'started'})()");
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
+        while (System.nanoTime() < deadline) {
+            String range = evaluate(webView, "document.getElementById('range')?.textContent||''");
+            if (!range.trim().isEmpty()) return range;
+            Thread.sleep(150);
+        }
+        throw new AssertionError("Private estimate did not render for quantity " + quantity);
+    }
+
+    private static double[] parseRange(String text) {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+                .compile("([0-9]+(?:[.,][0-9]+)?)\\s*€").matcher(text);
+        double[] values = new double[2];
+        int i = 0;
+        while (matcher.find() && i < 2) {
+            values[i++] = Double.parseDouble(matcher.group(1).replace(',', '.'));
+        }
+        if (i != 2) throw new AssertionError("Could not parse private estimate range: " + text);
+        return values;
     }
 
     private static String evaluate(WebView webView, String script) throws Exception {

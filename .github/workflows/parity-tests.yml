@@ -45,12 +45,19 @@ jobs:
         with:
           gradle-version: '8.13'
 
-      - name: Install Playwright
+      - name: Install test tools
         run: |
-          npm install --no-save playwright@1.56.1
+          npm install --no-save playwright@1.56.1 http-server@14.1.1 wait-on@8.0.4
           npx playwright install --with-deps chromium
 
-      - name: Compare mobile and desktop calculations
+      - name: Serve the exact branch source for both tests
+        run: |
+          npx http-server . -p 4173 -a 0.0.0.0 -c-1 > /tmp/chiffreco-test-server.log 2>&1 &
+          npx wait-on http://127.0.0.1:4173/
+
+      - name: Compare mobile and desktop calculations from branch source
+        env:
+          CHIFRECO_URL: http://127.0.0.1:4173/
         run: node tests/android-pwa-parity.mjs
 
       - name: Compile Android debug APK and instrumented tests

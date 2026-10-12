@@ -18,7 +18,7 @@ function installBarometre(){
   if(unit==='m³')c+=Math.min(.10,q/100); else if(unit==='m²')c+=Math.min(.08,q/500);
   if(q>0&&q<3)why.push('petite quantité — vérifier le minimum de chantier');
   if(h>8)c+=0.05,why.push('durée importante');
-  const waste=document.getElementById('wlst');if(waste&&waste.children.length){c+=0.04;why.push('évacuation');}
+  const waste=document.getElementById('wlst');if(waste&&waste.querySelector('.item')){c+=0.04;why.push('évacuation');}
   if(document.getElementById('reuse')?.checked||document.getElementById('grind')?.checked||document.getElementById('opt')?.checked)c-=0.03,why.push('optimisation écologique/logistique');
   c=Math.max(.85,Math.min(1.45,c));
   let level=c<.95?'VERT · ÉCONOMIQUE':c<=1.08?'JAUNE · NORMAL':c<=1.22?'ORANGE · DIFFICILE':'ROUGE · TRÈS DIFFICILE';

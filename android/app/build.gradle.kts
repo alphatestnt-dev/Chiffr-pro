@@ -4,6 +4,9 @@ plugins {
 
 android {
     namespace = "fr.chiffrecopro.app"
+    buildFeatures {
+        buildConfig = true
+    }
     compileSdk = 36
 
     defaultConfig {

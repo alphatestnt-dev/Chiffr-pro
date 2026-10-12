@@ -40,9 +40,9 @@ public class CalculatorParityInstrumentedTest {
             long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(90);
             while (System.nanoTime() < deadline) {
                 ready = evaluate(webView,
-                        "JSON.stringify({ready:document.readyState,calc:typeof window.calc,qty:!!document.getElementById('hours')})");
+                        "JSON.stringify({ready:document.readyState,calc:typeof window.calc,docs:window.makeQuote&&window.makeQuote.name==='createQuote',part:typeof window.cePartPrepareQuote==='function',runtimeCount:document.querySelectorAll('script[src*=\\\"runtime-stability.js\\\"]').length,qty:!!document.getElementById('hours')})");
                 JSONObject state = new JSONObject(ready);
-                if ("function".equals(state.optString("calc")) && state.optBoolean("qty")) {
+                if ("function".equals(state.optString("calc")) && state.optBoolean("docs") && state.optBoolean("part") && state.optInt("runtimeCount") == 1 && state.optBoolean("qty")) {
                     break;
                 }
                 Thread.sleep(500);

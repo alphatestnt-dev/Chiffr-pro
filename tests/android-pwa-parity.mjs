@@ -58,10 +58,18 @@ try {
         ttc: value.ttc,
         displayedCost: document.querySelector("#cost")?.textContent?.trim(),
         displayedHt: document.querySelector("#ht")?.textContent?.trim(),
-        displayedTtc: document.querySelector("#ttc")?.textContent?.trim()
+        displayedTtc: document.querySelector("#ttc")?.textContent?.trim(),
+        hours: value.hours,
+        rate: value.rate,
+        materials: value.materials,
+        tools: value.tools,
+        wastes: value.wastes,
+        travel: Number(document.querySelector("#travel").value),
+        other: Number(document.querySelector("#other").value)
       };
     });
 
+    console.log("DEBUG calculator components:", JSON.stringify(result));
     assert.equal(result.origin, new URL(baseUrl).origin);
     assert.ok(Math.abs(result.direct - expected.direct) < 0.001, `${profile.name}: wrong direct cost ${result.direct}`);
     assert.ok(Math.abs(result.ht - expected.ht) < 0.001, `${profile.name}: wrong HT total ${result.ht}`);

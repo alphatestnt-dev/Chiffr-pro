@@ -30,6 +30,7 @@ public class CalculatorParityInstrumentedTest {
     public void nativeWebViewUsesSharedCalculatorAndShowsExpectedTotals() throws Exception {
         final Activity activity = InstrumentationRegistry.getInstrumentation().startActivitySync(
                 new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class)
+                        .putExtra("chiffreco_test_url", "http://10.0.2.2:4173/")
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 
         try {

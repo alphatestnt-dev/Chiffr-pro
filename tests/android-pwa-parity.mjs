@@ -101,6 +101,40 @@ try {
     assert.equal(quoteData.ht, await page.locator("#ht").textContent().then(value => value.trim()), `${profile.name}: quote HT differs from calculator`);
     assert.equal(await page.locator("#rate").inputValue(), "16", `${profile.name}: calculator unexpectedly changed the visible hourly rate`);
 
+    // Materials must be available and the quick selector must remain usable for repeated additions.
+    await page.waitForSelector("#ceMaterialSelect", { state: "attached", timeout: 10000 });
+    const addMaterial = async (option, quantity) => {
+      await page.locator("#ceMaterialSelect").selectOption(String(option));
+      await page.locator("#mq").fill(String(quantity));
+      await page.locator("#ceMaterialSelect").evaluate(el => {
+        let card = el;
+        while (card && !card.classList.contains("card")) card = card.parentElement;
+        card?.querySelector('button[onclick="addMat()"]')?.click();
+      });
+    };
+    await addMaterial(0, 2);
+    assert.equal(await page.locator("#ml .item").count(), 1, `${profile.name}: first material was not added`);
+    await addMaterial(1, 3);
+    assert.equal(await page.locator("#ml .item").count(), 2, `${profile.name}: second material could not be added`);
+    assert.ok(!/0\s*€/.test(await page.locator("#mt").textContent()), `${profile.name}: material total was not updated`);
+
+    // Tools/machines must be addable and included in the calculator.
+    await page.locator("#tn").evaluate(el => {
+      const option = [...el.options].find(o => o.value);
+      if (option) el.value = option.value;
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await page.locator("#th").fill("1");
+    await page.locator("#th").dispatchEvent("input");
+    await page.locator("#tn").evaluate(el => {
+      let card = el;
+      while (card && !card.classList.contains("card")) card = card.parentElement;
+      card?.querySelector('button[onclick="addTool()"]')?.click();
+    });
+    assert.equal(await page.locator("#tl .item").count(), 1, `${profile.name}: tool was not added`);
+    const withMaterialsAndTool = await page.evaluate(() => window.calc().direct);
+    assert.ok(withMaterialsAndTool > expected.direct, `${profile.name}: materials/tools were not included in direct cost`);
+
     // Reset must clear only the in-progress estimate without reloading the WebView.
     await page.evaluate(() => {
       const originalConfirm = window.confirm;
@@ -113,6 +147,8 @@ try {
     assert.equal(await page.locator("#qty").inputValue(), "1", `${profile.name}: reset did not restore quantity`);
     assert.equal(await page.locator("#hours").inputValue(), "3", `${profile.name}: reset did not restore hours`);
     assert.ok((await page.locator("#res").getAttribute("class")).includes("hide"), `${profile.name}: reset left the old calculation visible`);
+    assert.equal(await page.locator("#ml .item").count(), 0, `${profile.name}: reset did not clear materials`);
+    assert.equal(await page.locator("#tl .item").count(), 0, `${profile.name}: reset did not clear tools`);
 
     // Regression check for the report that increasing quantity can lower an estimate.
     await page.evaluate(() => {
@@ -148,6 +184,7 @@ try {
     assert.ok(rangeForSix[1] > rangeForOne[1], `${profile.name}: maximum estimate did not increase with quantity`);
 
     assert.deepEqual(pageErrors, [], `${profile.name}: uncaught JavaScript errors: ${pageErrors.join("; ")}`);
+    assert.equal(await page.locator("#ceRuntimeError").count(), 0, `${profile.name}: red runtime error banner appeared`);
     results.push({ profile: profile.name, direct: result.direct, ht: result.ht, ttc: result.ttc, estimate1: rangeForOne, estimate6: rangeForSix });
     await context.close();
   }

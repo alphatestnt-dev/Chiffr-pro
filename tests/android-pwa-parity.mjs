@@ -36,9 +36,11 @@ try {
 
     const response = await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.ok(response && response.ok(), `Website response failed on ${profile.name}`);
-    await page.waitForFunction(() => typeof window.calc === "function", { timeout: 30000 });
+    await page.waitForFunction(() => typeof window.calc === "function" && window.makeQuote?.name === "createQuote" && typeof window.cePartPrepareQuote === "function", { timeout: 30000 });
     const runtimeScriptCount = await page.locator('script[src*="runtime-stability.js"]').count();
+    const docsScriptCount = await page.locator('script[src*="documents-v2.js"]').count();
     assert.equal(runtimeScriptCount, 1, `${profile.name}: runtime-stability.js loaded ${runtimeScriptCount} times`);
+    assert.equal(docsScriptCount, 1, `${profile.name}: documents-v2.js loaded ${docsScriptCount} times`);
     await page.locator('nav button[data-p="pro"]').click();
     await page.locator("#hours").fill("3");
     await page.locator("#rate").fill("16");

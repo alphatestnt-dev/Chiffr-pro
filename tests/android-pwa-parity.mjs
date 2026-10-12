@@ -36,7 +36,7 @@ try {
 
     const response = await page.goto(baseUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.ok(response && response.ok(), `Website response failed on ${profile.name}`);
-    await page.waitForFunction(() => typeof window.calc === "function" && window.makeQuote?.name === "createQuote" && typeof window.cePartPrepareQuote === "function", { timeout: 30000 });
+    await page.waitForFunction(() => typeof window.calc === "function" && typeof window.ceBarometre === "function" && window.makeQuote?.name === "createQuote" && typeof window.cePartPrepareQuote === "function", { timeout: 30000 });
     const runtimeScriptCount = await page.locator('script[src*="runtime-stability.js"]').count();
     const docsScriptCount = await page.locator('script[src*="documents-v2.js"]').count();
     assert.equal(runtimeScriptCount, 1, `${profile.name}: runtime-stability.js loaded ${runtimeScriptCount} times`);
@@ -48,6 +48,8 @@ try {
     await page.locator("#other").fill("0");
     await page.locator("#margin").fill("25");
     await page.locator("#vat").fill("20");
+    await page.locator("#qty").fill("0");
+    await page.locator("#unit").selectOption("forfait");
 
     const result = await page.evaluate(() => {
       const value = window.calc();
@@ -69,7 +71,6 @@ try {
       };
     });
 
-    console.log("DEBUG calculator components:", JSON.stringify(result));
     assert.equal(result.origin, new URL(baseUrl).origin);
     assert.ok(Math.abs(result.direct - expected.direct) < 0.001, `${profile.name}: wrong direct cost ${result.direct}`);
     assert.ok(Math.abs(result.ht - expected.ht) < 0.001, `${profile.name}: wrong HT total ${result.ht}`);
@@ -77,6 +78,14 @@ try {
     assert.ok(result.displayedCost, `${profile.name}: total cost is not displayed`);
     assert.ok(result.displayedHt, `${profile.name}: HT total is not displayed`);
     assert.ok(result.displayedTtc, `${profile.name}: TTC total is not displayed`);
+
+    // The PRO barometer must not lower the total when quantity increases.
+    await page.locator("#qty").fill("2");
+    await page.locator("#unit").selectOption("m²");
+    const proTotalForTwo = await page.evaluate(() => window.calc().direct);
+    await page.locator("#qty").fill("4");
+    const proTotalForFour = await page.evaluate(() => window.calc().direct);
+    assert.ok(proTotalForFour >= proTotalForTwo, `${profile.name}: PRO total fell from quantity 2 to 4 (${proTotalForTwo} -> ${proTotalForFour})`);
     // Regression check for the report that increasing quantity can lower an estimate.
     await page.evaluate(() => {
       document.querySelectorAll(".page").forEach(section => section.classList.remove("active"));
@@ -88,7 +97,7 @@ try {
       await page.locator('button[onclick="estimate()"]').click();
       const text = await page.locator("#range").textContent();
       const values = [...text.matchAll(/([\d\s\u00a0.,]+)\s*€/g)]
-        .map(match => Number(match[1].replace(/[\\s\\u00a0]/g, "").replace(",", ".")));
+        .map(match => Number(match[1].replace(/[\s\u00a0]/g, "").replace(",", ".")));
       assert.equal(values.length, 2, `${profile.name}: could not parse estimate range: ${text}`);
       return values;
     };

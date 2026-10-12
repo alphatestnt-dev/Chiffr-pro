@@ -19,7 +19,13 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
         setContentView(webView);
 
+        // The Android app loads the same live web application as the desktop site.
+        // Disable the WebView HTTP cache so old JavaScript cannot leave Android on a
+        // different calculation build after the website has been updated. This does
+        // not clear localStorage, saved estimates, or login data.
+        webView.clearCache(true);
         WebSettings settings = webView.getSettings();
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);

@@ -96,6 +96,9 @@ try {
     await page.locator("#unit").selectOption("forfait");
     const stableCalculation = await page.evaluate(() => window.calc());
     const quoteData = await page.evaluate(() => window.makeQuote().data);
+    // createQuote() intentionally navigates to the quotes page; return to PRO before testing PRO controls.
+    await page.locator('nav button[data-p="pro"]').click();
+    await page.locator("#hours").waitFor({ state: "visible", timeout: 10000 });
     assert.equal(quoteData.labor, stableCalculation.labor, `${profile.name}: quote labor differs from calculator labor`);
     assert.equal(quoteData.barometerCoefficient, stableCalculation.barometerCoefficient, `${profile.name}: quote coefficient differs from calculator`);
     assert.equal(quoteData.ht, await page.locator("#ht").textContent().then(value => value.trim()), `${profile.name}: quote HT differs from calculator`);

@@ -119,7 +119,9 @@ try {
     assert.equal(await page.locator("#ml .item").count(), 1, `${profile.name}: first material was not added`);
     await addMaterial(1, 3);
     assert.equal(await page.locator("#ml .item").count(), 2, `${profile.name}: second material could not be added`);
-    assert.ok(!/0\s*€/.test(await page.locator("#mt").textContent()), `${profile.name}: material total was not updated`);
+    const materialTotalText = await page.locator("#mt").textContent();
+    const materialTotal = Number(materialTotalText.replace(/[^\d,.-]/g, "").replace(",", "."));
+    assert.ok(Number.isFinite(materialTotal) && materialTotal > 0, `${profile.name}: material total was not updated (${materialTotalText})`);
 
     // Tools/machines must be addable and included in the calculator.
     await page.locator("#tn").evaluate(el => {

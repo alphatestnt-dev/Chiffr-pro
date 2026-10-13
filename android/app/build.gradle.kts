@@ -19,6 +19,11 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            // Install the recovery candidate beside the Play Store app; never overwrite it.
+            applicationIdSuffix = ".recovery"
+            versionNameSuffix = "-recovery"
+        }
         getByName("release") {
             isMinifyEnabled = false
             isShrinkResources = false

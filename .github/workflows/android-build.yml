@@ -2,7 +2,7 @@ name: Build Chiffr’EcoPro Android
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, recovery/full-app-parity-2026-10-12 ]
     paths:
       - 'android/**'
       - '.github/workflows/android-build.yml'

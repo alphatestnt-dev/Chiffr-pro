@@ -37,6 +37,11 @@ public class CalculatorParityInstrumentedTest {
             final WebView webView = (WebView) ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
             assertNotNull("MainActivity should expose its WebView as the content view", webView);
 
+            // Do not call evaluateJavascript while the WebView is still starting its first
+            // navigation. On slower CI emulators that can make the readiness probe time out
+            // before the intended 90-second JavaScript-readiness loop even begins.
+            waitForPageLoad(webView);
+
             String ready = null;
             long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(90);
             while (System.nanoTime() < deadline) {
@@ -104,6 +109,28 @@ public class CalculatorParityInstrumentedTest {
         } finally {
             InstrumentationRegistry.getInstrumentation().runOnMainSync(activity::finish);
         }
+    }
+
+    private static void waitForPageLoad(WebView webView) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(90);
+        AtomicReference<String> lastState = new AtomicReference<>("not checked");
+        while (System.nanoTime() < deadline) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                lastState.set("url=" + webView.getUrl()
+                        + ", progress=" + webView.getProgress()
+                        + ", title=" + webView.getTitle());
+            });
+            String state = lastState.get();
+            if (state != null
+                    && state.contains("url=http://10.0.2.2:4173/")
+                    && state.contains("progress=100")) {
+                return;
+            }
+            Thread.sleep(250);
+        }
+        throw new AssertionError(
+                "WebView did not finish loading the expected local CI page within 90 seconds; last state: "
+                        + lastState.get());
     }
 
     private static String triggerEstimateAndRead(WebView webView, String quantity) throws Exception {

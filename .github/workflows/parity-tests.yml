@@ -1,0 +1,72 @@
+name: ChiffrEcoPro parity tests
+
+on:
+  pull_request:
+    paths:
+      - 'android/**'
+      - 'tests/**'
+      - '.github/workflows/parity-tests.yml'
+      - 'index.html'
+      - 'app-v13.js'
+      - 'runtime-stability.js'
+      - 'sw.js'
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - 'tests/**'
+      - '.github/workflows/parity-tests.yml'
+      - 'index.html'
+      - 'app-v13.js'
+      - 'runtime-stability.js'
+      - 'sw.js'
+  workflow_dispatch:
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.13'
+
+      - name: Install test tools
+        run: |
+          npm install --no-save playwright@1.56.1 http-server@14.1.1 wait-on@8.0.4
+          npx playwright install --with-deps chromium
+
+      - name: Serve the exact branch source for both tests
+        run: |
+          npx http-server . -p 4173 -a 0.0.0.0 -c-1 > /tmp/chiffreco-test-server.log 2>&1 &
+          npx wait-on http://127.0.0.1:4173/
+
+      - name: Compare mobile and desktop calculations from branch source
+        env:
+          CHIFRECO_URL: http://127.0.0.1:4173/
+        run: node tests/android-pwa-parity.mjs
+
+      - name: Compile Android debug APK and instrumented tests
+        run: gradle -p android assembleDebug assembleDebugAndroidTest
+
+      - name: Run calculation test inside native Android WebView
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          disable-animations: true
+          script: gradle -p android connectedDebugAndroidTest

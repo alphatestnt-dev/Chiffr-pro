@@ -4,6 +4,9 @@ plugins {
 
 android {
     namespace = "fr.chiffrecopro.app"
+    buildFeatures {
+        buildConfig = true
+    }
     compileSdk = 36
 
     defaultConfig {
@@ -12,9 +15,15 @@ android {
         targetSdk = 36
         versionCode = 2
         versionName = "1.0.1"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        getByName("debug") {
+            // Install the recovery candidate beside the Play Store app; never overwrite it.
+            applicationIdSuffix = ".recovery"
+            versionNameSuffix = "-recovery"
+        }
         getByName("release") {
             isMinifyEnabled = false
             isShrinkResources = false
@@ -32,4 +41,7 @@ configurations.configureEach {
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }

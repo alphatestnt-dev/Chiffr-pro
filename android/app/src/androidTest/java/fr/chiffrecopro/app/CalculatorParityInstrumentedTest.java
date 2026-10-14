@@ -28,12 +28,18 @@ import static org.junit.Assert.assertTrue;
 public class CalculatorParityInstrumentedTest {
     @Test
     public void nativeWebViewUsesSharedCalculatorAndShowsExpectedTotals() throws Exception {
-        final Activity activity = InstrumentationRegistry.getInstrumentation().startActivitySync(
-                new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class)
-                        .putExtra("chiffreco_test_url", "http://10.0.2.2:4173/")
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        final String expectedTestUrl = "http://10.0.2.2:4173/";
+        assertTrue("Instrumented parity test must run against the debug variant", BuildConfig.DEBUG);
+        final Intent launchIntent = new Intent(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class)
+                .putExtra("chiffreco_test_url", expectedTestUrl)
+                // Ensure a stale launcher activity cannot be reused without the CI URL extra.
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        final Activity activity = InstrumentationRegistry.getInstrumentation().startActivitySync(launchIntent);
 
         try {
+            assertEquals("MainActivity must receive the isolated CI URL extra",
+                    expectedTestUrl, activity.getIntent().getStringExtra("chiffreco_test_url"));
             final WebView webView = (WebView) ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
             assertNotNull("MainActivity should expose its WebView as the content view", webView);
 

@@ -30,6 +30,14 @@ jobs:
         with:
           gradle-version: '8.13'
 
+      - name: Validate JavaScript syntax
+        run: |
+          node --check app-v13.js
+          node --check documents-v2.js
+          node --check navigation-v2.js
+          node --check runtime-stability.js
+          node --check pwa.js
+
       - name: Build debug APK
         run: gradle -p android assembleDebug
 

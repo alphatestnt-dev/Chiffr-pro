@@ -27,10 +27,9 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
         setContentView(webView);
 
-        // The Android app loads the same live web application as the desktop site.
-        // Disable the WebView HTTP cache so old JavaScript cannot leave Android on a
-        // different calculation build after the website has been updated. This does
-        // not clear localStorage, saved estimates, or login data.
+        // This Android clone uses the separately maintained correction branch,
+        // not the production website or the ongoing Play closed-test build.
+        // Disable stale WebView cache while preserving saved estimates and login data.
         webView.clearCache(true);
         WebSettings settings = webView.getSettings();
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
@@ -48,13 +47,25 @@ public class MainActivity extends Activity {
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
 
         webView.setBackgroundColor(Color.WHITE);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Android WebView does not implement window.print() by itself.
+                // Route every existing print/PDF button through the native print framework.
+                view.evaluateJavascript(
+                    "(function(){if(window.AndroidPrint&&!window.__ceNativePrintInstalled){" +
+                    "window.__ceNativePrintInstalled=true;" +
+                    "window.print=function(){window.AndroidPrint.printPage();};" +
+                    "}})();", null);
+            }
+        });
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         // Native printing is required because window.print() alone is not implemented
         // by Android WebView. The bridge exposes only the print action to this trusted site.
         webView.addJavascriptInterface(new PrintBridge(), "AndroidPrint");
 
-        webView.loadUrl("https://chiffreco-pro.fr/");
+        webView.loadUrl("https://raw.githack.com/alphatestnt-dev/Chiffr-pro/fix/quantity-surface-pricing/index.html");
     }
 
     private final class PrintBridge {

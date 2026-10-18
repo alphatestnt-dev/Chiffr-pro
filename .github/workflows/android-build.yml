@@ -2,9 +2,16 @@ name: Build Chiffr’EcoPro Android
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, fix/quantity-surface-pricing ]
     paths:
       - 'android/**'
+      - 'index.html'
+      - 'app-v13.js'
+      - 'navigation-v2.js'
+      - 'documents-v2.js'
+      - 'workflow-particulier-v1.js'
+      - 'runtime-stability.js'
+      - 'document-access-v1.js'
       - '.github/workflows/android-build.yml'
   workflow_dispatch:
 
@@ -26,6 +33,22 @@ jobs:
         with:
           gradle-version: '8.13'
 
+      - name: Validate JavaScript syntax
+        run: |
+          node --check app-v13.js
+          node --check documents-v2.js
+          node --check navigation-v2.js
+          node --check runtime-stability.js
+          node --check pwa.js
+          node --check workflow-particulier-v1.js
+          node --check dechets-v1.js
+          node --check auth-v1.js
+          node --check partner-v1.js
+          node --check navigation-bridge-v1.js
+          node --check document-access-v1.js
+          node --check document-workflow-access-v2.js
+          node --check barometre-pro-v1.js
+
       - name: Build debug APK
         run: gradle -p android assembleDebug
 
@@ -35,7 +58,7 @@ jobs:
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: ChiffrecoPro-Android
+          name: ChiffrecoPro-Android-Clone
           path: |
             android/app/build/outputs/apk/debug/*.apk
             android/app/build/outputs/bundle/release/*.aab

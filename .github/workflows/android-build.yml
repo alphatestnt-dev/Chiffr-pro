@@ -37,6 +37,14 @@ jobs:
           node --check navigation-v2.js
           node --check runtime-stability.js
           node --check pwa.js
+          node --check workflow-particulier-v1.js
+          node --check dechets-v1.js
+          node --check auth-v1.js
+          node --check partner-v1.js
+          node --check navigation-bridge-v1.js
+          node --check document-access-v1.js
+          node --check document-workflow-access-v2.js
+          node --check barometre-pro-v1.js
 
       - name: Build debug APK
         run: gradle -p android assembleDebug

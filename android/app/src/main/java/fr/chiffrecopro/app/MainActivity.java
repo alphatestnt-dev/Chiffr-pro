@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
         // by Android WebView. The bridge exposes only the print action to this trusted site.
         webView.addJavascriptInterface(new PrintBridge(), "AndroidPrint");
 
-        webView.loadUrl("https://cdn.jsdelivr.net/gh/alphatestnt-dev/Chiffr-pro@842a3be81f52b4d2f5c888435b4aea80acb1f130/index.html");
+        webView.loadUrl("https://cdn.jsdelivr.net/gh/alphatestnt-dev/Chiffr-pro@8509bcac87cf957b21a29a9caf173dc1f9dac0a9/index.html");
     }
 
     private final class PrintBridge {

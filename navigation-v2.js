@@ -1,7 +1,7 @@
 (()=>{
   'use strict';
   const $=id=>document.getElementById(id);
-  const primary=[['accueil','Accueil'],['pro','Professionnel'],['particulier','Particulier'],['factures-pro','Factures'],['eco','🌱 Écologie'],['aides','Aides / Informations'],['param','Compte / Paramètres']];
+  const primary=[['accueil','Accueil'],['catalogue','🔎 Catalogue fournitures'],['pro','Professionnel'],['particulier','Particulier'],['factures-pro','Factures'],['eco','🌱 Écologie'],['aides','Aides / Informations'],['param','Compte / Paramètres']];
   const proItems=[['pro-chiffrage','Chiffrage'],['pro-materiaux','Matériaux'],['pro-machines','Machines / outils'],['pro-dechets','Déchets / évacuation'],['pro-resultat','Résultat'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']];
   const partItems=[['part-estimation','Estimation'],['part-dechets','Déchets'],['part-comparaison','Comparaison'],['demande-particulier','Demande de devis'],['factures-particulier','Factures'],['historique','Historique']];
   const docItems=[['pro','Chiffrage'],['devis','Devis'],['factures-pro','Factures'],['historique','Historique']];

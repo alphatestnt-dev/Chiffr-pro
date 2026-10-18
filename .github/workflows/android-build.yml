@@ -2,9 +2,13 @@ name: Build Chiffr’EcoPro Android
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, fix/quantity-surface-pricing ]
     paths:
       - 'android/**'
+      - 'index.html'
+      - 'app-v13.js'
+      - 'navigation-v2.js'
+      - 'documents-v2.js'
       - '.github/workflows/android-build.yml'
   workflow_dispatch:
 
@@ -35,7 +39,7 @@ jobs:
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: ChiffrecoPro-Android
+          name: ChiffrecoPro-Android-Clone
           path: |
             android/app/build/outputs/apk/debug/*.apk
             android/app/build/outputs/bundle/release/*.aab

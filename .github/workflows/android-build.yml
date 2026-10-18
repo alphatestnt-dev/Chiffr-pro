@@ -9,6 +9,9 @@ on:
       - 'app-v13.js'
       - 'navigation-v2.js'
       - 'documents-v2.js'
+      - 'workflow-particulier-v1.js'
+      - 'runtime-stability.js'
+      - 'document-access-v1.js'
       - '.github/workflows/android-build.yml'
   workflow_dispatch:
 

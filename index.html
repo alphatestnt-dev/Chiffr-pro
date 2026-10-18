@@ -122,7 +122,7 @@
 </div>
 </section><section id="param" class="page"><div class="card"><h1>Paramètres</h1><div class="grid"><input id="dn" placeholder="Entreprise par défaut"><input id="dv" type="number" value="20" placeholder="TVA %"><input id="da" placeholder="Adresse"><input id="dt" placeholder="Téléphone"><input id="de" placeholder="Email"><input id="ds" placeholder="SIRET"></div><button class="primary" onclick="settingsSave()">Enregistrer</button></div></section>
 </main>
-<script src="./runtime-stability.js?v=20261018-1"></script><script src="./app-v13.js?v=20261018-1"></script><script src="./dechets-v1.js"></script><script src="./partner-v1.js"></script><script src="./pwa.js?v=20260920-8"></script><script src="./auth-v1.js"></script><script src="./documents-v2.js?v=20261018-1"></script><script src="./workflow-particulier-v1.js?v=20261018-1"></script>
+<script src="./runtime-stability.js?v=20261018-1"></script><script src="./app-v13.js?v=20261018-2"></script><script src="./dechets-v1.js"></script><script src="./partner-v1.js"></script><script src="./pwa.js?v=20260920-8"></script><script src="./auth-v1.js"></script><script src="./documents-v2.js?v=20261018-2"></script><script src="./workflow-particulier-v1.js?v=20261018-2"></script>
 <script>
 function ecoNum(id){const n=parseFloat(document.getElementById(id)?.value);return Number.isFinite(n)?Math.max(0,n):0;}
 function ecoCalcTri(){const t=ecoNum('ectTotal'),s=ecoNum('ectSorted'),r=ecoNum('ectReuse');const tri=t?Math.min(100,s/t*100):0;const val=t?Math.min(100,r/t*100):0;const rest=Math.max(0,t-s);document.getElementById('ectResult').innerHTML=`Taux de tri : <b>${tri.toFixed(1)} %</b><br>Taux de valorisation : <b>${val.toFixed(1)} %</b><br>Déchets restant à traiter : <b>${rest.toFixed(1)} kg</b>`;}

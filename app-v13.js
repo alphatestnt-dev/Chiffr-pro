@@ -101,7 +101,7 @@ const tradeCatalog={
 };
 function setupDedicatedCatalogV13(){const m=$('catalogMetier'),c=$('catalogCategorie'),s=$('catalogSearch'),box=$('catalogResults');if(!m||!c||!box)return;const render=()=>{const cats=Object.keys(tradeCatalog[m.value]||{});c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');renderDedicatedCatalogV13()};m.onchange=render;c.onchange=render;s?.addEventListener('input',renderDedicatedCatalogV13);render()}
 function renderDedicatedCatalogV13(){const m=$('catalogMetier')?.value,c=$('catalogCategorie')?.value,q=normMat($('catalogSearch')?.value||'').trim(),box=$('catalogResults');if(!box)return;const pool=(tradeCatalog[m]?.[c]||[]).map(x=>({n:x[0],p:x[1]}));const terms=q.split(/\\s+/).filter(Boolean);const hits=(q?pool.filter(x=>terms.every(t=>normMat(x.n).includes(t))):pool).slice(0,50);box.innerHTML=hits.length?hits.map(x=>`<div class="item"><span><b>${esc(x.n)}</b><br><small class="muted">${eur(x.p)} indicatif</small></span><button type="button" onclick="useCatalogProductV13(this)" data-prod="${esc(x.n)}" data-price="${x.p}">Ajouter au chiffrage</button></div>`).join(''):'<span class="muted">Aucun produit trouvé.</span>'}
-window.useCatalogProductV13=b=>{$('mn')&&($('mn').value=b.dataset.prod);$('mp')&&($('mp').value=b.dataset.price);goV13('pro');$('mq')?.focus()};
+window.useCatalogProductV13=b=>{const n=b.dataset.prod,p=Number(b.dataset.price)||0;goV13('pro');if($('mn'))$('mn').value=n;if($('mp'))$('mp').value=p;if($('mq'))$('mq').value=$('mq').value||'1';mats.push({n,q:Math.max(1,Number($('mq')?.value)||1),p});matRenderV13();calcV13();};
 function setupMaterialCatalogV13(){
  const m=$('matMetier'),c=$('matCategorie');if(!m||!c)return;
  const refreshCats=()=>{const cats=Object.keys(tradeCatalog[m.value]||{});c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');searchTradeProductsV13()};
@@ -116,7 +116,7 @@ function searchTradeProductsV13(){
  const hits=(q?pool.filter(x=>terms.every(t=>normMat(x.n).includes(t))):pool).slice(0,20);
  box.classList.remove('hide');
  box.innerHTML=hits.length?hits.map(x=>`<button type="button" style="display:block;width:100%;text-align:left;margin:4px 0;padding:10px;border:1px solid #cbd8d1;border-radius:8px;background:#fff;cursor:pointer" data-prod="${esc(x.n)}" data-price="${x.p}"><b>${esc(x.n)}</b> — ${eur(x.p)} indicatif</button>`).join(''):'<span class="muted">Aucun produit trouvé dans cette catégorie.</span>';
- box.querySelectorAll('[data-prod]').forEach(b=>b.onclick=()=>{$('mn').value=b.dataset.prod;$('mp').value=b.dataset.price;$('matSearch').value=b.dataset.prod;box.classList.add('hide');$('mq')?.focus()});
+ box.querySelectorAll('[data-prod]').forEach(b=>b.onclick=()=>{const n=b.dataset.prod,p=Number(b.dataset.price)||0;$('mn').value=n;$('mp').value=p;$('matSearch').value=n;$('mq').value=$('mq').value||'1';mats.push({n,q:Math.max(1,Number($('mq').value)||1),p});matRenderV13();calcV13();box.classList.add('hide');});
 }
 function matQuickV13(){
   const q=normMat($('matSearch')?.value);

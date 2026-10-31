@@ -1,0 +1,18 @@
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const entries=[
+ {title:'Chiffrage professionnel',desc:'Calculer le coût, la marge et le prix de vente',icon:'🧮',keys:['chiffrage','chiffrer','chiffre','chif','calcul','prix','cout','marge'],run:()=>window.go?.('pro')},
+ {title:'Créer un devis',desc:'Préparer et imprimer un devis PDF',icon:'📄',keys:['devis','dev','quote','proposition','offre'],run:()=>window.makeQuote?.()},
+ {title:'Créer une facture',desc:'Établir une facture à partir du chiffrage actuel',icon:'🧾',keys:['facture','fact','facturation','invoice','payer'],run:()=>window.makeInvoice?.()},
+ {title:'Catalogue des fournitures',desc:'Rechercher matériaux, plantes, outils et équipements',icon:'🔎',keys:['catalogue','materiaux','materiel','plante','fourniture','outil'],run:()=>window.go?.('catalogue')},
+ {title:'Historique',desc:'Retrouver vos chiffrages enregistrés',icon:'🕘',keys:['historique','archives','enregistre'],run:()=>window.go?.('historique')},
+ {title:'Espace particulier',desc:'Obtenir une estimation indicative',icon:'🏠',keys:['particulier','estimation'],run:()=>window.go?.('particulier')},
+ {title:'Aides et demandes',desc:'Préparer une demande et rechercher une aide',icon:'💶',keys:['aide','aides','demande','financement'],run:()=>window.go?.('aides')}
+];
+const norm=s=>String(s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').trim().replace(/\\s+/g,' ');
+function score(q,e){const words=q.split(' ');let n=0;for(const w of words){if(!w)continue;let best=0;for(const k0 of e.keys){const k=norm(k0);if(k.startsWith(w))best=Math.max(best,100-w.length);else if(k.includes(w))best=Math.max(best,65-w.length);else if(w.length>=4&&editDistance(w,k)<=1)best=Math.max(best,35)}n+=best}return n}
+function editDistance(a,b){if(Math.abs(a.length-b.length)>1)return 9;let prev=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){const cur=[i];for(let j=1;j<=b.length;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur}return prev[b.length]}
+function render(){const input=$('globalSearch'),box=$('globalSearchResults');if(!input||!box)return;const q=norm(input.value);if(q.length<2){box.classList.add('hide');box.innerHTML='';input.setAttribute('aria-expanded','false');return}const results=entries.map(e=>({...e,_score:score(q,e)})).filter(e=>e._score>0).sort((a,b)=>b._score-a._score).slice(0,6);box.innerHTML=results.length?results.map((e,i)=>'<button type="button" role="option" data-index="'+i+'"><span class="gs-icon">'+e.icon+'</span><span><span class="gs-title">'+e.title+'</span><span class="gs-desc">'+e.desc+'</span></span></button>').join(''):'<div class="gs-desc" style="padding:12px">Aucune fonction trouvée. Essayez « devis », « facture » ou « chiffrage ».</div>';box.classList.remove('hide');input.setAttribute('aria-expanded','true');box.querySelectorAll('button[data-index]').forEach((b,i)=>b.addEventListener('click',()=>{const e=results[i];box.classList.add('hide');input.value='';input.setAttribute('aria-expanded','false');e.run?.()}))}
+document.addEventListener('DOMContentLoaded',()=>{const input=$('globalSearch'),box=$('globalSearchResults');if(!input||!box)return;input.addEventListener('input',render);input.addEventListener('keydown',e=>{if(e.key==='Escape'){box.classList.add('hide');input.setAttribute('aria-expanded','false')}if(e.key==='Enter'){const first=box.querySelector('button[data-index]');if(first){e.preventDefault();first.click()}}});document.addEventListener('click',e=>{if(!e.target.closest('.global-search-wrap')){box.classList.add('hide');input.setAttribute('aria-expanded','false')}})})
+})();

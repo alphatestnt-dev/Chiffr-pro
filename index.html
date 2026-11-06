@@ -35,6 +35,14 @@ main{max-width:none!important;width:100%!important;margin:0!important;padding:0!
 @media(min-width:800px){.home-dashboard{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 </style>
 
+
+<style id="ce-home-compact-hero">
+html{scroll-padding-top:0}body{margin:0!important}
+body>header{display:flex!important;position:relative!important;top:auto!important;min-height:104px!important}
+#accueil .home{height:clamp(220px,42vw,390px)!important;min-height:220px!important;max-height:390px!important;overflow:hidden!important}
+#accueil .home img{width:100%!important;height:100%!important;max-height:none!important;min-height:0!important;object-fit:cover!important;object-position:center 45%!important}
+#accueil .home-slogan{padding:14px 8px 12px!important}
+</style>
 </head>
 <body>
 <header><div><div class="logo">Chiffr’EcoPro</div><div class="tag">Construisons aujourd’hui un monde plus propre demain</div></div><div class="header-tools"><div id="count" class="tag"></div><button class="account-button" type="button" onclick="go('param')" aria-label="Mon compte" title="Mon compte"><svg viewBox="0 0 24 24" width="29" height="29" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7.5" r="3.5"></circle><path d="M4.5 21c.8-4.1 3.3-6.2 7.5-6.2s6.7 2.1 7.5 6.2"></path></svg></button></div></header>

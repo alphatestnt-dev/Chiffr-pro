@@ -19,13 +19,13 @@ main{max-width:none!important;margin:0!important;padding:0!important}
 #accueil .home img{width:100%;height:100svh;object-fit:cover;object-position:center}
 #accueil .home:after{display:none}
 #accueil .home-hotspots{position:absolute;z-index:5;left:0;right:0;top:0;height:13%;display:block}
-#accueil .home-hotspots button{position:absolute;top:32%;height:42%;border:0;background:transparent;padding:0;opacity:.01;cursor:pointer}
-#accueil .home-links{bottom:8%;height:10%;z-index:6}
+#accueil .home-hotspots button{position:absolute;top:54%;height:34%;border:0;background:transparent;padding:0;opacity:.01;cursor:pointer}
+#accueil .home-links{bottom:17%;height:10%;z-index:6}
 #accueil .home-links button{height:100%;min-height:48px;opacity:.01!important}
 #accueil .home-slogan{display:none}
 .page:not(#accueil).active{display:block;padding:14px;max-width:1200px;margin:0 auto}
 .ce-back-home{display:inline-flex;align-items:center;gap:8px;margin:4px 0 14px;padding:10px 14px;border:0;border-radius:10px;background:#146b4a;color:white;font-weight:800;cursor:pointer}
-@media(max-width:560px){#accueil .home{height:100svh}#accueil .home img{height:100svh;object-fit:cover}#accueil .home-hotspots{height:13%}#accueil .home-hotspots button{top:30%;height:45%}}
+@media(max-width:560px){#accueil .home{height:100svh}#accueil .home img{height:100svh;object-fit:cover}#accueil .home-hotspots{height:13%}#accueil .home-hotspots button{top:54%;height:34%}}
 </style>
 <style>
 .cc-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.42);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto}.cc-modal{width:min(760px,100%);background:#fff;border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.22);overflow:hidden;color:#18231f}.cc-head{padding:18px 20px;border-bottom:1px solid #dbe4df;display:flex;justify-content:space-between;align-items:center}.cc-head h2{margin:0;font-size:22px}.cc-close{border:0;background:transparent;font-size:25px;cursor:pointer}.cc-body{padding:20px}.cc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.cc-card{border:1px solid #dbe4df;border-radius:14px;padding:18px;background:#fff}.cc-card h3{margin:0 0 8px}.cc-price{font-size:27px;font-weight:900;margin:8px 0}.cc-muted{color:#63736c}.cc-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.cc-btn{border:1px solid #cbd7d1;background:#fff;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer}.cc-btn-primary{background:#176b45;color:#fff;border-color:#176b45}.cc-badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef7f2;color:#176b45;font-weight:800;font-size:12px}.cc-counter{padding:13px;border-radius:10px;background:#f1f6f3;margin:12px 0;font-weight:800}.cc-status{padding:13px;border-radius:10px;background:#f7faf8;border:1px solid #dbe4df;margin:10px 0}.cc-field{margin:10px 0}.cc-field label{display:block;font-weight:800;margin-bottom:6px}.cc-field input,.cc-field select,.cc-field textarea{width:100%;padding:11px;border:1px solid #cbd7d1;border-radius:9px}.cc-error{color:#a52222}.cc-success{color:#176b45;font-weight:800}.cc-note{font-size:13px;color:#63736c;margin-top:12px}@media(max-width:600px){.cc-grid{grid-template-columns:1fr}.cc-body{padding:15px}}
@@ -576,6 +576,15 @@ function ecoEval(){const ids=['eceTri','eceReuse','eceGrind','eceTravel','eceLoc
 </script>
 <script>
 (function(){
+
+ function addAccountActions(){
+  var p=document.getElementById('param');if(!p||p.querySelector('.ce-account-actions'))return;
+  var card=document.createElement('div');card.className='card ce-account-actions';
+  card.innerHTML='<h2>Mon compte Chiffr’EcoPro</h2><p>Gérez votre connexion et votre abonnement.</p><div class="actions"><button type="button" class="primary" id="ce-account-sub">Mon abonnement</button><button type="button" id="ce-account-offers">Voir les offres</button></div>';
+  p.insertBefore(card,p.firstChild.nextSibling);
+  card.querySelector('#ce-account-sub').onclick=function(){window.ccCommercialisation?.open('subscription')};
+  card.querySelector('#ce-account-offers').onclick=function(){window.ccCommercialisation?.open('offers')};
+ }
  function addHomeReturns(){
   document.querySelectorAll('section.page:not(#accueil)').forEach(function(p){
    if(p.querySelector(':scope > .ce-back-home')) return;
@@ -585,7 +594,7 @@ function ecoEval(){const ids=['eceTri','eceReuse','eceGrind','eceTravel','eceLoc
   });
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addHomeReturns);else addHomeReturns();
- setTimeout(addHomeReturns,500);setTimeout(addHomeReturns,1500);
+ setTimeout(addHomeReturns,500);setTimeout(addHomeReturns,1500);setTimeout(addAccountActions,600);setTimeout(addAccountActions,1800);
 })();
 </script>
 </body></html>

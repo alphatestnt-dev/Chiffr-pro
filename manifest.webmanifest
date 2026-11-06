@@ -1,6 +1,6 @@
 {
-  "name":"Chiffr’EcoPro",
-  "short_name":"Chiffr’EcoPro",
+  "name":"ChiffrecoPro",
+  "short_name":"ChiffrecoPro",
   "description":"Chiffrage simple, complet et responsable pour professionnels et particuliers.",
   "start_url":"./",
   "display":"standalone",

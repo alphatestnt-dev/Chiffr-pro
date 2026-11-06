@@ -10,24 +10,582 @@
 <title>Chiffr’EcoPro</title>
 <style>
 :root{--g:#146b4a;--d:#103c2c;--bg:#f3f7f4;--card:#fff;--line:#d8e3dd;--muted:#64736b;--soft:#e8f4ed;--warn:#fff5d6}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:#17231d;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif}header{background:linear-gradient(135deg,var(--d),var(--g));color:#fff;padding:18px 5%;display:flex;justify-content:space-between;gap:12px;align-items:center}.logo{font-size:28px;font-weight:900}.tag{font-size:13px;opacity:.9}nav{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);padding:8px 4%;display:flex;gap:6px;flex-wrap:wrap}nav button{border:0;background:#fff;padding:10px 12px;border-radius:9px;font-weight:800;cursor:pointer}nav button.active,.primary{background:var(--g)!important;color:#fff!important}main{max-width:1200px;margin:20px auto;padding:0 15px}.page{display:none}.page.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:16px;box-shadow:0 3px 14px #17352a0b}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.box{background:var(--soft);padding:14px;border-radius:12px}.hero{font-size:35px;font-weight:900}.muted{color:var(--muted)}label{display:block;font-weight:800;margin:4px 0 6px}input,select,textarea{width:100%;padding:10px;border:1px solid #cbd8d1;border-radius:9px;background:#fff;font-size:15px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.actions button{padding:10px 13px;border:1px solid #cbd8d1;border-radius:9px;background:#fff;font-weight:800;cursor:pointer}.results{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.big{font-size:22px;font-weight:900}.item{border:1px solid var(--line);border-radius:10px;padding:10px;margin:7px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}.pill{display:inline-block;padding:5px 8px;border-radius:99px;background:#e7f2ec;font-size:12px;font-weight:800}.eco{background:#e7f6ec;border:1px solid #bddfc8}.notice{background:var(--warn);border:1px solid #eed47b;padding:11px;border-radius:9px;font-size:13px}.danger{color:#a12626}.hide{display:none!important}.line{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:8px 0}.quote{background:#fff;max-width:850px;margin:auto;padding:28px;border:1px solid #ddd}.quote h1{text-align:center}.score{font-size:44px;font-weight:900}.home{position:relative;overflow:hidden;border-radius:18px;background:#fff;box-shadow:0 3px 18px #17352a14;margin-left:-1%;margin-right:-1%;height:auto;min-height:0}.home:after{content:"";position:absolute;left:0;right:0;bottom:0;height:24%;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(20,107,74,.16));pointer-events:none;z-index:1}.home img{display:block;width:100%;height:auto;object-fit:contain}.home-links{position:absolute;left:3%;right:3%;bottom:12%;display:grid;grid-template-columns:1fr 1fr;gap:3%;z-index:3}.home-links button{min-height:58px;border:0;border-radius:16px;background:transparent;color:transparent;font-size:0;line-height:0;cursor:pointer;box-shadow:none;padding:0;opacity:.01}@media(max-width:800px){.grid3,.results{grid-template-columns:1fr 1fr}}@media(max-width:560px){.grid,.grid3,.results{grid-template-columns:1fr}.hero{font-size:28px}.home{height:auto;min-height:0}.home-links{bottom:8%}.home-links button{min-height:46px;border-radius:12px}}@media print{header,nav,.no-print{display:none!important}.page{display:none!important}.page#devis{display:block!important}.quote{border:0;max-width:none}}
+
+/* Accueil plein écran : les onglets sont cliquables directement sur le visuel choisi. */
+header,body>nav{display:none!important}
+main{max-width:none!important;margin:0!important;padding:0!important}
+#accueil.page.active{display:block!important}
+#accueil .home{margin:0!important;border-radius:0!important;min-height:100svh;box-shadow:none!important}
+#accueil .home img{width:100%;height:100svh;object-fit:cover;object-position:center}
+#accueil .home:after{display:none}
+#accueil .home-hotspots{position:absolute;z-index:5;left:0;right:0;top:0;height:13%;display:block}
+#accueil .home-hotspots button{position:absolute;top:32%;height:42%;border:0;background:transparent;padding:0;opacity:.01;cursor:pointer}
+#accueil .home-links{bottom:8%;height:10%;z-index:6}
+#accueil .home-links button{height:100%;min-height:48px;opacity:.01!important}
+#accueil .home-slogan{display:none}
+.page:not(#accueil).active{display:block;padding:14px;max-width:1200px;margin:0 auto}
+.ce-back-home{display:inline-flex;align-items:center;gap:8px;margin:4px 0 14px;padding:10px 14px;border:0;border-radius:10px;background:#146b4a;color:white;font-weight:800;cursor:pointer}
+@media(max-width:560px){#accueil .home{height:100svh}#accueil .home img{height:100svh;object-fit:cover}#accueil .home-hotspots{height:13%}#accueil .home-hotspots button{top:30%;height:45%}}
 </style>
-<link rel="stylesheet" href="./commercialisation.css">
+<style>
+.cc-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.42);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto}.cc-modal{width:min(760px,100%);background:#fff;border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.22);overflow:hidden;color:#18231f}.cc-head{padding:18px 20px;border-bottom:1px solid #dbe4df;display:flex;justify-content:space-between;align-items:center}.cc-head h2{margin:0;font-size:22px}.cc-close{border:0;background:transparent;font-size:25px;cursor:pointer}.cc-body{padding:20px}.cc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.cc-card{border:1px solid #dbe4df;border-radius:14px;padding:18px;background:#fff}.cc-card h3{margin:0 0 8px}.cc-price{font-size:27px;font-weight:900;margin:8px 0}.cc-muted{color:#63736c}.cc-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.cc-btn{border:1px solid #cbd7d1;background:#fff;border-radius:9px;padding:11px 15px;font-weight:800;cursor:pointer}.cc-btn-primary{background:#176b45;color:#fff;border-color:#176b45}.cc-badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef7f2;color:#176b45;font-weight:800;font-size:12px}.cc-counter{padding:13px;border-radius:10px;background:#f1f6f3;margin:12px 0;font-weight:800}.cc-status{padding:13px;border-radius:10px;background:#f7faf8;border:1px solid #dbe4df;margin:10px 0}.cc-field{margin:10px 0}.cc-field label{display:block;font-weight:800;margin-bottom:6px}.cc-field input,.cc-field select,.cc-field textarea{width:100%;padding:11px;border:1px solid #cbd7d1;border-radius:9px}.cc-error{color:#a52222}.cc-success{color:#176b45;font-weight:800}.cc-note{font-size:13px;color:#63736c;margin-top:12px}@media(max-width:600px){.cc-grid{grid-template-columns:1fr}.cc-body{padding:15px}}
+</style>
 </head>
 <body>
 <header><div><div class="logo">Chiffr’EcoPro</div><div class="tag">Chiffrer juste • économiser • valoriser • choisir</div></div><div id="count" class="tag"></div></header>
-<nav aria-label="Navigation principale"><button class="active" data-p="accueil">Accueil</button><button data-p="offre">💼 PRO 9,99 €/mois</button><button data-p="pro">Chiffrage PRO</button><button data-p="particulier">Particulier</button><button data-p="eco">🌱 Écologie</button><button data-p="ecologie">🌿 Espace écologique</button><button data-p="devis">Devis</button><button data-p="historique">Historique</button><button data-p="aides">💶 Aides</button><button data-p="param">Paramètres</button></nav>
+
 <main>
-<section id="offre" class="page"><div class="card eco"><h1>💼 Les offres Chiffr’EcoPro</h1><div class="grid"><div class="box"><h2>🏠 Particulier</h2><p class="hero">3 évaluations gratuites</p><p>Après les 3 évaluations : <b>2,99 € / mois</b>.</p><ul><li>Estimations indicatives</li><li>Comparaison de devis</li><li>Calculateur de déchets</li><li>Fonctions écologiques</li></ul><button class="primary" onclick="go('particulier')">Commencer en particulier</button></div><div class="box"><h2>👷 Professionnel</h2><p class="hero">9,99 € / mois</p><p>Accès aux fonctions professionnelles de chiffrage et de devis.</p><ul><li>Chiffrages professionnels</li><li>Devis et impression/PDF</li><li>Historique</li><li>Matériaux, outils et déchets</li><li>Fonctions écologiques</li></ul><button class="primary" onclick="go('pro')">Accéder à l’espace PRO</button></div></div><p class="muted">La vérification du profil pourra être demandée lorsque nécessaire. Un justificatif ou un SIRET ne sera demandé que pour vérifier l’éligibilité au type de compte concerné.</p></div></section><section id="accueil" class="page active"><div class="home"><img src="hero-home-selected.webp" alt="Chiffr’EcoPro — Construisons aujourd’hui le monde plus propre de demain"><div class="home-links"><button type="button" onclick="go('pro')" aria-label="Espace Professionnel">👷 Espace Professionnel</button><button type="button" onclick="go('particulier')" aria-label="Espace Particulier">🏠 Espace Particulier</button></div></div></section>
+<section id="offre" class="page"><div class="card eco"><h1>💼 Les offres Chiffr’EcoPro</h1><div class="grid"><div class="box"><h2>🏠 Particulier</h2><p class="hero">3 évaluations gratuites</p><p>Après les 3 évaluations : <b>2,99 € / mois</b>.</p><ul><li>Estimations indicatives</li><li>Comparaison de devis</li><li>Calculateur de déchets</li><li>Fonctions écologiques</li></ul><button class="primary" onclick="go('particulier')">Commencer en particulier</button></div><div class="box"><h2>👷 Professionnel</h2><p class="hero">9,99 € / mois</p><p>Accès aux fonctions professionnelles de chiffrage et de devis.</p><ul><li>Chiffrages professionnels</li><li>Devis et impression/PDF</li><li>Historique</li><li>Matériaux, outils et déchets</li><li>Fonctions écologiques</li></ul><button class="primary" onclick="go('pro')">Accéder à l’espace PRO</button></div></div><p class="muted">La vérification du profil pourra être demandée lorsque nécessaire. Un justificatif ou un SIRET ne sera demandé que pour vérifier l’éligibilité au type de compte concerné.</p></div></section><section id="accueil" class="page active"><div class="home"><img src="https://cdn.jsdelivr.net/gh/alphatestnt-dev/Chiffr-pro@staging-commercialisation-v3/hero-home-selected.webp" alt="Chiffr’EcoPro — Construisons aujourd’hui le monde plus propre de demain"><div class="home-links"><button type="button" onclick="go('pro')" aria-label="Espace Professionnel">👷 Espace Professionnel</button><button type="button" onclick="go('particulier')" aria-label="Espace Particulier">🏠 Espace Particulier</button></div></div></section>
 <section id="pro" class="page"><div class="card"><h1>Nouveau chiffrage professionnel</h1><div class="grid"><div><label>Entreprise</label><input id="entreprise"></div><div><label>N° de devis</label><input id="num" placeholder="DEV-2026-001"></div><div><label>Client</label><input id="client"></div><div><label>Profession</label><select id="metier"></select></div><div><label>Prestation / sous-branche</label><select id="prest"></select></div><div><label>État des lieux</label><select id="etat"></select></div><div><label>Quantité</label><input id="qty" type="number" step=".01" min="0" value="1"></div><div><label>Unité</label><select id="unit"><option>forfait</option><option>m²</option><option>mètre</option><option>m³</option><option>heure</option><option>unité</option></select></div><div><label>Main-d’œuvre (h)</label><input id="hours" type="number" step=".25" min="0" value="3"></div><div><label>Taux horaire (€)</label><input id="rate" type="number" step=".01" min="0" value="16"></div><div><label>Déplacement (€)</label><input id="travel" type="number" step=".01" min="0" value="0"></div><div><label>Autres coûts (€)</label><input id="other" type="number" step=".01" min="0" value="0"></div><div><label>Marge cible (%)</label><input id="margin" type="number" step=".1" min="0" max="99.9" value="30"></div><div><label>TVA (%)</label><input id="vat" type="number" step=".1" min="0" value="20"></div></div></div><div class="card"><h2>🧱 Matériaux / fournitures</h2><div class="grid3"><input id="mn" placeholder="Ciment, peinture..."><input id="mq" type="number" step=".01" placeholder="Quantité"><input id="mp" type="number" step=".01" placeholder="Prix unitaire €"></div><div class="actions"><button class="primary" onclick="addMat()">Ajouter</button></div><div id="ml"></div><b>Total matériaux : <span id="mt">0 €</span></b></div><div class="card"><h2>🧰 Outils, machines et engins</h2><div class="grid3"><select id="tn"></select><input id="th" type="number" step=".25" placeholder="Durée h"><input id="tc" type="number" step=".01" placeholder="Coût total €"></div><div class="actions"><button class="primary" onclick="addTool()">Ajouter</button></div><div id="tl"></div><b>Total outils : <span id="tt">0 €</span></b></div><div class="card"><h2>🗑️ Évacuation et déchets</h2><div class="notice">Le tri est volontaire. Les déchets verts/biodéchets sont distincts des déchets résiduels/poubelle. Les obligations légales applicables restent à respecter.</div><div class="grid3"><select id="wt"><option value="verts">🌿 Déchets verts / biodéchets</option><option value="residuels">🗑️ Déchets résiduels / poubelle</option><option value="bois">🪵 Bois</option><option value="gravats">🧱 Gravats / béton / ciment</option><option value="terre">🌍 Terre</option><option value="metaux">🔩 Métaux</option><option value="carton">📦 Papier / carton</option><option value="plastique">♻️ Plastiques</option><option value="verre">🪟 Verre</option><option value="dangereux">⚠️ Déchets particuliers / dangereux</option><option value="melange">Déchets mélangés</option></select><input id="wl" type="number" step=".01" placeholder="Longueur m"><input id="ww" type="number" step=".01" placeholder="Largeur m"></div><div class="grid3"><input id="wh" type="number" step=".01" placeholder="Hauteur m"><input id="wv" type="number" step=".01" placeholder="Ou volume m³ (facultatif)"><select id="wmode"><option value="dimensions">Calculer L × l × h</option><option value="volume">Utiliser le volume saisi</option></select></div><p>Volume calculé : <b id="wvol">0,00 m³</b> · coût indicatif : <b id="wcost">0 €</b></p><div class="actions"><button onclick="previewWaste()">Calculer le volume</button><button class="primary" onclick="addWaste()">Ajouter au chiffrage</button></div><div id="wlst"></div><div class="grid"><label><input id="sort" type="checkbox"> Tri volontaire proposé</label><label><input id="reuse" type="checkbox"> Réemploi / valorisation recherché</label><label><input id="grind" type="checkbox"> Broyage possible</label><label><input id="opt" type="checkbox"> Déplacements optimisés</label></div></div><div class="card"><div class="actions"><button class="primary" onclick="calc()">Calculer le prix</button><button onclick="save()">💾 Sauvegarder</button><button onclick="makeQuote()">📄 Préparer le devis</button><button onclick="resetAll()">Réinitialiser</button></div></div><div id="res" class="card hide"><h2>Résultat</h2><div class="results"><div class="box">Coût<div id="cost" class="big"></div></div><div class="box">Marge €<div id="me" class="big"></div></div><div class="box">Marge réelle<div id="mr" class="big"></div></div><div class="box">Prix HT<div id="ht" class="big"></div></div><div class="box">Prix TTC<div id="ttc" class="big"></div></div></div><p id="warn" class="muted"></p></div></section>
 <section id="particulier" class="page"><div class="card"><h1>Estimation particulier</h1><p class="muted">Fourchette indicative, non contractuelle.</p><div class="grid"><div><label>Branche principale</label><select id="pf"></select></div><div><label>Sous-branche</label><select id="ps"></select></div><div><label>État des lieux</label><select id="pe"></select></div><div><label>Quantité</label><input id="pq" type="number" step=".01" value="20"></div><div><label>Unité</label><select id="pu"><option>m²</option><option>mètre</option><option>m³</option><option>heure</option><option>forfait</option><option>unité</option></select></div><div><label>Difficulté</label><select id="pd"><option>Facile</option><option>Moyenne</option><option>Difficile</option></select></div><div><label>Outil / équipement</label><select id="pt"><option>Aucun</option><option>Débroussailleuse</option><option>Taille-haie</option><option>Tronçonneuse</option><option>Bétonnière</option><option>Perforateur</option><option>Mini-pelle</option><option>Nettoyeur haute pression</option></select></div></div><div class="actions"><button class="primary" onclick="estimate()">Obtenir l'estimation</button></div><div id="pr" class="box hide"><h2>Fourchette indicative</h2><div id="range" class="big"></div><p id="detail" class="muted"></p></div></div><div class="card"><h2>Déchets particuliers</h2><p>Indiquez le type et les dimensions pour estimer le volume, sans imposer le tri.</p><select id="pwt"><option>Déchets verts</option><option>Déchets poubelle / résiduels</option><option>Gravats</option><option>Bois</option><option>Terre</option><option>Mélangés</option></select><div class="grid3"><input id="pwl" placeholder="Longueur m"><input id="pww" placeholder="Largeur m"><input id="pwh" placeholder="Hauteur m"></div><p>Volume : <b id="pvol">0,00 m³</b> · coût indicatif : <b id="pcost">0 €</b></p><button onclick="pWaste()">Calculer</button></div><div class="card"><h2>Comparer des devis</h2><div class="grid"><input id="cn" placeholder="Entreprise / devis"><input id="cp" type="number" step=".01" placeholder="Montant TTC €"></div><button class="primary" onclick="compareAdd()">Ajouter</button><div id="cl"></div></div></section>
 <section id="eco" class="page"><div class="card eco"><h2>🌱 Une démarche écologique volontaire</h2><p>Tri, séparation des flux, réemploi, valorisation, broyage et optimisation des déplacements sont proposés sans pénalité automatique.</p><p class="muted">Aucune économie, remise ou aide n’est présentée comme garantie sans confirmation réelle. Les dispositifs publics restent indicatifs jusqu’à vérification.</p></div><div class="card eco"><h1>🌱 Projet Responsable</h1><p>Les choix environnementaux sont présentés comme des leviers volontaires et compréhensibles, sans pénaliser automatiquement le prix.</p><div class="grid3"><div class="box">Score<div id="score" class="score">0</div>/100</div><div class="box">Volume total<div id="ev" class="big">0 m³</div></div><div class="box">Flux séparés<div id="es" class="big">0 %</div></div></div><div id="erep" class="card"></div><p class="muted">Indice interne d'aide à la décision, pas une certification environnementale.</p></div><div class="card"><h2>Principes</h2><ul><li>Tri volontaire et séparation des flux.</li><li>Réemploi, broyage et valorisation lorsque disponibles.</li><li>Optimisation des déplacements.</li><li>Réduction des déchets.</li><li>Aucune économie ou remise partenaire annoncée sans confirmation.</li></ul></div></section><section id="ecologie" class="page"><div class="card eco"><h1>🌿 Espace écologique</h1><p>Un espace dédié pour comprendre et intégrer les choix environnementaux dans les projets, sans les imposer.</p></div><div class="card"><h2>♻️ Réduire et mieux valoriser</h2><div class="grid3"><div class="box"><h3>Tri</h3><p>Séparer les flux lorsque cela est pertinent et possible.</p></div><div class="box"><h3>Réemploi</h3><p>Rechercher les possibilités de réutilisation et de valorisation.</p></div><div class="box"><h3>Broyage</h3><p>Identifier les matières pouvant être broyées ou valorisées.</p></div></div></div><div class="card"><h2>🚚 Déplacements et ressources</h2><p>Regrouper les interventions, optimiser les déplacements et limiter les transports inutiles lorsque le projet le permet.</p><p class="muted">Les bénéfices environnementaux ou économiques restent à évaluer selon la situation réelle. Aucun dispositif public n’est présenté comme garanti sans vérification.</p></div><div class="card"><h2>🌱 Les choix du projet</h2><p>Les options écologiques restent volontaires : tri, réemploi, valorisation, broyage et optimisation des déplacements peuvent être étudiés selon les contraintes du chantier.</p></div><div id="ecoCalculators" class="card"><h2>🧮 Calculateurs écologiques</h2><p class="muted">Des indicateurs simples pour aider à évaluer un projet. Ils ne constituent pas un bilan carbone certifié.</p><div class="card eco"><h3>♻️ Calcul du tri</h3><div class="grid3"><div><label>Déchets totaux (kg)</label><input id="ectTotal" type="number" min="0" step="0.1" value="100"></div><div><label>Déchets triés (kg)</label><input id="ectSorted" type="number" min="0" step="0.1" value="60"></div><div><label>Déchets réemployés / valorisés (kg)</label><input id="ectReuse" type="number" min="0" step="0.1" value="20"></div></div><div class="actions"><button class="primary" onclick="ecoCalcTri()">Calculer le taux de tri</button></div><div id="ectResult" class="box">Taux de tri : <b>—</b><br>Taux de valorisation : <b>—</b><br>Déchets restant à traiter : <b>—</b></div></div><div class="card"><h3>🗑️ Calcul des déchets</h3><div class="grid3"><div><label>Type</label><select id="ecdType"><option value="0.15">🌿 Déchets verts</option><option value="0.25">🪵 Bois</option><option value="1.5">🧱 Gravats</option><option value="1.6">🌍 Terre</option><option value="0.7">📦 Papier / carton</option><option value="0.05">♻️ Plastiques légers</option><option value="0.2">🗑️ Déchets mélangés</option></select></div><div><label>Longueur (m)</label><input id="ecdL" type="number" min="0" step="0.01" value="2"></div><div><label>Largeur (m)</label><input id="ecdW" type="number" min="0" step="0.01" value="1"></div></div><div class="grid3"><div><label>Hauteur (m)</label><input id="ecdH" type="number" min="0" step="0.01" value="0.5"></div><div><label>Ou volume direct (m³)</label><input id="ecdV" type="number" min="0" step="0.01" placeholder="Facultatif"></div></div><div class="actions"><button class="primary" onclick="ecoCalcDechet()">Calculer volume et poids indicatif</button></div><div id="ecdResult" class="box">Volume : <b>—</b><br>Poids indicatif : <b>—</b></div><p class="muted">Les densités sont des valeurs indicatives et peuvent varier selon l’humidité, la composition et le compactage.</p></div><div class="card"><h3>🌱 Évaluation écologique du projet</h3><p>Coche les actions réellement prévues ou réalisables sur le chantier.</p><div class="grid"><label><input id="eceTri" type="checkbox"> Tri des flux</label><label><input id="eceReuse" type="checkbox"> Réemploi / valorisation</label><label><input id="eceGrind" type="checkbox"> Broyage ou traitement local</label><label><input id="eceTravel" type="checkbox"> Déplacements optimisés</label><label><input id="eceLocal" type="checkbox"> Ressources / fournisseurs locaux étudiés</label><label><input id="eceWaste" type="checkbox"> Filière de déchets identifiée</label></div><div class="actions"><button class="primary" onclick="ecoEval()">Évaluer le projet</button></div><div id="eceResult" class="box">Indicateur écologique : <b>—</b></div><p class="muted">Cet indicateur est un outil interne basé sur les options cochées ; il ne mesure pas directement les émissions de CO₂.</p></div></div></section>
 <section id="devis" class="page"><div class="actions no-print"><button class="primary" onclick="window.print()">🖨️ Imprimer / PDF</button><button onclick="go('pro')">Modifier</button></div><div id="quote" class="quote"><h1>DEVIS</h1><p class="muted">Calculez un chantier puis préparez le devis.</p></div></section><section id="historique" class="page"><div class="card"><h1>Historique</h1><div id="hist"></div><div class="actions"><button onclick="exportData()">Exporter JSON</button><button class="danger" onclick="clearHist()">Supprimer tout</button></div></div></section><section id="aides" class="page"><div class="card"><h1>💶 Aides et dispositifs</h1><p class="muted">Les dispositifs évoluent. Vérifiez toujours les conditions, dates et territoires sur la source officielle.</p><div id="aid"></div></div></section><section id="param" class="page"><div class="card"><h1>Paramètres</h1><div class="grid"><input id="dn" placeholder="Entreprise par défaut"><input id="dv" type="number" value="20" placeholder="TVA %"><input id="da" placeholder="Adresse"><input id="dt" placeholder="Téléphone"><input id="de" placeholder="Email"><input id="ds" placeholder="SIRET"></div><button class="primary" onclick="settingsSave()">Enregistrer</button></div></section>
 </main>
-<script src="./runtime-stability.js"></script><script src="./app-v13.js"></script><script src="./partner-v1.js"></script><script src="./pwa.js"></script>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const eur=v=>Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
+const setValidatedSlogan=()=>{const el=document.querySelector('header .tag');if(el)el.textContent='Construisons aujourd’hui un monde plus propre demain';};
+if(typeof window.pWaste!=='function')window.pWaste=()=>{const v=Math.max(0,(+$('pwl')?.value||0)*(+$('pww')?.value||0)*(+$('pwh')?.value||0));if($('pvol'))$('pvol').textContent=v.toFixed(2)+' m³';const map={'Déchets verts':'verts','Déchets poubelle / résiduels':'residuels','Gravats':'gravats','Bois':'bois','Terre':'terre','Mélangés':'melange'},rates={verts:35,residuels:95,bois:55,gravats:75,terre:45,metaux:25,carton:20,plastique:60,verre:45,dangereux:160,melange:120},t=map[$('pwt')?.value]||'melange',c=v?v*(rates[t]||80)+35:0;if($('pcost'))$('pcost').textContent=eur(c)+' indicatif';};
+if(typeof window.compareAdd!=='function')window.compareAdd=()=>{const n=$('cn')?.value.trim(),p=+$('cp')?.value||0;if(!n||p<=0)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.push({n,p});localStorage.setItem('ce_cmp',JSON.stringify(a));if($('cn'))$('cn').value='';if($('cp'))$('cp').value='';window.compareRender?.();if(typeof window.go==='function'&&$('particulier'))window.go('particulier');};
+if(typeof window.compareRender!=='function')window.compareRender=()=>{const el=$('cl');if(!el)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');el.innerHTML=a.length?a.map((x,i)=>`<div class=\"item\"><span>${esc(x.n)}</span><b>${eur(x.p)}</b><button type=\"button\" data-cmp-del=\"${i}\">×</button></div>`).join(''):'<p class=\"muted\">Aucun devis.</p>';el.querySelectorAll('[data-cmp-del]').forEach(b=>b.onclick=()=>{const i=+b.dataset.cmpDel,a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.splice(i,1);localStorage.setItem('ce_cmp',JSON.stringify(a));window.compareRender()});};
+if(typeof window.exportData!=='function')window.exportData=()=>{const payload={application:'Chiffr’EcoPro',version:'stable',date:new Date().toISOString(),chiffrages:JSON.parse(localStorage.getItem('ce_history')||'[]'),parametres:JSON.parse(localStorage.getItem('ce_settings')||'{}'),comparaison:JSON.parse(localStorage.getItem('ce_cmp')||'[]')};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download='chiffrecopro-export.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+if(typeof window.resetAll!=='function')window.resetAll=()=>{document.querySelectorAll('#pro input,#pro select,#pro textarea').forEach(el=>{if(el.type==='checkbox')el.checked=false;else if(el.id==='qty')el.value='1';else if(el.id==='hours')el.value='3';else if(el.id==='rate')el.value='16';else if(el.id==='margin')el.value='25';else if(el.id==='vat')el.value='20';else el.value=''});['ml','tl','wlst'].forEach(id=>{if($(id))$(id).innerHTML='<p class=\"muted\">Aucun élément.</p>'});['mt','tt'].forEach(id=>{if($(id))$(id).textContent='0 €'});if($('res'))$('res').classList.add('hide');if(typeof window.profession==='function')window.profession();if(typeof window.previewWaste==='function')window.previewWaste()};
+const report=(kind,error)=>{console.error('[Chiffr’EcoPro]',kind,error);if(document.body&&!$('ceRuntimeError')){const box=document.createElement('div');box.id='ceRuntimeError';box.setAttribute('role','alert');box.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#fff5d6;border:1px solid #d8a72b;color:#3b2d08;border-radius:12px;padding:12px;font:14px system-ui;box-shadow:0 8px 30px rgba(0,0,0,.18)';box.innerHTML='<b>Chiffr’EcoPro a rencontré une erreur.</b><br><span>La page reste accessible. Rechargez la page et, si le problème persiste, ouvrez la console pour le diagnostic.</span>';document.body.appendChild(box)}};
+window.addEventListener('error',e=>report('JavaScript',e.error||e.message),true);window.addEventListener('unhandledrejection',e=>report('Promise',e.reason),true);
+const ensureDocumentAccess=()=>{if(document.querySelector('script[src=\"./document-access-v1.js\"]'))return;const s=document.createElement('script');s.src='./document-access-v1.js';s.defer=true;s.onload=()=>window.__ceDocumentAccessReady=true;document.head.appendChild(s)};
+const simplifyMaterialsPro=()=>{
+ const card=$('mn')?.closest('.card');if(!card||card.dataset.simpleMaterials==='1')return;const name=$('mn'),qty=$('mq'),price=$('mp');if(!name||!qty||!price)return;card.dataset.simpleMaterials='1';
+ const originalAdd=window.addMat;
+ const materials=[['Peinture murale standard 10 L',49,'seau'],['Peinture plafond 10 L',45,'seau'],['Peinture façade 10 L',60,'seau'],['Sous-couche 10 L',42,'seau'],['Enduit de rebouchage 5 kg',12,'sac'],['Enduit de lissage 15 kg',18,'sac'],['Ciment 25 kg',7,'sac'],['Mortier 25 kg',9,'sac'],['Béton prêt à l’emploi 25 kg',7,'sac'],['Colle carrelage 25 kg',14,'sac'],['Joint carrelage 5 kg',10,'sac'],['Ragréage 25 kg',18,'sac'],['Plâtre 25 kg',11,'sac'],['Chaux 25 kg',12,'sac'],['Parpaing 20×20×50',2.5,'unité'],['Brique standard',1.2,'unité'],['Plaque de plâtre BA13',5.5,'plaque'],['Rail placo 3 m',4.5,'unité'],['Montant placo 3 m',5.5,'unité'],['Laine de verre 10 m²',35,'rouleau'],['Laine de roche 10 m²',45,'rouleau'],['Carrelage standard',18,'m²'],['Parquet stratifié standard',18,'m²'],['Sous-couche parquet 15 m²',30,'rouleau'],['Plinthe 2,5 m',5,'unité'],['Lame PVC / vinyle',25,'m²'],['Bois traité 3 m',10,'unité'],['Tasseau 2,4 m',4,'unité'],['Vis / chevilles (boîte)',8,'boîte'],['Silicone / mastic',7,'cartouche'],['Mousse expansive',8,'bombe'],['Colle de montage',7,'cartouche'],['Film de protection',12,'rouleau'],['Bâche chantier',15,'unité'],['Sable 35 kg',5,'sac'],['Gravier 35 kg',6,'sac'],['Terreau 50 L',8,'sac'],['Paillage 50 L',9,'sac'],['Engrais 25 kg',25,'sac'],['Gazon 25 kg',90,'sac'],['Bordure béton 1 m',4,'unité'],['Grillage rigide 2,5 m',35,'panneau'],['Poteau clôture',15,'unité'],['Géotextile 25 m²',30,'rouleau'],['Tuyau PE 25 mm 25 m',30,'rouleau'],['Gouttière PVC 4 m',18,'unité']];
+ name.style.display='none';const select=document.createElement('select');select.id='ceMaterialSelect';select.setAttribute('aria-label','Matériau ou fourniture');select.innerHTML='<option value="">Choisir un matériau ou une fourniture</option>'+materials.map((m,i)=>`<option value="${i}">${esc(m[0])} — env. ${eur(m[1])}/${m[2]}</option>`).join('')+'<option value="custom">Autre — saisir le prix manuellement</option>';name.parentNode.insertBefore(select,name);
+ price.readOnly=true;price.placeholder='Prix indicatif automatique';price.style.fontWeight='700';const note=document.createElement('small');note.className='muted';note.textContent='Prix indicatifs prudents, non majorés. À confirmer selon marque, quantité et fournisseur.';price.parentNode.appendChild(note);
+ const refresh=()=>{const v=select.value;if(v==='custom'){price.readOnly=false;price.value='';price.placeholder='Prix unitaire €';note.textContent='Autre fourniture : saisissez votre prix d’achat réel.'}else if(v!==''){const m=materials[+v];price.readOnly=true;price.value=m[1].toFixed(2);note.textContent=`Indicatif : ${eur(m[1])} / ${m[2]}. À confirmer avant devis.`}else{price.readOnly=true;price.value='';note.textContent='Prix indicatifs prudents, non majorés. À confirmer selon marque, quantité et fournisseur.'}};
+ select.onchange=refresh;
+ window.addMat=()=>{const v=select.value,q=+qty.value||0,p=+price.value||0;if(!v||q<=0||p<0)return;const label=v==='custom'?'Autre fourniture':materials[+v][0];if(typeof originalAdd==='function'){name.value=label;qty.value=q;price.value=p;originalAdd();name.value='';qty.value='';price.value='';select.value='';refresh();}};
+ refresh();
+};
+const simplifyWastePro=()=>{const card=$('wl')?.closest('.card');if(!card||card.dataset.simpleWaste==='1')return;const volume=$('wv'),mode=$('wmode'),calcBtn=card.querySelector('button:not(.primary)');if(!volume||!mode)return;card.dataset.simpleWaste='1';mode.value='volume';['wl','ww','wh','wmode'].forEach(id=>{const el=$(id);if(el){el.style.display='none';el.setAttribute('aria-hidden','true')}});if(calcBtn)calcBtn.style.display='none';volume.placeholder='Volume de déchets en m³';volume.setAttribute('aria-label','Volume de déchets en mètres cubes');volume.step='0.1';volume.min='0';volume.style.fontSize='18px';volume.style.fontWeight='700';let title=card.querySelector('[data-simple-waste-title]');if(!title){title=document.createElement('div');title.dataset.simpleWasteTitle='1';title.innerHTML='<label style="font-size:17px;margin-top:14px">📦 Volume estimé</label><p class="muted" style="margin:0 0 8px">Indiquez simplement le volume en m³. Le coût se calcule automatiquement.</p>';const grid=volume.closest('.grid3');grid?.parentNode.insertBefore(title,grid)}let quick=card.querySelector('[data-simple-waste-quick]');if(!quick){quick=document.createElement('div');quick.dataset.simpleWasteQuick='1';quick.innerHTML='<label style="margin-top:10px">Je ne connais pas le volume</label><select aria-label="Estimation rapide du volume"><option value="">Choisir une estimation rapide</option><option value="1">Petite quantité — env. 1 m³</option><option value="3">Quantité moyenne — env. 3 m³</option><option value="5">Grosse quantité — env. 5 m³</option><option value="10">Très grosse quantité — env. 10 m³</option></select>';const grid=volume.closest('.grid3');grid?.parentNode.insertBefore(quick,grid);const q=quick.querySelector('select');q.onchange=()=>{if(q.value){volume.value=q.value;update()}}}const update=()=>{mode.value='volume';if(typeof window.previewWaste==='function')window.previewWaste();else if(typeof window.previewV13==='function')window.previewV13()};volume.addEventListener('input',update);volume.addEventListener('change',update);update()};
+const setMarginDefault=()=>{const m=$('margin');if(m){m.value='25';m.dataset.manual='1';m.title='25 % par défaut — modifiable selon le chantier'}};
+const afterAppLoaded=()=>{setValidatedSlogan();window.compareRender?.();ensureDocumentAccess();setTimeout(()=>{setMarginDefault();simplifyMaterialsPro();simplifyWastePro()},150);setTimeout(()=>{setMarginDefault();simplifyMaterialsPro();simplifyWastePro()},700)};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',afterAppLoaded,{once:true});else afterAppLoaded();
+})();
+
+</script><script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), eur=v=>Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}), esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const professions={
+'Espaces verts':['Entretien jardin','Tonte','Taille de haie','Débroussaillage','Désherbage','Plantation','Création de massif','Arrosage','Broyage végétaux','Remise en état'],
+'Élagage / abattage':['Élagage','Abattage','Dessouchage','Évacuation bois','Broyage','Haubanage'],
+'Maçonnerie / gros œuvre':['Dalle béton','Mur / parpaing','Fondations','Enduit','Ouverture','Réparation fissures','Dépose / démolition'],
+'Rénovation':['Cuisine','Salle de bain','Pièce complète','Rénovation légère','Rénovation lourde','Rénovation énergétique'],
+'Peinture':['Murs','Plafonds','Façade','Boiseries','Préparation / rebouchage','Décoration'],
+'Plomberie':['Dépannage','Fuite','Canalisation','Salle de bain','Installation sanitaire','Recherche de fuite'],
+'Électricité':['Dépannage','Prises / éclairage','Tableau électrique','Mise en conformité','Installation complète','Borne de recharge'],
+'Terrassement':['Décaissement','Tranchée','Nivellement','Fondations','Évacuation terre','VRD'],
+'Nettoyage':['Nettoyage courant','Fin de chantier','Vitres','Façades','Nettoyage lourd','Débarras'],
+'Couverture / toiture':['Recherche fuite','Réparation toiture','Pose couverture','Étanchéité','Zinguerie'],'Charpente':['Réparation charpente','Pose charpente','Traitement bois','Renforcement'],'Menuiserie':['Pose porte','Pose fenêtre','Agencement','Réparation bois','Escalier'],'Plâtrerie / placo':['Cloison','Doublage','Faux plafond','Bandes / joints','Isolation intérieure'],'Carrelage / faïence':['Sol','Mur','Douche','Terrasse','Dépose'],'Sols / parquet':['Parquet','Stratifié','PVC / vinyle','Ponçage','Ragréage'],'Isolation':['Murs','Combles','Plancher','Isolation extérieure','Dépose isolation'],'Chauffage / climatisation':['Dépannage','Pose chauffage','Climatisation','Pompe à chaleur','Entretien'],'Ventilation':['VMC simple flux','VMC double flux','Nettoyage réseau','Réparation'],'Étanchéité':['Toiture','Terrasse','Salle de bain','Fondations'],'Démolition / dépose':['Dépose intérieure','Démolition mur','Démolition dalle','Évacuation'],'Métallerie / serrurerie':['Serrurerie','Garde-corps','Portail','Soudure','Réparation'],'Piscine':['Entretien','Réparation','Terrasse piscine','Local technique','Recherche fuite'],'Clôture / portail':['Clôture','Portail','Grillage','Brise-vue','Réparation'],'Voirie / réseaux':['Tranchée','Réseaux','Pavage','Enrobé','Réfection'],'Assainissement':['Canalisation','Fosse','Drainage','Pompage','Recherche fuite'],'Débarras / évacuation':['Débarras maison','Cave / garage','Encombrants','Évacuation chantier'],'Nettoyage spécialisé':['Fin de chantier','Vitres','Façades','Graffiti','Nettoyage lourd'],'Peinture / décoration':['Murs','Plafonds','Façade','Boiseries','Décoration'],'Énergies renouvelables':['Panneaux solaires','Pompe à chaleur','Borne de recharge','Maintenance'],'Autre':['Prestation personnalisée']};
+const margins={'Espaces verts':35,'Élagage / abattage':40,'Maçonnerie / gros œuvre':35,'Rénovation':35,'Peinture':35,'Plomberie':38,'Électricité':38,'Terrassement':40,'Nettoyage':32,'Couverture / toiture':40,'Charpente':40,'Menuiserie':38,'Plâtrerie / placo':35,'Carrelage / faïence':38,'Sols / parquet':35,'Isolation':35,'Chauffage / climatisation':40,'Ventilation':38,'Étanchéité':40,'Démolition / dépose':40,'Métallerie / serrurerie':40,'Piscine':38,'Clôture / portail':35,'Voirie / réseaux':40,'Assainissement':40,'Débarras / évacuation':35,'Nettoyage spécialisé':38,'Peinture / décoration':35,'Énergies renouvelables':40,'Autre':35};
+const tools={'Débroussailleuse':[900,700,1.1,'petrol',.65],'Taille-haie':[700,700,.9,'petrol',.6],'Tronçonneuse':[850,600,1.1,'petrol',.55],'Tondeuse':[1800,900,1.3,'petrol',.7],'Souffleur':[600,650,.8,'petrol',.45],'Broyeur de végétaux':[7000,1800,2.5,'petrol',2.2],'Rogneuse de souche':[18000,2500,4,'petrol',4],'Taille-haie électrique':[450,800,.6,'electric',.7],'Débroussailleuse batterie':[750,700,.8,'battery',.8],'Tronçonneuse batterie':[650,600,.8,'battery',.9],'Bétonnière':[1800,1200,.9,'electric',1],'Malaxeur à mortier':[1200,900,.7,'electric',1.2],'Perforateur':[650,900,.5,'electric',.6],'Marteau-piqueur':[1100,700,.9,'electric',.8],'Scie à béton':[1600,650,1.1,'electric',1.2],'Scie circulaire':[500,700,.5,'electric',1.2],'Scie sabre':[450,700,.5,'electric',.8],'Ponceuse':[500,800,.5,'electric',1],'Mini-pelle':[30000,5000,7,'diesel',6],'Pelle mécanique':[110000,7000,15,'diesel',12],'Chargeuse':[70000,6000,10,'diesel',8],'Bobcat / chargeuse compacte':[45000,5000,8,'diesel',6],'Tractopelle':[85000,6500,12,'diesel',9],'Plaque vibrante':[1800,1200,.9,'petrol',.7],'Pilonneuse':[2200,1200,1,'petrol',.8],'Rouleau compacteur':[25000,3500,5,'diesel',5],'Laser chantier':[900,1000,.2,'electric',.05],'Nettoyeur haute pression':[1200,800,.7,'electric',2.5],'Aspirateur chantier':[700,900,.5,'electric',1.3],'Autolaveuse':[7000,1800,2.5,'electric',3],'Injecteur-extracteur':[1500,900,.7,'electric',1.5],'Machine vapeur':[1200,800,.6,'electric',2.2],'Pistolet à peinture':[600,700,.5,'electric',.8],'Compresseur':[1200,900,.7,'electric',2],'Pompe à peinture':[1800,900,.8,'electric',1.5],'Rainureuse':[900,700,.7,'electric',1.8],'Carotteuse':[2500,700,1.4,'electric',2],'Nacelle':[35000,4000,5,'diesel',5],'Camionnette':[30000,5000,3.5,'diesel',7],'Camion benne':[70000,6000,7,'diesel',12],'Remorque':[6000,2500,.7,'none',0],'Benne chantier':[5000,1500,.8,'none',0],'Pompe de relevage':[900,900,.4,'electric',1],'Pompe à eau':[900,900,.5,'petrol',.8],'Déshumidificateur chantier':[1200,1000,.5,'electric',1],'Poste à souder':[1200,800,.7,'electric',3],'Meuleuse':[250,700,.3,'electric',.9],'Perceuse':[250,800,.3,'electric',.7],'Visseuse':[300,900,.3,'electric',.5],'Cloueur':[500,800,.4,'electric',.4],'Échafaudage léger':[2500,1500,.6,'none',0],'Échelle':[500,1200,.2,'none',0],'Outillage spécialisé':[1500,900,.8,'electric',.8]};
+const energy={electric:.20,petrol:2.15,diesel:2.30,battery:.20,none:0},wasteRates={verts:35,residuels:95,bois:55,gravats:75,terre:45,metaux:25,carton:20,plastique:60,verre:45,dangereux:160,melange:120};
+let mats=[],toolsList=[],wastes=[],current=null;
+function addOptions(id,list){const el=$(id);if(!el)return;const old=el.value;el.innerHTML=list.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');if(list.includes(old))el.value=old}
+function professionV13(){const m=$('metier')?.value||'Espaces verts';addOptions('prest',professions[m]||professions.Autre);addOptions('etat',['Bon état','État courant','Dégradé','Très dégradé','Accès difficile','Accès très difficile']);const mar=$('margin');if(mar&&(!mar.dataset.manual||mar.dataset.manual==='0'))mar.value=margins[m]||35}
+function pSubV13(){const m=$('pf')?.value||'Espaces verts';addOptions('ps',professions[m]||professions.Autre);addOptions('pe',['Très bon état','État courant','Dégradé','Très dégradé','Accès difficile'])}
+function toolCost(name,h,mode){const p=tools[name]||tools['Outillage spécialisé'];if(!p||h<=0)return 0;let[price,life,maint,type,cons]=p;let e=type==='none'?0:cons*energy[type];if(mode==='battery')e=cons*energy.battery*.85;if(mode==='thermal2')e=cons*energy.petrol;if(mode==='thermal4')e=cons*energy.petrol*.9;return h*(price/life+maint+e)}
+function setupToolsV13(){const n=$('tn'),h=$('th'),c=$('tc');if(!n||!h||!c)return;addOptions('tn',Object.keys(tools));c.readOnly=true;c.placeholder='Calcul automatique';let mode=$('tenergy');if(!mode){mode=document.createElement('select');mode.id='tenergy';mode.innerHTML='<option value="auto">⚙️ Auto</option><option value="electric">⚡ Électrique</option><option value="battery">🔋 Batterie</option><option value="thermal2">🔥 Thermique 2T</option><option value="thermal4">🔥 Thermique 4T</option>';c.parentNode.insertBefore(mode,c)}const refresh=()=>{const x=toolCost(n.value,+h.value||0,mode.value);c.value=x?x.toFixed(2):'';let note=$('toolAutoV13');if(!note){note=document.createElement('small');note.id='toolAutoV13';note.className='muted';c.parentNode.appendChild(note)}note.textContent=x?`Automatique : ${eur(x)} / ${h.value} h — amortissement + entretien + énergie`:'Durée requise'};n.onchange=refresh;h.oninput=refresh;mode.onchange=refresh;window.addTool=()=>{const hh=+h.value||0,cc=toolCost(n.value,hh,mode.value);if(hh>0&&cc>0){toolsList.push({n:n.value,h:hh,c:cc,energy:mode.value});h.value='';c.value='';toolRenderV13();refresh()}};refresh()}
+function matRenderV13(){const el=$('ml');if(!el)return;el.innerHTML=mats.length?mats.map((x,i)=>`<div class="item"><span>${esc(x.n)} — ${x.q} × ${eur(x.p)}</span><b>${eur(x.q*x.p)}</b><button onclick="window.__ceRemoveMat(${i})">×</button></div>`).join(''):'<p class="muted">Aucun matériau.</p>';$('mt').textContent=eur(mats.reduce((s,x)=>s+x.q*x.p,0));window.addMat=()=>{const n=$('mn').value.trim(),q=+$('mq').value||0,p=+$('mp').value||0;if(n&&q>0&&p>=0){mats.push({n,q,p});$('mn').value='';$('mq').value='';$('mp').value='';matRenderV13()}}}
+function toolRenderV13(){const el=$('tl');if(!el)return;el.innerHTML=toolsList.length?toolsList.map((x,i)=>`<div class="item"><span>${esc(x.n)} — ${x.h} h</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveTool(${i})">×</button></div>`).join(''):'<p class="muted">Aucun outil.</p>';$('tt').textContent=eur(toolsList.reduce((s,x)=>s+x.c,0))}
+function wasteVolume(){return $('wmode')?.value==='volume'?Math.max(0,+$('wv').value||0):Math.max(0,(+$('wl').value||0)*(+$('ww').value||0)*(+$('wh').value||0))}
+function wasteCost(v,t){return v>0?v*(wasteRates[t]||80)+35:0}
+function previewV13(){const v=wasteVolume(),c=wasteCost(v,$('wt').value);$('wvol').textContent=v.toFixed(2)+' m³';$('wcost').textContent=eur(c)+' indicatif'}
+function wasteRenderV13(){const el=$('wlst');if(!el)return;el.innerHTML=wastes.length?wastes.map((x,i)=>`<div class="item"><span>${esc(x.label)} — ${x.v.toFixed(2)} m³</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveWaste(${i})">×</button></div>`).join(''):'<p class="muted">Aucune évacuation.</p>'}
+function addWasteV13(){const v=wasteVolume(),t=$('wt').value;if(v<=0)return;const label=$('wt').selectedOptions[0].textContent;wastes.push({t,label,v,c:wasteCost(v,t)});previewV13();wasteRenderV13();ecoV13()}
+function calcV13(){const material=mats.reduce((s,x)=>s+x.q*x.p,0),machine=toolsList.reduce((s,x)=>s+x.c,0),evac=wastes.reduce((s,x)=>s+x.c,0),labor=(+$('hours').value||0)*(+$('rate').value||0),direct=labor+material+machine+evac+(+$('travel').value||0)+(+$('other').value||0),margin=Math.min(99.9,Math.max(0,+$('margin').value||0)),ht=direct/(1-margin/100),vat=+$('vat').value||0,tva=ht*vat/100,ttc=ht+tva;current={entreprise:$('entreprise').value,num:$('num').value,client:$('client').value,metier:$('metier').value,prest:$('prest').value,etat:$('etat').value,qty:+$('qty').value||0,unit:$('unit').value,hours:+$('hours').value||0,rate:+$('rate').value||0,materials:[...mats],tools:[...toolsList],wastes:[...wastes],direct,ht,tva,ttc,vat,date:new Date().toLocaleString('fr-FR')};$('cost').textContent=eur(direct);$('me').textContent=eur(ht-direct);$('mr').textContent=(ht?((ht-direct)/ht*100):0).toFixed(1)+' %';$('ht').textContent=eur(ht);$('ttc').textContent=eur(ttc);$('res').classList.remove('hide');$('warn').textContent=margin>60?'Marge cible très élevée : vérifiez les coûts et le positionnement marché.':'';ecoV13();return current}
+function saveV13(){const d=calcV13(),a=JSON.parse(localStorage.getItem('ce_history')||'[]');a.unshift(d);localStorage.setItem('ce_history',JSON.stringify(a));histV13()}
+function histV13(){const a=JSON.parse(localStorage.getItem('ce_history')||'[]');$('count').textContent=a.length+' chiffrage(s)';const el=$('hist');if(!el)return;el.innerHTML=a.length?a.map((x,i)=>`<div class="item"><span><b>${esc(x.prest||x.metier)}</b> — ${esc(x.client||'Sans client')}<br><small>${esc(x.date)} · ${eur(x.ttc)} TTC</small></span><button onclick="loadV13(${i})">Ouvrir</button><button onclick="delV13(${i})">×</button></div>`).join(''):'<p class="muted">Aucun chiffrage.</p>'}
+window.loadV13=i=>{const x=JSON.parse(localStorage.getItem('ce_history')||'[]')[i];if(!x)return;['entreprise','num','client','metier','qty','unit','hours','rate','vat'].forEach(k=>{if($(k)&&x[k]!=null)$(k).value=x[k]});mats=x.materials||x.mats||[];toolsList=x.tools||[];wastes=x.wastes||[];professionV13();matRenderV13();toolRenderV13();wasteRenderV13();calcV13();goV13('pro')};window.delV13=i=>{const a=JSON.parse(localStorage.getItem('ce_history')||'[]');a.splice(i,1);localStorage.setItem('ce_history',JSON.stringify(a));histV13()};window.clearHist=()=>{if(confirm('Supprimer tout l’historique ?')){localStorage.removeItem('ce_history');histV13()}};
+function ecoV13(){const total=wastes.reduce((s,x)=>s+x.v,0),sep=wastes.filter(x=>x.t!=='melange').reduce((s,x)=>s+x.v,0);let score=total?Math.round(sep/total*45):0;if($('sort')?.checked)score+=20;if($('reuse')?.checked)score+=20;if($('grind')?.checked)score+=7;if($('opt')?.checked)score+=8;score=Math.min(100,score);if($('score'))$('score').textContent=score;if($('ev'))$('ev').textContent=total.toFixed(2)+' m³';if($('es'))$('es').textContent=(total?Math.round(sep/total*100):0)+' %';if($('erep'))$('erep').innerHTML=`<p><b>Score interne :</b> ${score}/100</p><p><b>Flux déchets :</b> ${wastes.length}</p><p><b>Orientation :</b> ${score>=70?'démarche écologique forte':score>=40?'démarche intermédiaire':'possibilités d’amélioration identifiées'}</p>`}
+function quoteV13(){const d=calcV13(),s=JSON.parse(localStorage.getItem('ce_settings')||'{}');$('quote').innerHTML=`<h1>DEVIS</h1><p><b>${esc(d.entreprise||s.n||'Entreprise')}</b><br>${esc(s.a||'')}<br>${esc(s.t||'')} ${esc(s.e||'')}<br>SIRET : ${esc(s.s||'')}<br>N° ${esc(d.num||'À définir')} · ${esc(d.date)}</p><p><b>Client :</b> ${esc(d.client||'—')}</p><div class="line"><span>${esc(d.prest)} — ${d.qty} ${esc(d.unit)}</span><b>${eur(d.ht)}</b></div><div class="line"><span>Main-d’œuvre</span><b>${eur(d.hours*d.rate)}</b></div>${d.materials.map(x=>`<div class="line"><span>${esc(x.n)} (${x.q} × ${eur(x.p)})</span><b>${eur(x.q*x.p)}</b></div>`).join('')}${d.tools.map(x=>`<div class="line"><span>${esc(x.n)} — ${x.h} h</span><b>${eur(x.c)}</b></div>`).join('')}${d.wastes.map(x=>`<div class="line"><span>Évacuation — ${esc(x.label)} — ${x.v.toFixed(2)} m³</span><b>${eur(x.c)}</b></div>`).join('')}<div class="line"><span>Total HT</span><b>${eur(d.ht)}</b></div><div class="line"><span>TVA ${d.vat}%</span><b>${eur(d.tva)}</b></div><div class="line"><span>Total TTC</span><b>${eur(d.ttc)}</b></div><p>Options : ${$('sort')?.checked?'tri proposé · ':''}${$('reuse')?.checked?'réemploi · ':''}${$('grind')?.checked?'broyage · ':''}${$('opt')?.checked?'déplacements optimisés':''}</p><div class="notice">Les options écologiques sont proposées sans pénalité automatique. Les aides et avantages restent soumis à leurs conditions.</div>`;goV13('devis')}
+function estimateV13(){const b={'Espaces verts':35,'Élagage / abattage':40,'Maçonnerie / gros œuvre':35,'Rénovation':35,'Peinture':35,'Plomberie':38,'Électricité':38,'Terrassement':40,'Nettoyage':32}[$('pf').value]||35,q=Math.max(0,+$('pq').value||0),d=$('pd').value==='Difficile'?1.35:$('pd').value==='Moyenne'?1.15:1,e=/Dégradé|Très|difficile/i.test($('pe').value)?1.2:1,lo=q*b*.8*d*e,hi=q*b*1.25*d*e;$('range').textContent=eur(lo)+' à '+eur(hi);$('detail').textContent='Fourchette indicative, à confirmer par visite et devis professionnel.';$('pr').classList.remove('hide')}
+function ecoLeverPage(){if($('eco-lever'))return;const n=document.querySelector('nav'),m=document.querySelector('main');if(!n||!m)return;const b=document.createElement('button');b.dataset.p='eco-lever';b.textContent='📈 Éco-Levier';b.onclick=()=>goV13('eco-lever');n.appendChild(b);const s=document.createElement('section');s.id='eco-lever';s.className='page';s.innerHTML=`<div class="card eco"><span class="pill">ÉCO-LEVIER</span><h1>Faire de l’écologie un investissement</h1><p>Les économies, aides ou contributions saisies servent à simuler un scénario. Aucun remboursement n’est garanti.</p><div class="grid"><div><label>Surcoût écologique (€)</label><input id="ei" type="number" min="0" step=".01" value="0"></div><div><label>Économie immédiate (€)</label><input id="esav" type="number" min="0" step=".01" value="0"></div><div><label>Aide potentielle (€)</label><input id="ea" type="number" min="0" step=".01" value="0"></div><div><label>Contribution partenaire confirmée (€)</label><input id="ep" type="number" min="0" step=".01" value="0"></div><div><label>Économie annuelle (€)</label><input id="eag" type="number" min="0" step=".01" value="0"></div></div><button class="primary" id="ecalc">Calculer</button><div id="eres" class="box" style="margin-top:12px"></div></div><div class="card"><h2>Statuts de preuve</h2><p>🟢 Confirmé · 🟡 Sous conditions · 🔵 Estimé · 🟠 À demander · 🔴 Non identifié</p></div>`;m.appendChild(s);$('ecalc').onclick=()=>{const i=+$('ei').value||0,im=+$('esav').value||0,a=+$('ea').value||0,p=+$('ep').value||0,an=+$('eag').value||0,cover=Math.min(i,im+a+p),rem=Math.max(0,i-cover),roi=i?((im+a+p+an-i)/i*100):0,months=an?rem/(an/12):0;$('eres').innerHTML=`<div class="results"><div class="box">Investissement<div class="big">${eur(i)}</div></div><div class="box">Retour identifié<div class="big">${eur(im+a+p)}</div></div><div class="box">Reste<div class="big">${eur(rem)}</div></div><div class="box">ROI simulé<div class="big">${roi.toFixed(1)} %</div></div><div class="box">Retour<div class="big">${months?months.toFixed(1)+' mois':'à calculer'}</div></div></div>`}}
+function aidsV13(){const el=$('aid');if(!el)return;const cards=[['Études d’écoconception — ADEME','Écoconception — informations indicatives à vérifier sur la fiche officielle.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/etudes-decoconception-des-produits-et-des-services'],['Investissements d’écoconception — ADEME','Dispositif soumis à conditions : vérifier la fiche officielle avant toute décision.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/investissements-decoconception-pour-ameliorer-la-performance-environnementale'],['Réemploi, réutilisation et réparation — ADEME','Dispositif à vérifier selon projet, secteur et période.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/soutien-aux-investissements-pour-le-reemploi-reutilisation-et-la-reparation-hors-emballages'],['Catalogue des aides ADEME','Catalogue officiel pour vérifier les aides disponibles.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue']];el.innerHTML=cards.map(x=>`<div class="item"><div><b>${esc(x[0])}</b><p class="muted">${esc(x[1])}</p><a href="${x[2]}" target="_blank" rel="noopener">Source officielle</a></div></div>`).join('')}
+function settingsV13(){const s=JSON.parse(localStorage.getItem('ce_settings')||'{}');if($('dn'))$('dn').value=s.n||'';if($('dv'))$('dv').value=s.v||20;if($('da'))$('da').value=s.a||'';if($('dt'))$('dt').value=s.t||'';if($('de'))$('de').value=s.e||'';if($('ds'))$('ds').value=s.s||'';if($('entreprise'))$('entreprise').value=s.n||'';if($('vat'))$('vat').value=s.v||20}window.settingsSave=()=>{const s={n:$('dn').value,v:$('dv').value,a:$('da').value,t:$('dt').value,e:$('de').value,s:$('ds').value};localStorage.setItem('ce_settings',JSON.stringify(s));settingsV13()};
+function goV13(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));const target=$(id)||document.getElementById(id);if(target)target.classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===id));if(id==='historique')histV13();if(id==='eco')ecoV13();if(id==='aides')aidsV13()}window.go=goV13;window.calc=calcV13;window.save=saveV13;window.makeQuote=quoteV13;window.profession=professionV13;window.pSub=pSubV13;window.previewWaste=previewV13;window.addWaste=addWasteV13;window.estimate=estimateV13;
+function init(){const metier=$('metier');if(metier){addOptions('metier',Object.keys(professions));metier.onchange=professionV13}const pf=$('pf');if(pf){addOptions('pf',Object.keys(professions));pf.onchange=pSubV13}professionV13();pSubV13();setupToolsV13();matRenderV13();toolRenderV13();wasteRenderV13();histV13();settingsV13();aidsV13();ecoLeverPage();document.querySelectorAll('nav button').forEach(b=>{if(!b.dataset.v13){b.dataset.v13='1';b.onclick=()=>goV13(b.dataset.p)}});$('margin')?.addEventListener('input',e=>e.target.dataset.manual='1');['sort','reuse','grind','opt'].forEach(id=>$(id)?.addEventListener('change',ecoV13));$('wmode')?.addEventListener('change',previewV13);['wl','ww','wh','wv'].forEach(id=>$(id)?.addEventListener('input',previewV13));previewV13()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+
+// Small compatibility layer for features that were previously embedded in index.html.
+window.pWaste=()=>{const v=Math.max(0,(+$('pwl').value||0)*(+$('pww').value||0)*(+$('pwh').value||0));$('pvol').textContent=v.toFixed(2)+' m³';const map={'Déchets verts':'verts','Déchets poubelle / résiduels':'residuels','Gravats':'gravats','Bois':'bois','Terre':'terre','Mélangés':'melange'};$('pcost').textContent=eur(v?wasteCost(v,map[$('pwt').value]):0)+' indicatif'};
+window.compareAdd=()=>{const n=$('cn').value.trim(),p=+$('cp').value||0;if(!n||p<=0)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.push({n,p});localStorage.setItem('ce_cmp',JSON.stringify(a));compareRender();$('cn').value='';$('cp').value=''};
+function compareRender(){const el=$('cl');if(!el)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');el.innerHTML=a.length?a.map((x,i)=>`<div class="item"><span>${esc(x.n)}</span><b>${eur(x.p)}</b><button onclick="removeCompare(${i})">×</button></div>`).join(''):'<p class="muted">Aucun devis.</p>'}window.removeCompare=i=>{const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.splice(i,1);localStorage.setItem('ce_cmp',JSON.stringify(a));compareRender()};
+window.exportData=()=>{const data={application:'Chiffr’EcoPro',version:'stable',chiffrages:JSON.parse(localStorage.getItem('ce_history')||'[]'),parametres:JSON.parse(localStorage.getItem('ce_settings')||'{}'),comparaison:JSON.parse(localStorage.getItem('ce_cmp')||'[]')};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='chifrecopro-export.json';a.click();URL.revokeObjectURL(a.href)};
+window.resetAll=()=>{if(confirm('Réinitialiser le chiffrage en cours ?'))location.reload()};
+compareRender();
+window.__ceRemoveMat=i=>{mats.splice(i,1);matRenderV13();};
+window.__ceRemoveTool=i=>{toolsList.splice(i,1);toolRenderV13();};
+window.__ceRemoveWaste=i=>{wastes.splice(i,1);wasteRenderV13();ecoV13();};
+
+})();
+
+</script><script>
+(()=>{
+  const partners=[
+    {name:'Veolia',type:'Recyclage, valorisation et déchets',contact:'https://www.veolia.fr/nous-contacter',kind:'commercial'},
+    {name:'SUEZ',type:'Déchets, recyclage et valorisation',contact:'https://www.suez.com/fr/contact/',kind:'commercial'},
+    {name:'Citeo',type:'Tri, réemploi et recyclage',contact:'https://www.citeo.com/contacts/',kind:'commercial'},
+    {name:'ADEME',type:'Aides et transition écologique',contact:'https://www.ademe.fr/contact/',kind:'public'}
+  ];
+  const esc=x=>String(x).replace(/[&<>\"']/g,a=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[a]));
+  const baseMessage=p=>`Objet : Demande d’autorisation de partenariat – Chifr’EcoPro / ${p.name}\n\nBonjour,\n\nNous développons Chifr’EcoPro, une application française de chiffrage destinée aux professionnels et aux particuliers. Elle intègre une démarche de projet responsable : tri, réemploi, valorisation, gestion des déchets et orientation vers les dispositifs adaptés.\n\nNous souhaiterions savoir si ${p.name} accepte d’étudier une collaboration ou une affiliation avec Chifr’EcoPro afin de pouvoir, uniquement après votre accord, présenter votre organisme/entreprise et éventuellement orienter les utilisateurs vers vos services.\n\nNous sollicitons donc votre autorisation préalable et écrite. Aucun logo, tarif, remise, avantage, offre, statut de partenaire ou affirmation d’affiliation ne sera présenté comme officiel avant votre validation.\n\nSi un programme partenaire ou d’affiliation existe, pourriez-vous nous indiquer les conditions, le bon interlocuteur et les modalités d’utilisation de votre marque et de vos offres ?\n\nMerci par avance pour votre retour.\n\nCordialement,\nL’équipe Chifr’EcoPro`;
+  const key=p=>'chifrecopro_partner_'+p.name.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+  const getStatus=p=>localStorage.getItem(key(p))||'À contacter';
+  const setStatus=(p,s)=>{localStorage.setItem(key(p),s);render();};
+  const copy=async text=>{try{await navigator.clipboard.writeText(text);alert('Message d’autorisation copié.');}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();alert('Message copié.');}};
+
+  function render(){
+    const page=document.getElementById('partnersPage'); if(!page)return;
+    page.innerHTML=`<div class="card eco">
+      <span class="pill">PARTENARIATS ÉCOLOGIQUES</span>
+      <h1>🤝 Partenaires écologiques</h1>
+      <p>Chifr’EcoPro ne s’affilie à aucun organisme automatiquement. <b>Une autorisation écrite est demandée avant toute affiliation, utilisation de logo, annonce de remise ou présentation d’une offre partenaire.</b></p>
+      <div class="notice">🔒 Tant que le partenaire n’a pas validé la collaboration, son statut reste « En attente d’autorisation » et aucune offre n’est considérée comme officielle.</div>
+    </div>
+    <div class="card"><h2>📋 Organismes à contacter</h2>${partners.map(p=>{
+      const st=getStatus(p);
+      return `<div class="item" style="display:block">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap">
+          <div><h3 style="margin:0 0 4px">${esc(p.name)}</h3><small>${esc(p.type)}</small></div>
+          <span class="pill">${esc(st)}</span>
+        </div>
+        <p class="muted">${p.kind==='public'?'Organisme public : demande de collaboration/information, pas une affiliation commerciale présumée.':'Partenaire potentiel : aucune affiliation commerciale présumée sans accord.'}</p>
+        <div class="actions">
+          <button class="primary" data-copy="${esc(p.name)}">📨 Préparer la demande d’autorisation</button>
+          <a href="${esc(p.contact)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;padding:10px 13px;border:1px solid #cbd8d1;border-radius:9px;font-weight:800;text-decoration:none;color:inherit">Contacter officiellement</a>
+          <button data-pending="${esc(p.name)}">⏳ Marquer en attente</button>
+          <button data-approved="${esc(p.name)}">✅ Autorisation obtenue</button>
+        </div>
+      </div>`;
+    }).join('')}</div>
+    <div class="card"><h2>🛡️ Règle d’affiliation Chifr’EcoPro</h2>
+      <ul><li>Demande officielle envoyée au partenaire.</li><li>Attente de sa réponse et de ses conditions.</li><li>Validation écrite conservée par Chifr’EcoPro.</li><li>Seulement après validation : affichage du partenaire, lien affilié, offre ou avantage réellement accordé.</li><li>Si l’accord expire ou est retiré, le partenaire est désactivé.</li></ul>
+    </div>`;
+    page.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.copy);if(p)copy(baseMessage(p));});
+    page.querySelectorAll('[data-pending]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.pending);if(p)setStatus(p,'En attente d’autorisation');});
+    page.querySelectorAll('[data-approved]').forEach(b=>b.onclick=()=>{const p=partners.find(x=>x.name===b.dataset.approved);if(p){if(confirm('Confirmez-vous que l’autorisation écrite de '+p.name+' a bien été obtenue ?'))setStatus(p,'Autorisation obtenue');}});
+    renderAidsPartners();
+  }
+
+  function renderAidsPartners(){
+    const aid=document.getElementById('aid'); if(!aid || aid.dataset.partnersReady==='1')return;
+    aid.dataset.partnersReady='1';
+    const box=document.createElement('div');
+    box.className='card eco';
+    box.innerHTML=`<h2>🤝 Organismes et partenaires à consulter</h2>
+      <p class="muted">Ces organismes peuvent être utiles selon le projet et le territoire. Les liens sont des accès officiels ; ils ne signifient pas que Chifr’EcoPro dispose d’un partenariat ou d’une aide garantie.</p>
+      <div class="grid2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+        ${partners.map(p=>`<div class="box"><h3 style="margin-top:0">${esc(p.name)}</h3><p>${esc(p.type)}</p><a href="${esc(p.contact)}" target="_blank" rel="noopener" style="font-weight:800">Contacter / consulter →</a></div>`).join('')}
+      </div>`;
+    aid.appendChild(box);
+  }
+
+  function addEcoSortingLinks(){
+    const waste=document.getElementById('wt');
+    if(!waste || document.getElementById('ecoSortingLinks')) return;
+    const card=waste.closest('.card');
+    if(!card) return;
+    const box=document.createElement('div');
+    box.id='ecoSortingLinks';
+    box.className='box eco';
+    box.style.marginTop='14px';
+    box.innerHTML=`<h3 style="margin-top:0">🌱 Trouver une filière de tri / valorisation</h3>
+      <p class="muted" style="margin-bottom:10px">Selon le type de déchet sélectionné, consultez les filières officielles et les partenaires spécialisés. Les liens n’impliquent aucune affiliation avec Chifr’EcoPro.</p>
+      <div class="actions" style="margin-top:0">
+        <a href="https://www.ademe.fr/" target="_blank" rel="noopener">ADEME — informations officielles</a>
+        <a href="https://www.recyclage.veolia.fr/gerer-mes-dechets/entreprises/solutions-services/tri-8-flux-dechets" target="_blank" rel="noopener">Veolia — tri 6/8 flux</a>
+        <a href="https://www.recyclage.veolia.fr/gerer-mes-dechets/entreprises/solutions-services/recyclinn-pro-decheteries-professionnelles" target="_blank" rel="noopener">Veolia — déchèteries pro</a>
+        <a href="https://www.suez.fr/fr-fr/entreprises" target="_blank" rel="noopener">SUEZ — solutions entreprises</a>
+        <a href="https://www.citeo.com/" target="_blank" rel="noopener">CITEO — tri et recyclage</a>
+        <a href="https://www.valobat.fr/" target="_blank" rel="noopener">Valobat — REP bâtiment</a>
+        <a href="https://www.ecomaison.com/" target="_blank" rel="noopener">Ecomaison — réemploi / recyclage</a>
+      </div>`;
+    card.appendChild(box);
+  }
+
+  function addEcoDedicatedPage(){
+    const nav=document.querySelector('nav'),main=document.querySelector('main');
+    if(!nav||!main||document.getElementById('ecoDedicatedPage'))return;
+    let btn=document.getElementById('ecoDedicatedNav');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='ecoDedicatedNav';
+      btn.textContent='♻️ Calculs écologiques';
+      btn.onclick=()=>{
+        document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+        document.getElementById('ecoDedicatedPage').classList.add('active');
+        document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        ecoDedicatedCalc();
+      };
+      nav.appendChild(btn);
+    }
+    const page=document.createElement('section');
+    page.id='ecoDedicatedPage'; page.className='page';
+    page.innerHTML=`
+      <div class="card eco">
+        <span class="pill">ESPACE 100 % ÉCOLOGIE</span>
+        <h1>♻️ Tri, volume et évacuation</h1>
+        <p>Une page dédiée pour calculer simplement le volume des déchets, estimer les rotations d’évacuation et visualiser l’effet du tri. Les montants sont <b>indicatifs</b> et doivent être adaptés aux tarifs réels du prestataire et du territoire.</p>
+      </div>
+      <div class="card">
+        <h2>📐 1. Calcul du volume à évacuer</h2>
+        <div class="grid3">
+          <div><label>Type de déchet</label><select id="ecoWasteType">
+            <option value="verts">🌿 Déchets verts</option><option value="gravats">🧱 Gravats / béton</option><option value="terre">🌍 Terre</option><option value="bois">🪵 Bois</option><option value="carton">📦 Papier / carton</option><option value="plastique">♻️ Plastiques</option><option value="metaux">🔩 Métaux</option><option value="verre">🪟 Verre</option><option value="residuels">🗑️ Résiduels</option><option value="dangereux">⚠️ Déchets particuliers</option><option value="melange">Déchets mélangés</option>
+          </select></div>
+          <div><label>Longueur (m)</label><input id="ecoL" type="number" min="0" step="0.01" value="2"></div>
+          <div><label>Largeur (m)</label><input id="ecoW" type="number" min="0" step="0.01" value="1"></div>
+          <div><label>Hauteur (m)</label><input id="ecoH" type="number" min="0" step="0.01" value="1"></div>
+          <div><label>Ou volume direct (m³)</label><input id="ecoV" type="number" min="0" step="0.01" placeholder="Facultatif"></div>
+          <div><label>Mode</label><select id="ecoMode"><option value="dim">L × l × h</option><option value="vol">Volume direct</option></select></div>
+        </div>
+        <div class="results" style="margin-top:14px"><div class="box">Volume<div id="ecoVolume" class="big">0,00 m³</div></div><div class="box">Densité indicative<div id="ecoDensity" class="big">0 kg/m³</div></div><div class="box">Masse indicative<div id="ecoMass" class="big">0 kg</div></div><div class="box">Tri<div id="ecoSortState" class="big">À organiser</div></div><div class="box">Filière<div id="ecoChannel" class="big">—</div></div></div>
+      </div>
+      <div class="card">
+        <h2>🚚 2. Calcul d’évacuation</h2>
+        <div class="grid3">
+          <div><label>Distance aller (km)</label><input id="ecoKm" type="number" min="0" step="1" value="15"></div>
+          <div><label>Capacité du véhicule (m³)</label><input id="ecoCap" type="number" min="0.1" step="0.1" value="8"></div>
+          <div><label>Coût transport (€/km)</label><input id="ecoTransport" type="number" min="0" step="0.1" value="1.2"></div>
+          <div><label>Coût filière (€/m³)</label><input id="ecoDisposal" type="number" min="0" step="0.5" value="35"></div>
+          <div><label>Coût tri / manutention (€/m³)</label><input id="ecoSorting" type="number" min="0" step="0.5" value="10"></div>
+          <div><label>Majoration déchets mélangés (€/m³)</label><input id="ecoMixed" type="number" min="0" step="0.5" value="20"></div>
+        </div>
+        <div class="actions"><button class="primary" id="ecoCalcBtn">🧮 Calculer l’évacuation</button></div>
+        <div class="results" style="margin-top:14px"><div class="box">Rotations<div id="ecoTrips" class="big">0</div></div><div class="box">Transport<div id="ecoTransportTotal" class="big">0 €</div></div><div class="box">Filière<div id="ecoDisposalTotal" class="big">0 €</div></div><div class="box">Tri<div id="ecoSortingTotal" class="big">0 €</div></div><div class="box">Total indicatif<div id="ecoTotal" class="big">0 €</div></div></div>
+      </div>
+      <div class="card">
+        <h2>🔄 3. Comparateur trié / mélangé</h2>
+        <p class="muted">Saisissez plusieurs flux pour comparer une évacuation séparée avec une évacuation mélangée. Le calcul sert à comparer des scénarios, pas à garantir un tarif.</p>
+        <div class="grid3">
+          <div><label>🌿 Verts (m³)</label><input class="ecoFlux" data-type="verts" type="number" min="0" step="0.1" value="0"></div>
+          <div><label>🧱 Gravats (m³)</label><input class="ecoFlux" data-type="gravats" type="number" min="0" step="0.1" value="0"></div>
+          <div><label>🪵 Bois (m³)</label><input class="ecoFlux" data-type="bois" type="number" min="0" step="0.1" value="0"></div>
+          <div><label>📦 Carton (m³)</label><input class="ecoFlux" data-type="carton" type="number" min="0" step="0.1" value="0"></div>
+          <div><label>♻️ Plastiques (m³)</label><input class="ecoFlux" data-type="plastique" type="number" min="0" step="0.1" value="0"></div>
+          <div><label>🗑️ Mélangés (m³)</label><input class="ecoFlux" data-type="melange" type="number" min="0" step="0.1" value="0"></div>
+        </div>
+        <div class="actions"><button class="primary" id="ecoCompareBtn">⚖️ Comparer</button></div>
+        <div class="grid" style="margin-top:14px"><div class="box"><h3>Tri séparé</h3><p id="ecoSeparate">—</p></div><div class="box"><h3>Mélangé</h3><p id="ecoMixedScenario">—</p></div></div>
+      </div>
+      <div class="card eco">
+        <h2>🌱 Repères de tri</h2>
+        <div class="grid3">
+          <div class="box"><b>🌿 Déchets verts</b><p>Valorisation organique, broyage ou filière dédiée selon le territoire.</p></div>
+          <div class="box"><b>🧱 Gravats</b><p>Filière minérale / recyclage des matériaux selon la nature des déchets.</p></div>
+          <div class="box"><b>🪵 Bois</b><p>Tri séparé recommandé pour faciliter le recyclage ou la valorisation.</p></div>
+          <div class="box"><b>📦 Carton</b><p>À conserver propre et séparé lorsque la filière l’accepte.</p></div>
+          <div class="box"><b>♻️ Plastiques</b><p>Identifier la résine et la filière lorsque cela est possible.</p></div>
+          <div class="box"><b>⚠️ Particuliers / dangereux</b><p>Ne pas mélanger avec les flux ordinaires ; vérifier la filière adaptée.</p></div>
+        </div>
+      </div>`;
+    main.appendChild(page);
+    document.getElementById('ecoCalcBtn').onclick=ecoDedicatedCalc;
+    document.getElementById('ecoCompareBtn').onclick=ecoCompare;
+    ['ecoWasteType','ecoL','ecoW','ecoH','ecoV','ecoMode'].forEach(id=>document.getElementById(id).addEventListener('input',ecoDedicatedCalc));
+    ecoDedicatedCalc();
+  }
+
+  const ecoInfo={
+    verts:{density:300,channel:'Valorisation / broyage',base:30},gravats:{density:1600,channel:'Filière minérale',base:45},terre:{density:1500,channel:'Filière terre',base:30},bois:{density:450,channel:'Valorisation bois',base:40},carton:{density:120,channel:'Recyclage papier/carton',base:35},plastique:{density:150,channel:'Recyclage plastiques',base:60},metaux:{density:500,channel:'Valorisation métaux',base:25},verre:{density:500,channel:'Recyclage verre',base:40},residuels:{density:250,channel:'Filière résiduelle',base:55},dangereux:{density:300,channel:'Filière spécifique',base:90},melange:{density:500,channel:'Tri / traitement des mélangés',base:75}
+  };
+  const euro=n=>Number(n||0).toLocaleString('fr-FR',{maximumFractionDigits:0})+' €';
+  const num=id=>parseFloat(document.getElementById(id)?.value)||0;
+  function ecoGetVolume(){
+    const mode=document.getElementById('ecoMode').value;
+    return Math.max(0,mode==='vol'&&num('ecoV')>0?num('ecoV'):num('ecoL')*num('ecoW')*num('ecoH'));
+  }
+  function ecoDedicatedCalc(){
+    if(!document.getElementById('ecoDedicatedPage'))return;
+    const type=document.getElementById('ecoWasteType').value, info=ecoInfo[type], v=ecoGetVolume();
+    const density=info.density, mass=v*density;
+    document.getElementById('ecoVolume').textContent=v.toFixed(2).replace('.',',')+' m³';
+    document.getElementById('ecoDensity').textContent=density.toLocaleString('fr-FR')+' kg/m³';
+    document.getElementById('ecoMass').textContent=mass.toLocaleString('fr-FR',{maximumFractionDigits:0})+' kg';
+    document.getElementById('ecoChannel').textContent=info.channel;
+    document.getElementById('ecoSortState').textContent=type==='melange'?'Mélangé':'Flux séparé';
+    const cap=Math.max(0.1,num('ecoCap')), km=num('ecoKm'), transport=num('ecoTransport'), disposal=num('ecoDisposal')||info.base, sorting=num('ecoSorting'), mixed=num('ecoMixed');
+    const trips=v?Math.ceil(v/cap):0, t=trips*km*2*transport, d=v*disposal, s=v*sorting, m=type==='melange'?v*mixed:0;
+    document.getElementById('ecoTrips').textContent=trips;
+    document.getElementById('ecoTransportTotal').textContent=euro(t);
+    document.getElementById('ecoDisposalTotal').textContent=euro(d);
+    document.getElementById('ecoSortingTotal').textContent=euro(s+m);
+    document.getElementById('ecoTotal').textContent=euro(t+d+s+m);
+  }
+  function ecoCompare(){
+    const vals=[...document.querySelectorAll('.ecoFlux')].map(x=>({type:x.dataset.type,v:parseFloat(x.value)||0})).filter(x=>x.v>0);
+    const total=vals.reduce((a,x)=>a+x.v,0); if(!total){document.getElementById('ecoSeparate').textContent='Saisissez au moins un volume.';document.getElementById('ecoMixedScenario').textContent='—';return;}
+    const km=num('ecoKm'), cap=Math.max(0.1,num('ecoCap')), tr=num('ecoTransport'), sort=num('ecoSorting'), mixed=num('ecoMixed');
+    let separate=0; vals.forEach(x=>{const info=ecoInfo[x.type]||ecoInfo.melange;separate+=Math.ceil(x.v/cap)*km*2*tr+x.v*(num('ecoDisposal')||info.base)+x.v*sort;});
+    const mixedCost=Math.ceil(total/cap)*km*2*tr+total*(num('ecoDisposal')||ecoInfo.melange.base)+total*mixed;
+    document.getElementById('ecoSeparate').innerHTML='<b>'+euro(separate)+'</b><br>'+vals.length+' flux séparé(s), '+total.toFixed(2).replace('.',',')+' m³.';
+    document.getElementById('ecoMixedScenario').innerHTML='<b>'+euro(mixedCost)+'</b><br>1 flux mélangé, '+total.toFixed(2).replace('.',',')+' m³.';
+  }
+
+  function init(){
+    const nav=document.querySelector('nav'),main=document.querySelector('main');
+    if(!nav||!main)return;
+    let b=document.getElementById('partnerNav');
+    if(!b){b=document.createElement('button');b.id='partnerNav';b.textContent='🤝 Partenaires';b.onclick=()=>{document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));const p=document.getElementById('partnersPage');if(p)p.classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');render();};nav.appendChild(b);}
+    let page=document.getElementById('partnersPage');
+    if(!page){page=document.createElement('section');page.id='partnersPage';page.className='page';main.appendChild(page);}
+    render();
+    addEcoSortingLinks();
+    addEcoDedicatedPage();
+    setTimeout(addEcoSortingLinks,700);
+    setTimeout(addEcoDedicatedPage,700);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
+</script><script>
+(()=>{
+  'use strict';
+  const fixHomeLayout=()=>{
+    if(document.getElementById('ce-home-layout-fix'))return;
+    const img=document.querySelector('.home img');if(img)img.src='./file_00000000cef88246bb6203174d2ac629.png';
+    const style=document.createElement('style');style.id='ce-home-layout-fix';style.textContent=`html,body{max-width:100%;overflow-x:hidden!important}.home{position:relative!important;width:100%!important;max-width:100%!important;height:calc(100dvh - 360px)!important;min-height:650px!important;overflow:hidden!important;background:#fff!important;border-radius:20px!important}.home img{display:block!important;width:100%!important;max-width:100%!important;height:100%!important;min-width:0!important;object-fit:fill!important;object-position:center center!important;image-rendering:auto!important}.home-copy{display:none!important}.home-links{position:absolute!important;left:3%!important;right:3%!important;bottom:8%!important;width:auto!important;height:10%!important;padding:0!important;margin:0!important;background:transparent!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:3%!important;z-index:3!important}.home-links button{width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:16px!important;background:transparent!important;color:transparent!important;font-size:0!important;line-height:0!important;box-shadow:none!important;cursor:pointer!important;padding:0!important;opacity:.01!important}.home-links button:active{transform:none!important}@media(max-width:560px){.home{height:calc(100dvh - 360px)!important;min-height:650px!important}.home img{width:100%!important;max-width:100%!important;height:100%!important;object-fit:fill!important}.home-links{left:3%!important;right:3%!important;bottom:8%!important;height:10%!important;grid-template-columns:1fr 1fr!important;gap:3%!important}}`;document.head.appendChild(style);
+  };
+  const loadScript=(src,attr)=>new Promise(resolve=>{if(document.querySelector(`script[src="${src}"]`))return resolve();const s=document.createElement('script');s.src=src;if(attr)Object.assign(s,attr);s.defer=true;s.onload=resolve;s.onerror=resolve;document.head.appendChild(s)});
+  const start=async()=>{fixHomeLayout();await loadScript('./runtime-stability.js',{'data-ce-runtime':'1'});await loadScript('./navigation-v2.js',{'data-ce-navigation':'1'});await loadScript('./documents-v2.js',{'data-ce-documents':'1'});await loadScript('./barometre-pro-v1.js',{'data-ce-barometre':'1'});await loadScript('./workflow-particulier-v1.js',{'data-ce-part-workflow':'1'});await loadScript('./navigation-bridge-v1.js',{'data-ce-navigation-bridge':'1'});await loadScript('./document-access-v1.js',{'data-ce-document-access':'1'});await loadScript('./document-workflow-access-v2.js',{'data-ce-doc-access-v2':'1'});window.__ceNavigationRefresh?.();if(!('serviceWorker'in navigator))return;try{const reg=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});await reg.update()}catch(error){console.warn('Chiffr’EcoPro PWA indisponible :',error)}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+</script>
 <script>
 function ecoNum(id){const n=parseFloat(document.getElementById(id)?.value);return Number.isFinite(n)?Math.max(0,n):0;}
 function ecoCalcTri(){const t=ecoNum('ectTotal'),s=ecoNum('ectSorted'),r=ecoNum('ectReuse');const tri=t?Math.min(100,s/t*100):0;const val=t?Math.min(100,r/t*100):0;const rest=Math.max(0,t-s);document.getElementById('ectResult').innerHTML=`Taux de tri : <b>${tri.toFixed(1)} %</b><br>Taux de valorisation : <b>${val.toFixed(1)} %</b><br>Déchets restant à traiter : <b>${rest.toFixed(1)} kg</b>`;}
 function ecoCalcDechet(){const v=ecoNum('ecdV')||ecoNum('ecdL')*ecoNum('ecdW')*ecoNum('ecdH');const d=parseFloat(document.getElementById('ecdType').value)||0;document.getElementById('ecdResult').innerHTML=`Volume : <b>${v.toFixed(2)} m³</b><br>Poids indicatif : <b>${(v*d).toFixed(1)} kg</b>`;}
 function ecoEval(){const ids=['eceTri','eceReuse','eceGrind','eceTravel','eceLocal','eceWaste'];const pts=ids.reduce((n,id)=>n+(document.getElementById(id)?.checked?1:0),0);const score=Math.round(pts/ids.length*100);let niveau=score>=80?'Très bon niveau d’actions prévues':score>=50?'Niveau intermédiaire d’actions prévues':'Quelques actions à étudier';document.getElementById('eceResult').innerHTML=`Indicateur écologique : <b>${score}/100</b><br>${niveau}`;}
-</script><script src="./commercialisation.js"></script><script src="./commercialisation-entry.js"></script>
+</script><script>
+/* ChiffreCo-Pro commercialisation V3 — staging only */
+(function(){
+  'use strict';
+  const CC={};
+  let overlay=null, supabaseClient=null;
+  const apiBase=window.CC_API_BASE||'https://ltehjhvxrnwatbqplmxr.supabase.co/functions/v1/commercialisation-api';
+  const supabaseUrl='https://ltehjhvxrnwatbqplmxr.supabase.co';
+  const publishableKey='sb_publishable_GwgM9WAAvVGwNxUQEFf9yQ_YDWbI0xa';
+
+  async function client(){
+    if(supabaseClient) return supabaseClient;
+    const mod=await import('https://esm.sh/@supabase/supabase-js@2');
+    supabaseClient=mod.createClient(supabaseUrl,publishableKey);
+    return supabaseClient;
+  }
+  async function session(){
+    const c=await client();
+    const {data}=await c.auth.getSession();
+    return data.session||null;
+  }
+  async function api(path,opts={}){
+    const s=await session();
+    const headers={'Content-Type':'application/json',...(opts.headers||{})};
+    if(s?.access_token) headers.Authorization='Bearer '+s.access_token;
+    const res=await fetch(apiBase+path,{credentials:'omit',...opts,headers});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok){
+      if(res.status===401) throw Object.assign(new Error('Connexion requise pour continuer.'),{code:'AUTH_REQUIRED'});
+      throw new Error(data.error||'Erreur serveur');
+    }
+    return data;
+  }
+  CC.api=api;
+
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function close(){if(overlay){overlay.remove();overlay=null;}}
+  function shell(title,body){
+    close();
+    overlay=document.createElement('div');overlay.className='cc-overlay';
+    overlay.innerHTML='<section class="cc-modal" role="dialog" aria-modal="true"><div class="cc-head"><h2>'+esc(title)+'</h2><button class="cc-close" aria-label="Fermer">×</button></div><div class="cc-body">'+body+'</div></section>';
+    overlay.querySelector('.cc-close').onclick=close;
+    overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
+    document.body.appendChild(overlay);
+  }
+  async function showAuth(next){
+    shell('Connexion Chiffr’EcoPro',`
+      <p class="cc-muted">Un compte est nécessaire pour sécuriser les évaluations et les abonnements.</p>
+      <div class="cc-field"><label>E-mail</label><input id="cc-auth-email" type="email" autocomplete="email"></div>
+      <div class="cc-field"><label>Mot de passe</label><input id="cc-auth-password" type="password" autocomplete="current-password"></div>
+      <div class="cc-actions"><button class="cc-btn cc-btn-primary" id="cc-login">Se connecter</button><button class="cc-btn" id="cc-signup">Créer mon compte</button></div>
+      <p id="cc-auth-msg" class="cc-note"></p>`);
+    const msg=overlay.querySelector('#cc-auth-msg');
+    const email=()=>overlay.querySelector('#cc-auth-email').value.trim();
+    const password=()=>overlay.querySelector('#cc-auth-password').value;
+    overlay.querySelector('#cc-login').onclick=async()=>{
+      msg.textContent='Connexion…';
+      try{const c=await client();const {error}=await c.auth.signInWithPassword({email:email(),password:password()});if(error)throw error;msg.textContent='Connecté.';await new Promise(r=>setTimeout(r,250));if(next)next();else showOffers();}catch(e){msg.className='cc-note cc-error';msg.textContent=e.message;}}
+    overlay.querySelector('#cc-signup').onclick=async()=>{
+      msg.textContent='Création du compte…';
+      try{const c=await client();const {data,error}=await c.auth.signUp({email:email(),password:password()});if(error)throw error;if(data.session){msg.textContent='Compte créé.';if(next)next();else showOffers();}else msg.textContent='Compte créé. Vérifiez votre e-mail puis connectez-vous.';}catch(e){msg.className='cc-note cc-error';msg.textContent=e.message;}}
+  }
+  async function requireAuth(next){
+    const s=await session().catch(()=>null);
+    if(s) return next();
+    return showAuth(next);
+  }
+
+  CC.close=close;
+  CC.open=async (page,plan)=>{
+    if(page==='offers') return showOffers();
+    if(page==='choose') return requireAuth(()=>showChoose());
+    if(page==='payment') return requireAuth(()=>showPayment(plan||'particulier'));
+    if(page==='success') return requireAuth(()=>showSuccess());
+    if(page==='subscription') return requireAuth(()=>showSubscription());
+    if(page==='pro') return requireAuth(()=>showPro());
+    return showOffers();
+  };
+
+  async function showOffers(){
+    let s={evaluations_remaining:3,account_type:'particulier',subscription_status:'none'};
+    try{s=await api('/subscription-state',{method:'POST',body:'{}'});}catch(e){}
+    shell('Nos offres',`
+      <div class="cc-grid">
+        <article class="cc-card"><span class="cc-badge">PARTICULIER</span><h3>3 évaluations gratuites</h3><div class="cc-counter">Il vous reste ${esc(s.evaluations_remaining??3)} évaluations gratuites</div><div class="cc-price">2,99 € / mois</div><p class="cc-muted">Après les 3 évaluations gratuites.</p><div class="cc-actions"><button class="cc-btn cc-btn-primary" data-cc="choose-part">Choisir Particulier</button></div></article>
+        <article class="cc-card"><span class="cc-badge">PROFESSIONNEL</span><h3>Offre Professionnel</h3><div class="cc-price">9,99 € / mois</div><p class="cc-muted">Justificatif professionnel requis avant activation.</p><div class="cc-actions"><button class="cc-btn cc-btn-primary" data-cc="choose-pro">Choisir Professionnel</button></div></article>
+      </div><p class="cc-note">Les compteurs, droits et paiements sont contrôlés côté serveur.</p>`);
+    overlay.querySelector('[data-cc="choose-part"]').onclick=()=>requireAuth(()=>showPayment('particulier'));
+    overlay.querySelector('[data-cc="choose-pro"]').onclick=()=>requireAuth(()=>showPro());
+  }
+
+  function showChoose(pref){
+    shell('Choisir mon offre',`<div class="cc-grid"><article class="cc-card"><h3>Particulier</h3><div class="cc-price">2,99 € / mois</div><p>Après les 3 évaluations gratuites.</p><button class="cc-btn cc-btn-primary" data-plan="particulier">Continuer</button></article><article class="cc-card"><h3>Professionnel</h3><div class="cc-price">9,99 € / mois</div><p>Vérification professionnelle requise.</p><button class="cc-btn cc-btn-primary" data-plan="professionnel">Continuer</button></article></div>`);
+    overlay.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>b.dataset.plan==='professionnel'?showPro():showPayment('particulier'));
+    if(pref) overlay.querySelector('[data-plan="'+pref+'"]')?.click();
+  }
+
+  function showPro(){
+    shell('Vérification professionnelle',`<p>Le justificatif est déposé dans un bucket privé et reste inaccessible publiquement.</p>
+      <div class="cc-field"><label>Type de justificatif</label><select id="cc-pro-type"><option>SIRET / extrait Kbis</option><option>Attestation d'activité</option><option>Autre justificatif professionnel</option></select></div>
+      <div class="cc-field"><label>Référence professionnelle</label><input id="cc-pro-ref" placeholder="SIRET ou référence"></div>
+      <div class="cc-field"><label>Justificatif</label><input id="cc-pro-file" type="file" accept="application/pdf,image/*"></div>
+      <div class="cc-actions"><button class="cc-btn cc-btn-primary" id="cc-pro-submit">Envoyer pour vérification</button></div><p id="cc-pro-msg" class="cc-note"></p>`);
+    overlay.querySelector('#cc-pro-submit').onclick=async()=>{
+      const msg=overlay.querySelector('#cc-pro-msg');msg.textContent='Envoi sécurisé…';
+      try{
+        const f=overlay.querySelector('#cc-pro-file').files[0];if(!f)throw new Error('Sélectionnez un justificatif.');
+        const d=await api('/professional-verification/upload-url',{method:'POST',body:JSON.stringify({type:overlay.querySelector('#cc-pro-type').value,reference:overlay.querySelector('#cc-pro-ref').value,file_name:f.name})});
+        const upload=await fetch(d.upload_url+'?token='+encodeURIComponent(d.token),{method:'PUT',headers:{'Content-Type':f.type||'application/octet-stream'},body:f});
+        if(!upload.ok)throw new Error('Le dépôt sécurisé du justificatif a échoué.');
+        msg.className='cc-note cc-success';msg.textContent='Justificatif envoyé. Validation professionnelle en attente.';
+      }catch(e){msg.className='cc-note cc-error';msg.textContent=e.message;}
+    };
+  }
+
+  function showPayment(plan='particulier'){
+    shell('Paiement',`<div class="cc-status"><b>Offre :</b> ${esc(plan==='professionnel'?'Professionnel — 9,99 € / mois':'Particulier — 2,99 € / mois')}</div><p class="cc-muted">Le paiement est effectué sur Stripe Checkout. ChiffreCo-Pro ne stocke aucune donnée bancaire.</p><div class="cc-actions"><button class="cc-btn cc-btn-primary" id="cc-pay">Continuer vers le paiement sécurisé</button><button class="cc-btn" id="cc-cancel">Annuler</button></div><p id="cc-pay-msg" class="cc-note"></p>`);
+    overlay.querySelector('#cc-pay').onclick=async()=>{
+      const msg=overlay.querySelector('#cc-pay-msg');msg.textContent='Préparation du paiement…';
+      try{const d=await api('/create-checkout-session',{method:'POST',body:JSON.stringify({plan})});if(!d.checkout_url)throw new Error('URL de paiement non configurée.');location.href=d.checkout_url;}
+      catch(e){msg.className='cc-note cc-error';msg.textContent=e.message;}
+    };
+    overlay.querySelector('#cc-cancel').onclick=close;
+  }
+
+  async function showSuccess(){
+    let s;try{s=await api('/subscription-state',{method:'POST',body:'{}'});}catch(e){s={subscription_status:'pending'};}
+    shell('Confirmation',`<div class="cc-status"><p class="cc-success">Retour du paiement reçu. Le statut affiché provient du serveur.</p><p><b>Offre :</b> ${esc(s.plan||'—')}</p><p><b>Statut :</b> ${esc(s.subscription_status||'—')}</p><p><b>Échéance :</b> ${esc(s.current_period_end||'—')}</p></div><button class="cc-btn cc-btn-primary" id="cc-sub">Mon abonnement</button>`);
+    overlay.querySelector('#cc-sub').onclick=()=>showSubscription();
+  }
+
+  async function showSubscription(){
+    let s;try{s=await api('/subscription-state',{method:'POST',body:'{}'});}catch(e){s={plan:'—',subscription_status:'indisponible'};}
+    shell('Mon abonnement',`<div class="cc-status"><p><b>Offre :</b> ${esc(s.plan||'Aucune')}</p><p><b>Statut :</b> ${esc(s.subscription_status||'—')}</p><p><b>Début :</b> ${esc(s.started_at||'—')}</p><p><b>Échéance :</b> ${esc(s.current_period_end||'—')}</p><p><b>Annulation en fin de période :</b> ${s.cancel_at_period_end?'Oui':'Non'}</p></div><div class="cc-actions"><button class="cc-btn cc-btn-primary" id="cc-portal">Gérer mon abonnement</button></div><p class="cc-note">La résiliation est effectuée dans le portail Stripe ; le webhook synchronise ensuite le statut.</p>`);
+    overlay.querySelector('#cc-portal').onclick=async()=>{try{const d=await api('/customer-portal',{method:'POST',body:'{}'});if(d.portal_url)location.href=d.portal_url;}catch(e){alert(e.message);}};
+  }
+
+  window.ccCommercialisation=CC;
+})();
+</script><script>
+(function(){
+  'use strict';
+  function init(){
+    if(!window.ccCommercialisation||!document.querySelector('nav')) return;
+    if(!document.getElementById('ccNavOffers')){
+      const b=document.createElement('button');b.id='ccNavOffers';b.type='button';b.textContent='Nos offres';
+      b.addEventListener('click',()=>window.ccCommercialisation.open('offers'));document.querySelector('nav').appendChild(b);
+    }
+    if(!document.getElementById('ccNavSubscription')){
+      const b=document.createElement('button');b.id='ccNavSubscription';b.type='button';b.textContent='Mon abonnement';
+      b.addEventListener('click',()=>window.ccCommercialisation.open('subscription'));document.querySelector('nav').appendChild(b);
+    }
+    installEvaluationGate();
+    installProGate();
+    const p=new URLSearchParams(location.search);
+    if(p.get('cc_payment')==='success') window.ccCommercialisation.open('success');
+  }
+  async function consume(){
+    try{return {allowed:true,data:await window.ccCommercialisation.api('/consume-evaluation',{method:'POST',body:'{}'})};}
+    catch(e){window.ccCommercialisation.open('offers');return {allowed:false,error:e};}
+  }
+  async function startProFlow(){
+    try{
+      const s=await window.ccCommercialisation.api('/subscription-state',{method:'POST',body:'{}'});
+      if(s.professional_verification_status==='verified') return window.ccCommercialisation.open('payment','professionnel');
+    }catch(e){}
+    return window.ccCommercialisation.open('pro');
+  }
+  function installProGate(){
+    document.addEventListener('click',async e=>{
+      const b=e.target.closest('button');
+      if(!b||b.dataset.ccProGate==='1')return;
+      const action=b.getAttribute('onclick')||'';
+      const isPro=b.dataset.p==='pro' || action.includes("go('pro')") || action.includes('go("pro")');
+      if(!isPro)return;
+      b.dataset.ccProGate='1';e.preventDefault();e.stopImmediatePropagation();
+      try{
+        const s=await window.ccCommercialisation.api('/subscription-state',{method:'POST',body:'{}'});
+        const paidPro=s.plan==='professionnel' && ['active','trialing'].includes(s.subscription_status);
+        if(paidPro){
+          if(typeof window.go==='function') window.go('pro');
+          return;
+        }
+      }catch(e){}
+      await window.ccCommercialisation.open('choose');
+      b.dataset.ccProGate='0';
+    },true);
+  }
+  function installEvaluationGate(){
+    document.addEventListener('click',async e=>{
+      const b=e.target.closest('button');
+      if(!b||b.dataset.ccGate==='1')return;
+      if(!b.closest('#particulier'))return;
+      const action=b.getAttribute('onclick')||'';
+      if(!/\bestimate\s*\(\)/.test(action))return;
+      b.dataset.ccGate='1';e.preventDefault();e.stopImmediatePropagation();
+      const r=await consume();b.dataset.ccGate='0';
+      if(!r.allowed)return;
+      try{new Function(action).call(b);}catch(err){console.error(err);}
+    },true);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
+<script>
+(function(){
+ function addHomeReturns(){
+  document.querySelectorAll('section.page:not(#accueil)').forEach(function(p){
+   if(p.querySelector(':scope > .ce-back-home')) return;
+   var b=document.createElement('button');b.className='ce-back-home';b.type='button';b.textContent='← Accueil';
+   b.addEventListener('click',function(){if(typeof window.go==='function')window.go('accueil');else{document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('accueil').classList.add('active');}});
+   p.insertBefore(b,p.firstChild);
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addHomeReturns);else addHomeReturns();
+ setTimeout(addHomeReturns,500);setTimeout(addHomeReturns,1500);
+})();
+</script>
 </body></html>

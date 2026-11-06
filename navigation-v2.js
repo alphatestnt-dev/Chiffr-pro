@@ -20,7 +20,7 @@
     menu.style.cssText='position:fixed;z-index:1000;right:14px;top:120px;width:min(340px,calc(100vw - 28px));max-height:calc(100dvh - 145px);overflow-y:auto;padding:9px;background:#fff;border:1px solid #d8e3dd;border-radius:14px;box-shadow:0 12px 30px #102b1f26;display:none;flex-direction:column;gap:4px';
     menu.querySelectorAll('button').forEach(b=>{b.type='button';b.style.cssText='border:0;background:#fff;text-align:left;padding:12px;border-radius:9px;font:700 14px system-ui;color:#103c2c';b.onclick=()=>{menu.hidden=true;menu.style.display='none';toggle.setAttribute('aria-expanded','false');window.go?.(b.dataset.go)}});
     toggle.onclick=()=>{const open=menu.hidden;menu.hidden=!open;menu.style.display=open?'flex':'none';toggle.setAttribute('aria-expanded',String(open));if(open){const r=nav.getBoundingClientRect();menu.style.top=(r.bottom+6)+'px'}};
-    nav.appendChild(toggle);document.body.appendChild(menu);
+    nav.insertBefore(toggle,nav.firstChild);document.body.appendChild(menu);
     document.addEventListener('click',e=>{if(!menu.contains(e.target)&&!toggle.contains(e.target)){menu.hidden=true;menu.style.display='none';toggle.setAttribute('aria-expanded','false')}});
   }
   function bindSubButton(b,id,label,page){b.type='button';b.textContent=label;b.dataset.ceNav=id;b.onclick=()=>{if(['devis','historique','partnersPage','eco-lever','pro','particulier','factures-pro','factures-particulier','demande-particulier'].includes(id)){window.go?.(id);return}const target=$(id)||page.querySelector(`[data-ce-anchor="${id}"]`);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})}}

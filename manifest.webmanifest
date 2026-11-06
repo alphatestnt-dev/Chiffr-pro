@@ -1,7 +1,7 @@
 {
   "name":"ChiffrecoPro",
   "short_name":"ChiffrecoPro",
-  "description":"Chiffrage simple, complet et responsable pour professionnels et particuliers.",
+  "description":"Logiciel de chiffrage et de devis pour artisans, paysagistes et particuliers.",
   "start_url":"./",
   "display":"standalone",
   "background_color":"#ffffff",

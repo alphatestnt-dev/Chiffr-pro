@@ -6,7 +6,7 @@ const loadScript=(src,attr)=>new Promise(resolve=>{
 });
 const start=async()=>{
  await loadScript('./runtime-stability.js',{'data-ce-runtime':'1'});
- await loadScript('./navigation-v2.js',{'data-ce-navigation':'1'});
+ await loadScript('./navigation-v2.js?v=homefix1',{'data-ce-navigation':'1'});
  await loadScript('./documents-v2.js',{'data-ce-documents':'1'});
  await loadScript('./barometre-pro-v1.js',{'data-ce-barometre':'1'});
  await loadScript('./workflow-particulier-v1.js',{'data-ce-part-workflow':'1'});

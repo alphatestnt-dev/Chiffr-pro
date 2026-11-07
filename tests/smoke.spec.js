@@ -86,6 +86,11 @@ test('zero labor and zero lines are omitted from quote and invoice; totals match
  await expect(page.locator('#ce-invoice-preview')).not.toContainText('Main-d’œuvre');
  await expect(page.locator('#ce-invoice-preview .line')).toHaveCount(3);
  await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
+ await page.evaluate(()=>{window.__cePrintCalled=false;window.print=()=>{window.__cePrintCalled=true}});
+ await page.locator('#ce-invoice-preview [data-print]').click();
+ expect(await page.evaluate(()=>window.__cePrintCalled)).toBeTruthy();
+ await page.evaluate(()=>window.go('devis'));await page.getByRole('button',{name:'Transformer en facture'}).click();
+ await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
  await page.reload({waitUntil:'networkidle'});await go(page,'factures-pro');
  await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
 });

@@ -55,6 +55,7 @@
   document.addEventListener("DOMContentLoaded",()=>{
     $("metier")?.addEventListener("change",render);
     $("prest")?.addEventListener("change",render);
+    $("qty")?.addEventListener("input",render);
     render();
   });
 })();

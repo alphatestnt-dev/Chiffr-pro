@@ -24,3 +24,20 @@ test('particular full estimate request quote invoice history flow',async({page})
 test('ecology partners aids settings and no page errors',async({page})=>{const errors=[];page.on('pageerror',e=>errors.push(String(e)));await openFresh(page);await go(page,'eco');await expect(page.locator('#score')).toBeVisible();await page.locator('#eco .ce-tools-nav button',{hasText:'Partenaires'}).click();await expect(page.locator('#partnersPage')).toBeVisible();await go(page,'aides');await expect(page.locator('#aid')).not.toHaveText('');await go(page,'param');await expect(page.locator('#dn')).toBeVisible();expect(errors).toEqual([])});
 
 test('PWA reload remains usable',async({page})=>{await openFresh(page);await page.reload({waitUntil:'networkidle'});await expect(page.locator('#accueil')).toBeVisible();expect(await page.evaluate(async()=>('serviceWorker'in navigator)?!!(await navigator.serviceWorker.ready).active:false)).toBeTruthy()});
+
+test('zero labor hours keep the prestation price and quote breakdown intact',async({page})=>{
+  await openFresh(page);
+  await page.locator('.home-links button').first().click();
+  await page.locator('#qty').fill('500');
+  await page.locator('#unit').selectOption({label:'m²'});
+  await page.locator('#unitPrice').fill('2');
+  await page.locator('#hours').fill('0');
+  await page.locator('#rate').fill('16');
+  await page.locator('#margin').fill('0');
+  await page.locator('#vat').fill('0');
+  await page.getByRole('button',{name:'Calculer le prix'}).click();
+  await expect(page.locator('#ht')).toContainText('1');
+  await page.getByRole('button',{name:'Préparer le devis'}).click();
+  await expect(page.locator('#devis')).toContainText('500 m² × 2,00 €');
+  await expect(page.locator('#devis')).not.toContainText('Main-d’œuvre');
+});

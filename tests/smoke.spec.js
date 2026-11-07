@@ -23,7 +23,7 @@ test('integrated home navigation and primary destinations',async({page})=>{
  await openFresh(page);
  await expect(page.locator('.home img')).toHaveAttribute('src','25885_proper.png');
  const nav=page.locator('nav[aria-label="Navigation principale"]');
- for(const id of ['accueil','pro','particulier','factures-pro','eco','aides','param'])await expect(nav.locator(`button[data-p="${id}"]`)).toBeVisible();
+ for(const id of ['accueil','pro','particulier','catalogue','devis','factures-pro','historique','eco','ecologie','aides','offre','param'])await expect(nav.locator(`button[data-p="${id}"]`)).toBeVisible();
  for(const id of ['pro','particulier','factures-pro','eco','aides','param','accueil'])await go(page,id);
  await page.evaluate(()=>window.go('catalogue'));await expect(page.locator('#catalogue')).toBeVisible();
  await page.evaluate(()=>window.go('devis'));await expect(page.locator('#devis')).toBeVisible();

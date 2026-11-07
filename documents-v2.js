@@ -2,6 +2,7 @@
 function css(){if($('ce-docs-v2-style'))return;const s=document.createElement('style');s.id='ce-docs-v2-style';s.textContent='.ce-docbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.ce-docbar button{padding:10px 13px;border:1px solid var(--line,#d8e3dd);border-radius:9px;background:#fff;font-weight:800;cursor:pointer}.ce-doc-card{background:#fff;border:1px solid var(--line,#d8e3dd);border-radius:15px;padding:18px;margin-bottom:16px}.ce-doc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@media(max-width:560px){.ce-doc-grid{grid-template-columns:1fr}.ce-doc-list .item{grid-template-columns:1fr}}@media print{body.ce-printing>header,body.ce-printing>nav,body.ce-printing main>.page{display:none!important}body.ce-printing main>.page.ce-print-target{display:block!important}body.ce-printing .no-print,body.ce-printing .ce-docbar{display:none!important}.ce-doc-print{border:0!important;max-width:none!important}}';document.head.appendChild(s)}
 function page(id,title,html){let p=$(id);if(!p){p=document.createElement('section');p.id=id;p.className='page';p.innerHTML=`<div class="ce-doc-card"><h1>${title}</h1>${html}</div>`;document.querySelector('main')?.appendChild(p)}return p}
 function show(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$(id)?.classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===id))}
+function uniqueNumber(key,prefix,records){let n;do{n=next(key,prefix)}while(records.some(x=>x.number===n));return n}
 function snap(d){
  if(!d||!Number.isFinite(d.ttc)||d.direct<=0)return null;
  return JSON.parse(JSON.stringify(d));
@@ -35,7 +36,7 @@ function createQuote(){
  const data=snap(d);if(!data)return false;
  const existing=load('ce_quotes',[]);
  let n=$('num')?.value.trim()||'';
- if(!n||existing.some(x=>x.number===n)){n=next('ce_doc_sequences','DEV');if($('num'))$('num').value=n}
+ if(!n||existing.some(x=>x.number===n)){n=uniqueNumber('ce_doc_sequences','DEV',existing);if($('num'))$('num').value=n}
  const q={id:uid(),number:n,date:new Date().toLocaleDateString('fr-FR'),status:'draft',data};
  existing.unshift(q);save('ce_quotes',existing);quoteRender(q);window.go?.('devis');return q;
 }
@@ -47,12 +48,12 @@ function quoteToInvoice(qid){
  if(!q||q.status!=='accepted'){alert('Le devis doit être accepté avant transformation en facture.');return false;}
  const all=load('ce_invoices',[]),prior=all.find(x=>x.sourceQuote===qid);
  if(prior){renderInvoice(prior);show('factures-pro');return prior;}
- const inv={id:uid(),number:next('ce_doc_invoice_sequences','FAC'),date:new Date().toLocaleDateString('fr-FR'),status:'draft',origin:'pro',sourceQuote:qid,data:JSON.parse(JSON.stringify(q.data))};
+ const inv={id:uid(),number:uniqueNumber('ce_doc_invoice_sequences','FAC',all),date:new Date().toLocaleDateString('fr-FR'),status:'draft',origin:'pro',sourceQuote:qid,data:JSON.parse(JSON.stringify(q.data))};
  all.unshift(inv);save('ce_invoices',all);renderInvoices();renderInvoice(inv);show('factures-pro');return inv;
 }
 function createInvoice(){
  const d=window.calc?.();if(!d||!Number.isFinite(d.ttc)||d.direct<=0){alert('Impossible de créer une facture : renseignez au moins un prix ou coût positif.');return false;}
- const inv={id:uid(),number:next('ce_doc_invoice_sequences','FAC'),date:new Date().toLocaleDateString('fr-FR'),status:'draft',origin:'pro',sourceQuote:null,data:snap(d)};
+ const inv={id:uid(),number:uniqueNumber('ce_doc_invoice_sequences','FAC',load('ce_invoices',[])),date:new Date().toLocaleDateString('fr-FR'),status:'draft',origin:'pro',sourceQuote:null,data:snap(d)};
  if(!inv.data)return false;
  const a=load('ce_invoices',[]);a.unshift(inv);save('ce_invoices',a);renderInvoices();renderInvoice(inv);show('factures-pro');return inv;
 }

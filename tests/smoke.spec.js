@@ -173,3 +173,22 @@ test('hours entered with zero hourly rate are blocked instead of silently omitte
  await expect(page.locator('#res')).toHaveClass(/hide/);
  await expect(page.locator('#warn')).toContainText('taux horaire est à zéro');
 });
+
+test('reset clears every hidden cost array and restores zero defaults',async({page})=>{
+ await openFresh(page);await openPro(page);
+ await page.locator('#mn').fill('Terreau');await page.locator('#mq').fill('1');await page.locator('#mp').fill('8');
+ await page.getByRole('button',{name:'Ajouter le matériau'}).click();
+ await page.locator('#tn').selectOption({label:'Débroussailleuse à bras / épareuse'});
+ await page.locator('#th').fill('1');await page.getByRole('button',{name:'Ajouter',exact:true}).first().click();
+ await page.locator('#wv').fill('1');await page.getByRole('button',{name:'Ajouter au chiffrage'}).click();
+ page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Réinitialiser'}).click();
+ await expect(page.locator('#ml')).toContainText('Aucun matériau ajouté');
+ await expect(page.locator('#tl')).toContainText('Aucun outil');
+ await expect(page.locator('#wlst')).toContainText('Aucune évacuation');
+ await expect(page.locator('#hours')).toHaveValue('0');
+ await expect(page.locator('#margin')).toHaveValue('0');
+ await expect(page.locator('#vat')).toHaveValue('0');
+ await page.getByRole('button',{name:'Calculer le prix'}).click();
+ await expect(page.locator('#res')).toHaveClass(/hide/);
+ await expect(page.locator('#warn')).toContainText('Aucun prix ou coût positif');
+});

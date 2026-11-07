@@ -50,14 +50,21 @@ Date de préparation : 8 novembre 2026.
 - Important : ces fichiers ne sont PAS déployés dans Supabase. La migration et l'Edge Function doivent être testées puis déployées dans le bon ordre, après validation explicite. Ne pas modifier les Price IDs Stripe.
 
 ## Modifications déjà présentes sur la branche de test
-- L'accueil intégré avec onglets reste uniquement sur la branche de test.
-- `app-v13.js` : heures de main-d'œuvre facultatives, valeur HTML à 0, taux horaire modifiable, prix unitaire de prestation ajouté, calcul direct inclut quantité × prix unitaire.
+- L'accueil intégré avec onglets reste uniquement sur la branche de test. La navigation principale est déplacée hors des sections de page pour rester visible quand on ouvre un onglet; les 12 onglets sont conservés.
+- `app-v13.js` : calcul robuste avec valeurs négatives/invalides ramenées à zéro, refus d'un total nul, refus d'heures avec taux horaire nul, lignes sans montant positif exclues, matériaux/machines/évacuation filtrés et totaux recalculés après suppression.
+- Le champ matériaux est visible et conserve la saisie libre avec autocomplétion depuis le catalogue; les anciennes valeurs fixes non vérifiées et l'ancien remplacement de champ ont été désactivés.
+- Le bouton de remise à zéro vide aussi les tableaux internes `mats`, `toolsList`, `wastes`; la couche de compatibilité ne remplace plus ce vrai reset.
+- Le baromètre est seulement indicatif : il ne modifie plus le taux horaire utilisé dans le devis.
 - `app-v13.js` : le devis affiche la ligne main-d'œuvre uniquement si heures > 0.
 - Dernière correction en date : la décomposition du devis affiche séparément prestation, main-d'œuvre, matériaux, outils, évacuation si ajoutée, déplacement, autres coûts, marge, HT et TVA si applicable. Évite d'afficher le total HT comme si c'était le seul prix de la prestation puis de réafficher les coûts en dessous.
-- Marge et TVA mises à 0 par défaut ; les deux sont facultatives.
+- Marge et TVA mises à 0 par défaut ; les deux sont facultatives. Une ancienne couche runtime forçait 25 % de marge et 20 % de TVA malgré les valeurs affichées; cette règle et les prix matériaux fixes non sourcés ont été retirés. Le reset revient aussi à heures 0, marge 0, TVA 0.
 - La restauration d'un ancien chiffrage restaure aussi la marge.
-- Des tests Playwright de non-régression couvrent 0 heure de main-d'œuvre, l'application volontaire de la référence tonte et le coût machine de l'épareuse; le workflow smoke tourne aussi sur la branche de test. Les runs GitHub sont en cours au moment de cette mise à jour.
-- Aucun test navigateur/Android local ni APK n'a encore été validé ; ne pas prétendre que l'application Android est testée.
+- `documents-v2.js` et `navigation-v2.js` sont maintenant chargés : devis enregistrés, validation du devis, conversion en facture, numéros uniques, protection contre la double conversion et impression PDF. Les lignes à 0 ne sont pas émises et aucun devis/facture n'est créé si le total est nul.
+- `estimateV13()` ne renvoie plus des montants génériques disproportionnés : seules les références paysage disponibles (tonte, débroussaillage simple, taille de haie) sont proposées; quantité nulle ou prestation sans référence donne un message et aucun montant fictif.
+- Validation automatisée réussie sur le commit `46ed05f10b68f24a8a497a764fc865ac117b91fd` : contrôle de syntaxe Node réussi et 12 tests Playwright réussis (`12 passed`, run https://github.com/alphatestnt-dev/Chiffr-pro/actions/runs/42427163187).
+- La suite teste la navigation persistante à 12 onglets, les mises en page desktop/mobile, matériaux/machines/évacuation, retrait des postes et recalcul immédiat, devis accepté vers facture, impression, absence de documents à 0 €, taux horaire nul avec heures saisies, baromètre non intrusif, estimation particulière sans tarif inventé, références paysagères et remise à zéro des tableaux internes.
+- Les tests navigateur s'exécutent sur un serveur local GitHub Actions, pas sur l'URL de production. Aucun test réel Android sur appareil n'a été effectué.
+- Attention facturation : le module actuel produit un aperçu/PDF, pas une facture électronique transmise par plateforme agréée. Il manque encore des champs/mentions à compléter selon le client et le régime (adresse client, date réelle de prestation, échéance et modalités de paiement, pénalités, indemnité de recouvrement B2B, identifiants TVA ou mention de franchise, etc.). Ne pas présenter ce PDF comme une facture électronique conforme ni l'envoyer sans vérification des mentions applicables. Références officielles : https://entreprendre.service-public.fr/vosdroits/F39050 et https://www.impots.gouv.fr/professionnel/questions/partir-de-quand-suis-je-concerne-par-la-reforme-de-la-facturation . Depuis le 1er septembre 2026, toutes les entreprises doivent pouvoir recevoir des factures électroniques; les micro, petites et moyennes entreprises doivent les émettre au plus tard le 1er septembre 2027. Un PDF simple n'est pas une facture électronique au sens de la réforme.
 - Aucun changement n'a été fusionné ni déployé.
 - Une première bibliothèque de références paysagères est intégrée dans `pricing-reference-v1.js`, avec bouton d'application facultative : tonte (0,09 €/m² sous 1 ha, 0,07 €/m² à partir d'1 ha), débroussaillage (0,25 €/m²), taille de haie (1,80 €/m pour une face et moins de 2 m). Ces valeurs viennent d'un BPU public Cergy-Pontoise et ne sont pas des tarifs universels. La base de coût matériel inclut aussi une débroussailleuse à bras / épareuse à 25,60 €/h, référence Entraid/CUMA 2024 à 199 h/an; la source indique 15 €/h au-delà de 250 h/an et plus de 42 €/h sous 100 h/an. Les autres prestations sans référence suffisamment comparable restent à saisir librement. Aucune évacuation, broyage ou transport n'est inclus dans ces bases.
 
@@ -69,8 +76,8 @@ Date de préparation : 8 novembre 2026.
 - Ne pas modifier les paiements ou Price IDs pendant les corrections de chiffrage.
 
 ## Étapes suivantes
-1. Vérifier les commits récents et les différences de la branche.
-2. Faire une validation statique ciblée du calcul avec heures = 0 et autres postes non nuls ; vérifier que le devis n'affiche pas de doublons.
+1. Faire une seconde revue manuelle des fonctions de calcul, devis, facture, impression et historique, notamment sur les cas mixtes et les modifications après calcul.
+2. Compléter le formulaire facture avec les mentions légales adaptées au statut et au type de client, puis prévoir l'intégration à une plateforme agréée pour la facturation électronique.
 3. Vérifier la migration et l'Edge Function 15 jours sur un environnement de test, puis préparer leur déploiement séparément.
 4. Étendre prudemment les références tarifaires par métier quand une source comparable existe, sans inclure automatiquement évacuation/broyage/transport.
-5. Raccorder le projet Android Studio au bon état de la branche, construire un APK de test et faire vérifier par l'utilisateur avant toute mise à jour Play Store.
+5. Raccorder le projet Android Studio au bon état de la branche, construire un APK de test uniquement après mise à disposition d'une URL de prévisualisation; le WebView actuel charge la production. Faire vérifier par l'utilisateur avant toute mise à jour Play Store.

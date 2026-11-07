@@ -2,7 +2,7 @@ name: Chiffr’EcoPro smoke tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, test/accueil-integre-securise-20261107]
   workflow_dispatch:
 
 jobs:

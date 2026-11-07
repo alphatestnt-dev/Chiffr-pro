@@ -60,6 +60,8 @@ test('professional materials, machines and waste are included and removable',asy
  await page.locator('#tl button').click();
  await expect(page.locator('#ht')).toContainText('1 070,00');
  await page.locator('#wlst button').click();
+ await expect(page.locator('#ht')).toContainText('1 000,00');
+ await page.locator('#unitPrice').fill('0');await page.getByRole('button',{name:'Calculer le prix'}).click();
  await expect(page.locator('#res')).toHaveClass(/hide/);
  await expect(page.locator('#warn')).toContainText('Aucun prix ou coût positif');
 });
@@ -73,14 +75,14 @@ test('zero labor and zero lines are omitted from quote and invoice; totals match
  await page.getByRole('button',{name:'📄 Préparer le devis'}).click();
  await expect(page.locator('#quote')).toContainText('500 m² × 2,00');
  await expect(page.locator('#quote')).not.toContainText('Main-d’œuvre');
- await expect(page.locator('#quote')).not.toContainText('0,00');
+ await expect(page.locator('#quote .line')).toHaveCount(3);
  await page.getByRole('button',{name:'Accepter le devis'}).click();
  await page.getByRole('button',{name:'Transformer en facture'}).click();
  await expect(page.locator('#factures-pro')).toBeVisible();
  await expect(page.locator('#ce-invoice-preview')).toContainText('FACTURE');
  await expect(page.locator('#ce-invoice-preview')).toContainText('1 000,00');
  await expect(page.locator('#ce-invoice-preview')).not.toContainText('Main-d’œuvre');
- await expect(page.locator('#ce-invoice-preview')).not.toContainText('0,00');
+ await expect(page.locator('#ce-invoice-preview .line')).toHaveCount(3);
  await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
  await page.reload({waitUntil:'networkidle'});await go(page,'factures-pro');
  await expect(page.locator('#invoiceProList .item')).toHaveCount(1);

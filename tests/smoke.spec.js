@@ -25,19 +25,23 @@ test('ecology partners aids settings and no page errors',async({page})=>{const e
 
 test('PWA reload remains usable',async({page})=>{await openFresh(page);await page.reload({waitUntil:'networkidle'});await expect(page.locator('#accueil')).toBeVisible();expect(await page.evaluate(async()=>('serviceWorker'in navigator)?!!(await navigator.serviceWorker.ready).active:false)).toBeTruthy()});
 
-test('zero labor hours keep the prestation price and quote breakdown intact',async({page})=>{
+test('zero labor hours preserve the quote and optional landscape reference applies only on request',async({page})=>{
   await openFresh(page);
   await page.locator('.home-links button').first().click();
+  await page.locator('#metier').selectOption({label:'Espaces verts'});
+  await page.locator('#prest').selectOption({label:'Tonte'});
   await page.locator('#qty').fill('500');
-  await page.locator('#unit').selectOption({label:'m²'});
-  await page.locator('#unitPrice').fill('2');
+  await expect(page.locator('#priceReferenceApply')).toBeEnabled();
+  await page.locator('#priceReferenceApply').click();
+  await expect(page.locator('#unit')).toHaveValue('m²');
+  await expect(page.locator('#unitPrice')).toHaveValue('0.09');
   await page.locator('#hours').fill('0');
   await page.locator('#rate').fill('16');
   await page.locator('#margin').fill('0');
   await page.locator('#vat').fill('0');
   await page.getByRole('button',{name:'Calculer le prix'}).click();
-  await expect(page.locator('#ht')).toContainText('1');
+  await expect(page.locator('#ht')).toContainText('45,00');
   await page.getByRole('button',{name:'Préparer le devis'}).click();
-  await expect(page.locator('#devis')).toContainText('500 m² × 2,00 €');
+  await expect(page.locator('#devis')).toContainText('500 m² × 0,09 €');
   await expect(page.locator('#devis')).not.toContainText('Main-d’œuvre');
 });

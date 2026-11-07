@@ -41,7 +41,7 @@
     if(!box||!btn)return;
     const r=current();
     if(!r){box.textContent="Pas encore de référence tarifaire suffisamment comparable pour cette prestation. Le prix reste libre à renseigner.";btn.disabled=true;return}
-    box.innerHTML="Référence indicative : <b>"+r.price.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" € / "+r.unit+"</b> — "+r.condition+". "+r.note+' <a href="'+r.url+'" target="_blank" rel="noopener">Source</a>';
+    box.innerHTML="Référence indicative : <b>"+r.price.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" € / "+r.unit+"</b> HT — "+r.condition+". "+r.note+' <a href="'+r.url+'" target="_blank" rel="noopener">Source</a>';
     btn.disabled=false;
   }
   window.ceApplyPriceReference=()=>{

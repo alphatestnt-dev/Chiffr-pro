@@ -18,22 +18,24 @@ async function go(page,id){
 }
 async function openPro(page){await go(page,'pro');await expect(page.locator('#priceReferenceApply')).toBeVisible()}
 
-test('integrated home navigation and all primary destinations',async({page})=>{
+test('integrated home navigation and primary destinations',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await openFresh(page);
  await expect(page.locator('.home img')).toHaveAttribute('src','25885_proper.png');
  const nav=page.locator('nav[aria-label="Navigation principale"]');
- for(const id of ['accueil','pro','particulier','catalogue','devis','historique','eco','aides','offre','param'])await expect(nav.locator(`button[data-p="${id}"]`)).toBeVisible();
- for(const id of ['pro','particulier','catalogue','eco','aides','offre','param','accueil'])await go(page,id);
+ for(const id of ['accueil','pro','particulier','factures-pro','eco','aides','param'])await expect(nav.locator(`button[data-p="${id}"]`)).toBeVisible();
+ for(const id of ['pro','particulier','factures-pro','eco','aides','param','accueil'])await go(page,id);
+ await page.evaluate(()=>window.go('catalogue'));await expect(page.locator('#catalogue')).toBeVisible();
+ await page.evaluate(()=>window.go('devis'));await expect(page.locator('#devis')).toBeVisible();
+ await page.evaluate(()=>window.go('historique'));await expect(page.locator('#historique')).toBeVisible();
  expect(errors).toEqual([]);
 });
-
 test('mobile and desktop layouts have no page-level horizontal overflow',async({page})=>{
  await openFresh(page);
  for(const size of [{width:1280,height:900},{width:390,height:844}]){
   await page.setViewportSize(size);
-  for(const id of ['pro','particulier','catalogue','devis','factures-pro','historique','eco','aides','param']){
-   await go(page,id);
+  for(const id of ['pro','particulier','catalogue','devis','factures-pro','factures-particulier','historique','eco','aides','param']){
+   await page.evaluate(id=>window.go(id),id);await expect(page.locator(`#${id}`)).toBeVisible();
    const dims=await page.evaluate(()=>({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth}));
    expect(dims.sw).toBeLessThanOrEqual(dims.cw+1);
   }

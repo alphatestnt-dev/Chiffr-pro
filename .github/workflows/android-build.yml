@@ -2,7 +2,7 @@ name: Build Chiffr’EcoPro Android
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, test/accueil-integre-securise-20261107 ]
     paths:
       - 'android/**'
       - '.github/workflows/android-build.yml'

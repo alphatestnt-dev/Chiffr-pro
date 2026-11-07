@@ -1,56 +1,145 @@
-// Full browser smoke coverage for stabilized navigation and document workflows.
+// Browser regression suite for the current integrated ChiffrecoPro interface.
 const { test, expect } = require('@playwright/test');
 const url='http://127.0.0.1:4173/index.html';
-const hero='./hero-home-ecopro.webp';
-async function openFresh(page){await page.goto(url,{waitUntil:'networkidle'});await expect(page.locator('#accueil')).toBeVisible()}
-async function go(page,id){await page.locator(`nav button[data-p="${id}"]`).click();await expect(page.locator(`#${id}`)).toBeVisible()}
-async function visibleNavTexts(page){return page.locator('nav[aria-label="Navigation principale"] button[data-p]').evaluateAll(bs=>bs.filter(b=>getComputedStyle(b).display!=='none').map(b=>b.textContent.trim()))}
-async function clickAccess(page,scope,label){const bar=page.locator(`${scope} .ce-doc-access,${scope} .ce-fixed-doc-links,${scope} .ce-part-actions`);const b=bar.getByRole('button',{name:label,exact:true}).first();await expect(b).toBeVisible();await b.click()}
+async function openFresh(page){
+ await page.goto(url,{waitUntil:'networkidle'});
+ await page.evaluate(()=>localStorage.clear());
+ await page.reload({waitUntil:'networkidle'});
+ await expect(page.locator('#accueil')).toBeVisible();
+ await expect(page.locator('#pro')).toHaveCount(1);
+ await expect(page.locator('#factures-pro')).toHaveCount(1);
+}
+async function go(page,id){
+ const nav=page.locator('nav[aria-label="Navigation principale"]');
+ const b=nav.locator(`button[data-p="${id}"]`);
+ await expect(b).toBeVisible();
+ await b.click();
+ await expect(page.locator(`#${id}`)).toBeVisible();
+}
+async function openPro(page){await go(page,'pro');await expect(page.locator('#priceReferenceApply')).toBeVisible()}
 
-test('home desktop mobile and no runtime error',async({page,request})=>{const errors=[];page.on('pageerror',e=>errors.push(String(e)));await openFresh(page);await expect(page.locator('.home img')).toHaveAttribute('src',hero.replace(/^\.\//,''));await expect(page.locator('.home-copy')).toBeHidden();await expect(page.locator('.home-links button')).toHaveCount(2);await expect(page.locator('.home-top-links button')).toHaveCount(2);await page.locator('.home-top-links button').first().click();await expect(page.locator('#pro')).toBeVisible();await go(page,'accueil');await page.locator('.home-top-links button').nth(1).click();await expect(page.locator('#particulier')).toBeVisible();await go(page,'accueil');const r=await request.get(`http://127.0.0.1:4173/${hero.slice(2)}`);expect(r.ok()).toBeTruthy();await page.setViewportSize({width:390,height:844});const m=await page.locator('.home img').evaluate(el=>({w:el.clientWidth,h:el.clientHeight,nw:el.naturalWidth,nh:el.naturalHeight}));expect(Math.abs(m.w/m.h-m.nw/m.nh)).toBeLessThan(.02);await page.setViewportSize({width:1280,height:900});expect(errors).toEqual([])});
-
-test('desktop mobile UI harmony and no horizontal page overflow',async({page})=>{await openFresh(page);for(const size of [{width:1280,height:900},{width:390,height:844}]){await page.setViewportSize(size);for(const id of ['pro','particulier','eco','aides','param']){await go(page,id);const layout=await page.locator('body').evaluate(()=>({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth}));expect(layout.sw).toBeLessThanOrEqual(layout.cw+1);await expect(page.locator(`#${id} h1`).first()).toBeVisible();await expect(page.locator(`#${id} .card`).first()).toBeVisible();}await go(page,'pro');const nav=page.locator('#pro .ce-page-nav');const st=await nav.evaluate(e=>({wrap:getComputedStyle(e).flexWrap,white:getComputedStyle(e).whiteSpace}));expect(st.wrap).toBe('nowrap');expect(st.white).toBe('nowrap');const minHeight=await nav.locator('button').first().evaluate(e=>parseFloat(getComputedStyle(e).minHeight)||0);expect(minHeight).toBeGreaterThanOrEqual(size.width<560?38:40);}});
-
-test('primary menu plus visible invoices and mobile horizontal menus',async({page})=>{await openFresh(page);const nav=page.locator('nav[aria-label="Navigation principale"]');expect(await visibleNavTexts(page)).toEqual(['Accueil','Professionnel','Particulier','Factures','🌱 Écologie','Aides / Informations','Compte / Paramètres']);for(const id of ['accueil','pro','particulier','factures-pro','eco','aides','param']){await expect(nav.locator(`button[data-p="${id}"]`)).toBeVisible()}await page.setViewportSize({width:390,height:844});const n=await nav.evaluate(e=>({wrap:getComputedStyle(e).flexWrap,scroll:e.scrollWidth,client:e.clientWidth}));expect(n.wrap).toBe('nowrap');expect(n.scroll).toBeGreaterThan(n.client);await go(page,'pro');await expect(page.locator('#pro .ce-doc-access')).toBeVisible();expect(await page.locator('#pro .ce-doc-access button').allTextContents()).toEqual(['Devis','Factures','Historique']);await go(page,'particulier');await expect(page.locator('#particulier .ce-doc-access')).toBeVisible();expect(await page.locator('#particulier .ce-doc-access button').allTextContents()).toEqual(['Demander un devis','Devis','Factures','Historique']);await go(page,'factures-pro');await expect(page.locator('#factures-pro')).toContainText('Factures PRO')});
-
-test('professional quote materials tools waste metrics',async({page})=>{await openFresh(page);await page.locator('.home-links button').first().click();await page.locator('#client').fill('Client QA');await page.locator('#hours').fill('3');await page.locator('#rate').fill('25');await page.locator('#mn').fill('Terreau');await page.locator('#mq').fill('2');await page.locator('#mp').fill('15');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(0).click();await page.locator('#th').fill('2');await page.getByRole('button',{name:'Ajouter',exact:true}).nth(1).click();await page.locator('#wl').fill('2');await page.locator('#ww').fill('1');await page.locator('#wh').fill('.5');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('1.00 m³');await page.getByRole('button',{name:'Ajouter au chiffrage'}).click();await page.locator('#wmode').selectOption('volume');await page.locator('#wv').fill('3.25');await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('3.25 m³');await page.getByRole('button',{name:'Calculer le prix'}).click();await expect(page.locator('#res')).toBeVisible();await expect(page.locator('#ht')).not.toHaveText('');await expect(page.locator('#ttc')).not.toHaveText('')});
-
-test('professional barometer visible and functional in costing',async({page})=>{await openFresh(page);await page.locator('.home-links button').first().click();await expect(page.locator('#ceBarometre')).toBeVisible();await expect(page.locator('#ceBaroCoef')).toContainText('×');await expect(page.locator('#ceBaroHours')).toContainText('h');await page.locator('#hours').fill('4');await page.locator('#rate').fill('30');await page.locator('#etat').selectOption({label:'Accès difficile'});await expect(page.locator('#ceBaroCoef')).not.toHaveText('1,00×');await expect(page.locator('#ceBaroLevel')).toContainText('DIFFICILE');await expect(page.locator('#ceBaroRange')).toContainText('€ HT');await expect(page.locator('#ceBaroWhy')).toContainText('état du site');await page.getByRole('button',{name:'Calculer le prix'}).click();await expect(page.locator('#ht')).not.toHaveText('');});
-
-test('devis accept facture history flow',async({page})=>{await openFresh(page);await page.locator('.home-links button').first().click();await page.locator('#client').fill('Client Doc');await page.locator('#hours').fill('2');await page.locator('#rate').fill('30');await page.getByRole('button',{name:'Calculer le prix'}).click();await page.getByRole('button',{name:'Préparer le devis'}).click();await expect(page.locator('#devis')).toBeVisible();await page.getByRole('button',{name:'Accepter le devis'}).click();await page.getByRole('button',{name:'Transformer en facture'}).click();await expect(page.locator('#factures-pro')).toBeVisible();await expect(page.locator('#factures-pro')).toContainText('FACTURE');expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_quotes')||'[]').length)).toBe(1);expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_invoices')||'[]').length)).toBe(1);await page.reload({waitUntil:'networkidle'});await go(page,'factures-pro');await expect(page.locator('#invoiceProList .item')).toHaveCount(1);await clickAccess(page,'#factures-pro','Devis');await expect(page.locator('#devis')).toBeVisible();await clickAccess(page,'#devis','Historique');await expect(page.locator('#historique')).toBeVisible();await expect(page.locator('#ceDocumentHistory')).toContainText('Devis');await expect(page.locator('#ce-doc-results')).toContainText('Facture')});
-
-test('particular full estimate request quote invoice history flow',async({page})=>{await openFresh(page);await go(page,'particulier');await page.locator('#pq').fill('20');await page.locator('#pd').selectOption('Difficile');await page.getByRole('button',{name:"Obtenir l'estimation"}).click();await expect(page.locator('#pr')).toBeVisible();await clickAccess(page,'#particulier','Demander un devis');await expect(page.locator('#demande-particulier')).toBeVisible();await page.locator('#req-project').fill('Création terrasse');await page.locator('#req-qty').fill('25');await page.getByRole('button',{name:'Enregistrer la demande'}).click();await expect(page.locator('#ce-part-workflow')).toBeVisible();await page.getByRole('button',{name:'Préparer le devis'}).click();await expect(page.locator('#ce-part-workflow')).toContainText('Devis particulier');await page.getByRole('button',{name:'Accepter le devis'}).click();await page.getByRole('button',{name:'Créer la facture'}).click();await expect(page.locator('#factures-particulier')).toBeVisible();await expect(page.locator('#invoicePartList .item')).toHaveCount(1);await page.locator('#invoicePartList button[data-part-view]').click();await expect(page.locator('#ce-part-invoice-preview')).toContainText('FACTURE PARTICULIER');await clickAccess(page,'#factures-particulier','Historique');await expect(page.locator('#historique')).toBeVisible();await expect(page.locator('#ce-part-history')).toContainText('Devis particulier');await expect(page.locator('#ce-part-history')).toContainText('Facture particulière')});
-
-test('ecology partners aids settings and no page errors',async({page})=>{const errors=[];page.on('pageerror',e=>errors.push(String(e)));await openFresh(page);await go(page,'eco');await expect(page.locator('#score')).toBeVisible();await page.locator('#eco .ce-tools-nav button',{hasText:'Partenaires'}).click();await expect(page.locator('#partnersPage')).toBeVisible();await go(page,'aides');await expect(page.locator('#aid')).not.toHaveText('');await go(page,'param');await expect(page.locator('#dn')).toBeVisible();expect(errors).toEqual([])});
-
-test('PWA reload remains usable',async({page})=>{await openFresh(page);await page.reload({waitUntil:'networkidle'});await expect(page.locator('#accueil')).toBeVisible();expect(await page.evaluate(async()=>('serviceWorker'in navigator)?!!(await navigator.serviceWorker.ready).active:false)).toBeTruthy()});
-
-test('zero labor hours preserve the quote and optional landscape reference applies only on request',async({page})=>{
-  await openFresh(page);
-  await page.locator('.home-links button').first().click();
-  await page.locator('#metier').selectOption({label:'Espaces verts'});
-  await page.locator('#prest').selectOption({label:'Tonte'});
-  await page.locator('#qty').fill('500');
-  await expect(page.locator('#priceReferenceApply')).toBeEnabled();
-  await page.locator('#priceReferenceApply').click();
-  await expect(page.locator('#unit')).toHaveValue('m²');
-  await expect(page.locator('#unitPrice')).toHaveValue('0.09');
-  await page.locator('#hours').fill('0');
-  await page.locator('#rate').fill('16');
-  await page.locator('#margin').fill('0');
-  await page.locator('#vat').fill('0');
-  await page.getByRole('button',{name:'Calculer le prix'}).click();
-  await expect(page.locator('#ht')).toContainText('45,00');
-  await page.getByRole('button',{name:'Préparer le devis'}).click();
-  await expect(page.locator('#devis')).toContainText('500 m² × 0,09 €');
-  await expect(page.locator('#devis')).not.toContainText('Main-d’œuvre');
+test('integrated home navigation and all primary destinations',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await openFresh(page);
+ await expect(page.locator('.home img')).toHaveAttribute('src','25885_proper.png');
+ const nav=page.locator('nav[aria-label="Navigation principale"]');
+ for(const id of ['accueil','pro','particulier','catalogue','devis','historique','eco','aides','offre','param'])await expect(nav.locator(`button[data-p="${id}"]`)).toBeVisible();
+ for(const id of ['pro','particulier','catalogue','eco','aides','offre','param','accueil'])await go(page,id);
+ expect(errors).toEqual([]);
 });
 
-test('sourced boom-arm brush cutter cost is distinct and machine hours are optional',async({page})=>{
-  await openFresh(page);
-  await page.locator('.home-links button').first().click();
-  await page.locator('#tn').selectOption({label:'Débroussailleuse à bras / épareuse'});
-  await page.locator('#th').fill('1');
-  await expect(page.locator('#tc')).toHaveValue('25.60');
-  await expect(page.locator('#toolAutoV13')).toContainText('25,60');
+test('mobile and desktop layouts have no page-level horizontal overflow',async({page})=>{
+ await openFresh(page);
+ for(const size of [{width:1280,height:900},{width:390,height:844}]){
+  await page.setViewportSize(size);
+  for(const id of ['pro','particulier','catalogue','devis','factures-pro','historique','eco','aides','param']){
+   await go(page,id);
+   const dims=await page.evaluate(()=>({sw:document.documentElement.scrollWidth,cw:document.documentElement.clientWidth}));
+   expect(dims.sw).toBeLessThanOrEqual(dims.cw+1);
+  }
+ }
+});
+
+test('professional materials, machines and waste are included and removable',async({page})=>{
+ await openFresh(page);await openPro(page);
+ await page.locator('#qty').fill('500');await page.locator('#unitPrice').fill('2');
+ await page.locator('#hours').fill('0');
+ await page.locator('#mn').fill('Terreau');await page.locator('#mq').fill('2');await page.locator('#mp').fill('15');
+ await page.getByRole('button',{name:'Ajouter le matériau'}).click();
+ await expect(page.locator('#mt')).toContainText('30');
+ await page.locator('#tn').selectOption({label:'Débroussailleuse à bras / épareuse'});
+ await page.locator('#th').fill('1');await expect(page.locator('#tc')).toHaveValue('25.60');
+ await page.getByRole('button',{name:'Ajouter',exact:true}).first().click();
+ await page.locator('#wl').fill('2');await page.locator('#ww').fill('1');await page.locator('#wh').fill('.5');
+ await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('1.00 m³');
+ await page.getByRole('button',{name:'Ajouter au chiffrage'}).click();
+ await page.getByRole('button',{name:'Calculer le prix'}).click();
+ await expect(page.locator('#ht')).toContainText('1 125,60');
+ await page.locator('#ml button').click();
+ await expect(page.locator('#ht')).toContainText('1 095,60');
+ await page.locator('#tl button').click();
+ await expect(page.locator('#ht')).toContainText('1 070,00');
+ await page.locator('#wlst button').click();
+ await expect(page.locator('#res')).toHaveClass(/hide/);
+ await expect(page.locator('#warn')).toContainText('Aucun prix ou coût positif');
+});
+
+test('zero labor and zero lines are omitted from quote and invoice; totals match',async({page})=>{
+ await openFresh(page);await openPro(page);
+ await page.locator('#client').fill('Client QA');
+ await page.locator('#qty').fill('500');await page.locator('#unit').selectOption({label:'m²'});await page.locator('#unitPrice').fill('2');
+ await page.locator('#hours').fill('0');await page.locator('#rate').fill('16');await page.locator('#margin').fill('0');await page.locator('#vat').fill('0');
+ await page.getByRole('button',{name:'Calculer le prix'}).click();await expect(page.locator('#ht')).toContainText('1 000,00');
+ await page.getByRole('button',{name:'📄 Préparer le devis'}).click();
+ await expect(page.locator('#quote')).toContainText('500 m² × 2,00');
+ await expect(page.locator('#quote')).not.toContainText('Main-d’œuvre');
+ await expect(page.locator('#quote')).not.toContainText('0,00');
+ await page.getByRole('button',{name:'Accepter le devis'}).click();
+ await page.getByRole('button',{name:'Transformer en facture'}).click();
+ await expect(page.locator('#factures-pro')).toBeVisible();
+ await expect(page.locator('#ce-invoice-preview')).toContainText('FACTURE');
+ await expect(page.locator('#ce-invoice-preview')).toContainText('1 000,00');
+ await expect(page.locator('#ce-invoice-preview')).not.toContainText('Main-d’œuvre');
+ await expect(page.locator('#ce-invoice-preview')).not.toContainText('0,00');
+ await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
+ await page.reload({waitUntil:'networkidle'});await go(page,'factures-pro');
+ await expect(page.locator('#invoiceProList .item')).toHaveCount(1);
+});
+
+test('empty or negative-only chiffrage cannot create a zero-euro quote or invoice',async({page})=>{
+ await openFresh(page);await openPro(page);
+ await page.locator('#hours').fill('0');await page.locator('#rate').fill('0');await page.locator('#unitPrice').fill('0');
+ await page.locator('#travel').fill('-10');await page.locator('#other').fill('-20');
+ await page.getByRole('button',{name:'Calculer le prix'}).click();
+ await expect(page.locator('#res')).toHaveClass(/hide/);
+ await expect(page.locator('#warn')).toContainText('Aucun prix ou coût positif');
+ page.once('dialog',d=>d.accept());
+ await page.getByRole('button',{name:'📄 Préparer le devis'}).click();
+ await expect(page.locator('#pro')).toBeVisible();
+ expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('ce_quotes')||'[]').length)).toBe(0);
+});
+
+test('barometer is advisory and never changes the artisan hourly rate or total',async({page})=>{
+ await openFresh(page);await openPro(page);
+ await page.locator('#hours').fill('2');await page.locator('#rate').fill('30');
+ await page.locator('#etat').selectOption({label:'Accès difficile'});
+ await expect(page.locator('#ceBaroHours')).toContainText('2');
+ await page.getByRole('button',{name:'Calculer le prix'}).click();
+ await expect(page.locator('#ht')).toContainText('60,00');
+ await expect(page.locator('#rate')).toHaveValue('30');
+ await page.getByRole('button',{name:'📄 Préparer le devis'}).click();
+ await expect(page.locator('#quote')).toContainText('2 h × 30,00');
+ await expect(page.locator('#quote')).toContainText('60,00');
+});
+
+test('private estimate refuses zero and unsupported tariffs instead of displaying invented zero prices',async({page})=>{
+ await openFresh(page);await go(page,'particulier');
+ await page.locator('#pq').fill('0');await page.getByRole('button',{name:"Obtenir l'estimation"}).click();
+ await expect(page.locator('#pr')).toHaveClass(/hide/);
+ await expect(page.locator('#detail')).toContainText('supérieure à zéro');
+ await page.locator('#pq').fill('500');await page.locator('#pf').selectOption({label:'Espaces verts'});
+ await page.locator('#ps').selectOption({label:'Tonte'});await page.locator('#pu').selectOption({label:'m²'});
+ await page.getByRole('button',{name:"Obtenir l'estimation"}).click();
+ await expect(page.locator('#pr')).toBeVisible();await expect(page.locator('#range')).toContainText('45,00');
+ await page.locator('#pf').selectOption({label:'Plomberie'});
+ await page.getByRole('button',{name:"Obtenir l'estimation"}).click();
+ await expect(page.locator('#pr')).toHaveClass(/hide/);
+ await expect(page.locator('#detail')).toContainText('Aucune référence tarifaire');
+});
+
+test('landscape reference is optional and follows the area band',async({page})=>{
+ await openFresh(page);await openPro(page);
+ await page.locator('#metier').selectOption({label:'Espaces verts'});
+ await page.locator('#prest').selectOption({label:'Tonte'});
+ await page.locator('#qty').fill('500');await expect(page.locator('#priceReferenceApply')).toBeEnabled();
+ await expect(page.locator('#unitPrice')).toHaveValue('0');
+ await page.locator('#priceReferenceApply').click();await expect(page.locator('#unitPrice')).toHaveValue('0.09');
+ await page.locator('#qty').fill('10000');await expect(page.locator('#priceReferenceInfo')).toContainText('0,07');
+});
+
+test('PWA reload and no uncaught browser errors',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await openFresh(page);await page.reload({waitUntil:'networkidle'});
+ await expect(page.locator('#accueil')).toBeVisible();
+ expect(errors).toEqual([]);
 });

@@ -45,3 +45,12 @@ test('zero labor hours preserve the quote and optional landscape reference appli
   await expect(page.locator('#devis')).toContainText('500 m² × 0,09 €');
   await expect(page.locator('#devis')).not.toContainText('Main-d’œuvre');
 });
+
+test('sourced boom-arm brush cutter cost is distinct and machine hours are optional',async({page})=>{
+  await openFresh(page);
+  await page.locator('.home-links button').first().click();
+  await page.locator('#tn').selectOption({label:'Débroussailleuse à bras / épareuse'});
+  await page.locator('#th').fill('1');
+  await expect(page.locator('#tc')).toHaveValue('25.60');
+  await expect(page.locator('#toolAutoV13')).toContainText('25,60');
+});

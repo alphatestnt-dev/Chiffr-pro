@@ -10,6 +10,8 @@ Date de préparation : 8 novembre 2026.
 - Ne jamais modifier `main`, fusionner la PR ou déployer sans validation explicite de l'utilisateur.
 - Objectif final : préparer une mise à jour Android testable via le projet Android Studio existant, sans casser l'application actuellement publiée.
 - Le projet Android Studio local n'est pas encore fourni dans cette session ; le site/HTML et la branche GitHub sont accessibles.
+- Préparation Android sur la branche : `versionCode = 3`, `versionName = 1.0.2`; le workflow Android accepte maintenant la branche de test et produit un APK debug + AAB release non signé.
+- Attention : `MainActivity.java` charge actuellement `https://chiffreco-pro.fr/` en direct. Un APK généré depuis cette branche affichera donc encore le site en production tant que les fichiers web de test ne sont pas déployés sur une URL de prévisualisation. Ne pas distribuer cet APK comme test fonctionnel des nouvelles modifications web.
 
 ## Priorités convenues avec l'utilisateur
 

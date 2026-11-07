@@ -254,7 +254,7 @@ window.pWaste=()=>{const v=Math.max(0,(+$('pwl').value||0)*(+$('pww').value||0)*
 window.compareAdd=()=>{const n=$('cn').value.trim(),p=+$('cp').value||0;if(!n||p<=0)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.push({n,p});localStorage.setItem('ce_cmp',JSON.stringify(a));compareRender();$('cn').value='';$('cp').value=''};
 function compareRender(){const el=$('cl');if(!el)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');el.innerHTML=a.length?a.map((x,i)=>`<div class="item"><span>${esc(x.n)}</span><b>${eur(x.p)}</b><button onclick="removeCompare(${i})">×</button></div>`).join(''):'<p class="muted">Aucun devis.</p>'}window.removeCompare=i=>{const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.splice(i,1);localStorage.setItem('ce_cmp',JSON.stringify(a));compareRender()};
 window.exportData=()=>{const data={application:'Chiffr’EcoPro',version:'stable',chiffrages:JSON.parse(localStorage.getItem('ce_history')||'[]'),parametres:JSON.parse(localStorage.getItem('ce_settings')||'{}'),comparaison:JSON.parse(localStorage.getItem('ce_cmp')||'[]')};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='chifrecopro-export.json';a.click();URL.revokeObjectURL(a.href)};
-window.resetAll=()=>{if(confirm('Réinitialiser le chiffrage en cours ?'))location.reload()};
+if(typeof window.resetAll!=='function')window.resetAll=()=>{if(confirm('Réinitialiser le chiffrage en cours ?'))location.reload()};
 compareRender();
 window.__ceRemoveMat=i=>{mats.splice(i,1);matRenderV13();};
 window.__ceRemoveTool=i=>{toolsList.splice(i,1);toolRenderV13();};

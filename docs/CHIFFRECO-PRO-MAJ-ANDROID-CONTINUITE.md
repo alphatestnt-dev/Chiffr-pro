@@ -7,7 +7,7 @@ Date de préparation : 8 novembre 2026.
 - Branche de travail isolée : `test/accueil-integre-securise-20261107`
 - Pull request de test : https://github.com/alphatestnt-dev/Chiffr-pro/pull/13
 - Branche de base : `main`
-- Ne jamais modifier `main), fusionner la PR ou déployer sans validation explicite de l'utilisateur.
+- Ne jamais modifier `main`, fusionner la PR ou déployer sans validation explicite de l'utilisateur.
 - Objectif final : préparer une mise à jour Android testable via le projet Android Studio existant, sans casser l'application actuellement publiée.
 - Le projet Android Studio local n'est pas encore fourni dans cette session ; le site/HTML et la branche GitHub sont accessibles.
 
@@ -39,10 +39,13 @@ Date de préparation : 8 novembre 2026.
 
 ### 4. Essai / évaluations
 - Historique produit : l'utilisateur avait précédemment choisi 15 jours d'essai gratuit plutôt que 3 évaluations gratuites.
-- Le texte « 15 jours » présent dans le HTML n'implémente PAS un essai serveur réel.
-- Le backend Supabase de la branche principale applique encore une limite de 3 évaluations via `cc_consume_evaluation`.
-- Ne pas modifier ni déployer le backend sans clarification et validation explicite.
-- Dans la dernière demande, l'utilisateur a dit « les évaluations avec un jour au lieu de trois jours », ce qui est ambigu par rapport au choix antérieur de 15 jours. Lui demander de confirmer précisément s'il parle d'un essai d'1 jour, de 15 jours, ou d'une limite d'évaluations.
+- Choix confirmé le 8 novembre 2026 : 15 jours d'essai gratuit, sans carte bancaire au démarrage.
+- La logique serveur de 15 jours est maintenant préparée dans `supabase/functions/commercialisation-api/index.ts` et `supabase/migrations/20261108000000_trial_15_days.sql` sur la branche de test uniquement.
+- La migration ajoute `trial_started_at` et `trial_ends_at`; les comptes existants reçoivent une période de transition de 15 jours à partir de l'application de la migration.
+- L'essai commence à la création du compte commercial `cc_accounts` (premier état d'abonnement après connexion), et non à la simple visite du site.
+- Le RPC serveur autorise l'accès pendant l'essai ou avec abonnement actif/trialing; il n'incrémente plus les 3 évaluations. Après expiration, il renvoie `TRIAL_EXPIRED`.
+- `auth-v1.js` affiche la date de fin et les jours restants, et propose les abonnements existants.
+- Important : ces fichiers ne sont PAS déployés dans Supabase. La migration et l'Edge Function doivent être testées puis déployées dans le bon ordre, après validation explicite. Ne pas modifier les Price IDs Stripe.
 
 ## Modifications déjà présentes sur la branche de test
 - L'accueil intégré avec onglets reste uniquement sur la branche de test.
@@ -51,9 +54,10 @@ Date de préparation : 8 novembre 2026.
 - Dernière correction en date : la décomposition du devis affiche séparément prestation, main-d'œuvre, matériaux, outils, évacuation si ajoutée, déplacement, autres coûts, marge, HT et TVA si applicable. Évite d'afficher le total HT comme si c'était le seul prix de la prestation puis de réafficher les coûts en dessous.
 - Marge et TVA mises à 0 par défaut ; les deux sont facultatives.
 - La restauration d'un ancien chiffrage restaure aussi la marge.
-- Aucun test navigateur/Android réel n'a encore été exécuté ; ne pas prétendre que l'APK ou l'application est testé.
+- Un test Playwright de non-régression pour 0 heure de main-d'œuvre a été ajouté à `tests/smoke.spec.js`; le workflow smoke est configuré pour tourner aussi sur la branche de test. Les runs GitHub sont en cours au moment de cette mise à jour.
+- Aucun test navigateur/Android local ni APK n'a encore été validé ; ne pas prétendre que l'application Android est testée.
 - Aucun changement n'a été fusionné ni déployé.
-- Les prix et la bibliothèque de références ne sont pas encore intégrés : seule la méthode et le périmètre sont définis.
+- Une première bibliothèque de références paysagères est intégrée dans `pricing-reference-v1.js`, avec bouton d'application facultative : tonte (0,09 €/m² pour moins d'1 ha), débroussaillage (0,25 €/m²), taille de haie (1,80 €/m pour une face et moins de 2 m). Ces valeurs viennent d'un BPU public Cergy-Pontoise et ne sont pas des tarifs universels. Les autres prestations sans référence suffisamment comparable restent à saisir librement. Aucune évacuation, broyage ou transport n'est inclus dans ces bases.
 
 ## Abonnements existants — ne pas modifier
 - Particulier : 2,99 €/mois.
@@ -65,6 +69,6 @@ Date de préparation : 8 novembre 2026.
 ## Étapes suivantes
 1. Vérifier les commits récents et les différences de la branche.
 2. Faire une validation statique ciblée du calcul avec heures = 0 et autres postes non nuls ; vérifier que le devis n'affiche pas de doublons.
-3. Définir la règle d'essai après clarification.
-4. Constituer une première base tarifaire minimale, surtout paysagisme, sans inclure automatiquement évacuation/broyage/transport.
+3. Vérifier la migration et l'Edge Function 15 jours sur un environnement de test, puis préparer leur déploiement séparément.
+4. Étendre prudemment les références tarifaires par métier quand une source comparable existe, sans inclure automatiquement évacuation/broyage/transport.
 5. Raccorder le projet Android Studio au bon état de la branche, construire un APK de test et faire vérifier par l'utilisateur avant toute mise à jour Play Store.

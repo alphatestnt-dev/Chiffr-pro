@@ -128,7 +128,8 @@ Deno.serve(async(req)=>{
       const row=data?.[0];
       const {data:account}=await supabaseAdmin.from("cc_accounts").select("trial_started_at,trial_ends_at").eq("user_id",user.id).maybeSingle();
       if(!row?.allowed)return err("Votre période d’essai de 15 jours est terminée. Choisissez une offre pour continuer.",402,{code:"TRIAL_EXPIRED",trial_ends_at:account?.trial_ends_at??null});
-      return json({...row,trial_active:true,trial_started_at:account?.trial_started_at??null,trial_ends_at:account?.trial_ends_at??null,evaluations_remaining:null});
+      const trialActive=Boolean(account?.trial_ends_at&&new Date(account.trial_ends_at).getTime()>Date.now());
+      return json({...row,trial_active:trialActive,trial_started_at:account?.trial_started_at??null,trial_ends_at:account?.trial_ends_at??null,evaluations_remaining:null});
     }
 
     if(path==="/create-checkout-session" || path==="/"){

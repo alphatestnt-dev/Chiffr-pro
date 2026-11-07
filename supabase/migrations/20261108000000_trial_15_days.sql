@@ -55,5 +55,5 @@ begin
 end;
 $function$;
 
-revoke all on function public.cc_consume_evaluation(uuid) from public;
+revoke all on function public.cc_consume_evaluation(uuid) from public, anon;
 grant execute on function public.cc_consume_evaluation(uuid) to authenticated;

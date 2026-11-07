@@ -56,10 +56,10 @@ Date de préparation : 8 novembre 2026.
 - Dernière correction en date : la décomposition du devis affiche séparément prestation, main-d'œuvre, matériaux, outils, évacuation si ajoutée, déplacement, autres coûts, marge, HT et TVA si applicable. Évite d'afficher le total HT comme si c'était le seul prix de la prestation puis de réafficher les coûts en dessous.
 - Marge et TVA mises à 0 par défaut ; les deux sont facultatives.
 - La restauration d'un ancien chiffrage restaure aussi la marge.
-- Un test Playwright de non-régression pour 0 heure de main-d'œuvre a été ajouté à `tests/smoke.spec.js`; le workflow smoke est configuré pour tourner aussi sur la branche de test. Les runs GitHub sont en cours au moment de cette mise à jour.
+- Des tests Playwright de non-régression couvrent 0 heure de main-d'œuvre, l'application volontaire de la référence tonte et le coût machine de l'épareuse; le workflow smoke tourne aussi sur la branche de test. Les runs GitHub sont en cours au moment de cette mise à jour.
 - Aucun test navigateur/Android local ni APK n'a encore été validé ; ne pas prétendre que l'application Android est testée.
 - Aucun changement n'a été fusionné ni déployé.
-- Une première bibliothèque de références paysagères est intégrée dans `pricing-reference-v1.js`, avec bouton d'application facultative : tonte (0,09 €/m² pour moins d'1 ha), débroussaillage (0,25 €/m²), taille de haie (1,80 €/m pour une face et moins de 2 m). Ces valeurs viennent d'un BPU public Cergy-Pontoise et ne sont pas des tarifs universels. Les autres prestations sans référence suffisamment comparable restent à saisir librement. Aucune évacuation, broyage ou transport n'est inclus dans ces bases.
+- Une première bibliothèque de références paysagères est intégrée dans `pricing-reference-v1.js`, avec bouton d'application facultative : tonte (0,09 €/m² sous 1 ha, 0,07 €/m² à partir d'1 ha), débroussaillage (0,25 €/m²), taille de haie (1,80 €/m pour une face et moins de 2 m). Ces valeurs viennent d'un BPU public Cergy-Pontoise et ne sont pas des tarifs universels. La base de coût matériel inclut aussi une débroussailleuse à bras / épareuse à 25,60 €/h, référence Entraid/CUMA 2024 à 199 h/an; la source indique 15 €/h au-delà de 250 h/an et plus de 42 €/h sous 100 h/an. Les autres prestations sans référence suffisamment comparable restent à saisir librement. Aucune évacuation, broyage ou transport n'est inclus dans ces bases.
 
 ## Abonnements existants — ne pas modifier
 - Particulier : 2,99 €/mois.

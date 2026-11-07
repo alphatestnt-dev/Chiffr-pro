@@ -138,17 +138,17 @@ function matRenderV13(){
  const el=$('ml');if(!el)return;
  mats=mats.filter(x=>x&&String(x.n||'').trim()&&Number(x.q)>0&&Number(x.p)>0);
  el.innerHTML=mats.length?mats.map((x,i)=>`<div class="item"><span>${esc(x.n)} — ${x.q} × ${eur(x.p)}</span><b>${eur(x.q*x.p)}</b><button type="button" onclick="window.__ceRemoveMat(${i})" aria-label="Supprimer ${esc(x.n)}">×</button></div>`).join(''):'<p class="muted">Aucun matériau ajouté.</p>';
- $('mt').textContent=eur(mats.reduce((sum,x)=>sum+x.q*x.p,0));
+ $('mt').textContent=eur(mats.reduce((sum,x)=>sum+x.q*x.p,0));if($('res')&&!$('res').classList.contains('hide'))calcV13();
  window.addMat=()=>{
   const n=$('mn')?.value.trim(),q=Number($('mq')?.value),p=Number($('mp')?.value),warn=$('matWarn');
   if(!n||!Number.isFinite(q)||q<=0||!Number.isFinite(p)||p<=0){if(warn)warn.textContent='Renseignez un nom, une quantité supérieure à zéro et un prix unitaire supérieur à zéro.';return false;}
   mats.push({n,q,p});$('mn').value='';$('mq').value='';$('mp').value='';if(warn)warn.textContent='';matRenderV13();return true;
  };
-}function toolRenderV13(){const el=$('tl');if(!el)return;el.innerHTML=toolsList.length?toolsList.map((x,i)=>`<div class="item"><span>${esc(x.n)} — ${x.h} h</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveTool(${i})">×</button></div>`).join(''):'<p class="muted">Aucun outil.</p>';$('tt').textContent=eur(toolsList.reduce((s,x)=>s+x.c,0))}
+}function toolRenderV13(){const el=$('tl');if(!el)return;el.innerHTML=toolsList.length?toolsList.map((x,i)=>`<div class="item"><span>${esc(x.n)} — ${x.h} h</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveTool(${i})">×</button></div>`).join(''):'<p class="muted">Aucun outil.</p>';$('tt').textContent=eur(toolsList.reduce((s,x)=>s+x.c,0));if($('res')&&!$('res').classList.contains('hide'))calcV13()}
 function wasteVolume(){return $('wmode')?.value==='volume'?Math.max(0,+$('wv').value||0):Math.max(0,(+$('wl').value||0)*(+$('ww').value||0)*(+$('wh').value||0))}
 function wasteCost(v,t){return v>0?v*(wasteRates[t]||80)+35:0}
 function previewV13(){const v=wasteVolume(),c=wasteCost(v,$('wt').value);$('wvol').textContent=v.toFixed(2)+' m³';$('wcost').textContent=eur(c)+' indicatif'}
-function wasteRenderV13(){const el=$('wlst');if(!el)return;el.innerHTML=wastes.length?wastes.map((x,i)=>`<div class="item"><span>${esc(x.label)} — ${x.v.toFixed(2)} m³</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveWaste(${i})">×</button></div>`).join(''):'<p class="muted">Aucune évacuation.</p>'}
+function wasteRenderV13(){const el=$('wlst');if(!el)return;el.innerHTML=wastes.length?wastes.map((x,i)=>`<div class="item"><span>${esc(x.label)} — ${x.v.toFixed(2)} m³</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveWaste(${i})">×</button></div>`).join('') :'<p class="muted">Aucune évacuation.</p>';if($('res')&&!$('res').classList.contains('hide'))calcV13()}
 function addWasteV13(){const v=wasteVolume(),t=$('wt').value;if(v<=0)return;const label=$('wt').selectedOptions[0].textContent;wastes.push({t,label,v,c:wasteCost(v,t)});previewV13();wasteRenderV13();ecoV13()}
 function calcV13(){
  const n=id=>{const v=Number($(id)?.value);return Number.isFinite(v)?Math.max(0,v):0};

@@ -147,3 +147,17 @@ test('PWA reload and no uncaught browser errors',async({page})=>{
  await expect(page.locator('#accueil')).toBeVisible();
  expect(errors).toEqual([]);
 });
+
+test('VAT and margin stay at zero by default and calculate correctly when entered',async({page})=>{
+ await openFresh(page);await openPro(page);
+ await expect(page.locator('#margin')).toHaveValue('0');
+ await expect(page.locator('#vat')).toHaveValue('0');
+ await page.locator('#qty').fill('1');await page.locator('#unitPrice').fill('100');
+ await page.locator('#margin').fill('10');await page.locator('#vat').fill('20');
+ await page.getByRole('button',{name:'Calculer le prix'}).click();
+ await expect(page.locator('#ht')).toContainText('111,11');
+ await expect(page.locator('#ttc')).toContainText('133,33');
+ await page.getByRole('button',{name:'📄 Préparer le devis'}).click();
+ await expect(page.locator('#quote')).toContainText('TVA 20%');
+ await expect(page.locator('#quote')).toContainText('133,33');
+});

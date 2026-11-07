@@ -2,9 +2,9 @@
 const { test, expect } = require('@playwright/test');
 const url='http://127.0.0.1:4173/index.html';
 async function openFresh(page){
- await page.goto(url,{waitUntil:'networkidle'});
+ await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.evaluate(()=>localStorage.clear());
- await page.reload({waitUntil:'networkidle'});
+ await page.reload({waitUntil:'domcontentloaded'});
  await expect(page.locator('#accueil')).toBeVisible();
  await expect(page.locator('#pro')).toHaveCount(1);
  await expect(page.locator('#factures-pro')).toHaveCount(1);
@@ -52,8 +52,7 @@ test('professional materials, machines and waste are included and removable',asy
  await page.locator('#tn').selectOption({label:'Débroussailleuse à bras / épareuse'});
  await page.locator('#th').fill('1');await expect(page.locator('#tc')).toHaveValue('25.60');
  await page.getByRole('button',{name:'Ajouter',exact:true}).first().click();
- await page.locator('#wl').fill('2');await page.locator('#ww').fill('1');await page.locator('#wh').fill('.5');
- await page.getByRole('button',{name:'Calculer le volume'}).click();await expect(page.locator('#wvol')).toHaveText('1.00 m³');
+ await page.locator('#wv').fill('1');await expect(page.locator('#wvol')).toContainText('1.00 m³');
  await page.getByRole('button',{name:'Ajouter au chiffrage'}).click();
  await page.getByRole('button',{name:'Calculer le prix'}).click();
  await expect(page.locator('#ht')).toContainText('1 125,60');

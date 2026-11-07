@@ -5,7 +5,7 @@ function installBarometre(){
  const pro=document.getElementById('pro'); if(!pro)return;
  const style=document.createElement('style');style.id='baroStyle';style.textContent='.ceBaro{border:1px solid #d8e3dd;border-radius:14px;padding:14px;margin:12px 0;background:#fff}.ceBaroHead{display:flex;justify-content:space-between;gap:10px;align-items:center}.ceLevel{font-weight:900;border-radius:99px;padding:6px 10px;font-size:12px}.ceBaroGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.ceBaroGrid div{background:#f3f7f4;border-radius:9px;padding:9px;font-size:13px}.ceBaroWhy{font-size:13px;color:#64736b;margin:8px 0 0}@media(max-width:650px){.ceBaroGrid{grid-template-columns:1fr}}';document.head.appendChild(style);
  const card=document.createElement('div');card.id='ceBarometre';card.className='ceBaro';card.innerHTML='<div class="ceBaroHead"><div><b>📊 Baromètre du chantier PRO</b><div class="ceBaroWhy">Le prix s’ajuste automatiquement selon les conditions du travail, sans bloquer votre tarif.</div></div><span id="ceBaroLevel" class="ceLevel">NORMAL</span></div><div class="ceBaroGrid"><div>Coefficient<br><b id="ceBaroCoef">1,00×</b></div><div>Prix conseillé<br><b id="ceBaroRange">—</b></div><div>Temps analysé<br><b id="ceBaroHours">—</b></div></div><p id="ceBaroWhy" class="ceBaroWhy"></p>';
- const result=document.getElementById('res');pro.insertBefore(card,result||null);
+ const result=document.getElementById('res');const anchor=result?.closest('.card')||null;pro.insertBefore(card,anchor);
  const num=id=>{const e=document.getElementById(id);return e?Math.max(0,parseFloat(e.value)||0):0};
  const text=id=>{const e=document.getElementById(id);return e?(e.value||e.textContent||'').toLowerCase():''};
  function analyse(){

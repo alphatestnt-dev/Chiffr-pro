@@ -34,8 +34,7 @@ function installBarometre(){
  window.ceBarometre=analyse;
  ['metier','prest','etat','qty','unit','hours','rate','margin','wt','wl','ww','wh','wv'].forEach(id=>document.getElementById(id)?.addEventListener('input',analyse));
  ['metier','prest','etat','unit','wt','wmode','sort','reuse','grind','opt'].forEach(id=>document.getElementById(id)?.addEventListener('change',analyse));
- const oldCalc=window.calc;
- if(typeof oldCalc==='function'&&!window.__ceCalcWrapped){window.__ceCalcWrapped=true;window.calc=function(){const coef=analyse();const r=document.getElementById('rate');if(!r||!oldCalc)return;const original=r.value;const base=parseFloat(original)||0;r.value=(base*coef).toFixed(2);try{return oldCalc.apply(this,arguments)}finally{r.value=original}}}
+ // Coefficient indicatif uniquement : le baromètre ne modifie jamais le taux saisi ni le calcul du devis/facture.
  analyse();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installBarometre);else installBarometre();

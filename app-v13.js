@@ -200,7 +200,7 @@ function estimateV13(){
  const box=$('pr'),range=$('range'),detail=$('detail');
  if(q<=0){box?.classList.add('hide');range.textContent='';detail.textContent='Saisissez une quantité supérieure à zéro pour obtenir une estimation.';return false;}
  const refs={
-  'Tonte':{unit:'m²',low:.07,high:.09,why:'Référence indicative de marché public; tarif par intervention, hors options et à confirmer selon accès et état du terrain.'},
+  'Tonte':{unit:'m²',low:q>=10000?.07:.09,high:q>=10000?.07:.09,why:q>=10000?'Référence de marché public à partir de 1 hectare, par intervention.':'Référence de marché public sous 1 hectare, par intervention.'},
   'Débroussaillage':{unit:'m²',low:.25,high:.25,why:'Référence de débroussaillage simple; ronces, végétation dense, hauteur, pente et accès peuvent modifier fortement le prix.'},
   'Taille de haie':{unit:'mètre',low:1.80,high:1.88,why:'Référence pour haie de moins de 2 m; une à trois faces selon le tarif publié. Hauteur supérieure et évacuation non comprises.'}
  };
@@ -210,11 +210,9 @@ function estimateV13(){
   detail.textContent='Aucune référence tarifaire suffisamment comparable pour cette prestation et cette unité. Demandez un devis personnalisé plutôt que d’afficher un montant inventé.';
   return false;
  }
- const diff=$('pd')?.value==='Difficile'?1.25:$('pd')?.value==='Moyenne'?1.10:1;
- const condition=/Dégradé|Très dégradé|Accès difficile/i.test($('pe')?.value||'')?1.15:1;
- const lo=q*ref.low*diff*condition,hi=q*ref.high*diff*condition;
+ const lo=q*ref.low,hi=q*ref.high;
  range.textContent=eur(lo)+' à '+eur(hi);
- detail.textContent=ref.why+' Ajustement indicatif selon difficulté/état, sans transport ni évacuation; à confirmer par visite.';
+ detail.textContent=ref.why+' Cette base ne comprend ni transport ni évacuation. La difficulté et l’état du terrain doivent être chiffrés séparément par le professionnel.';
  box?.classList.remove('hide');return true;
 }
 function ecoLeverPage(){if($('eco-lever'))return;const n=document.querySelector('nav'),m=document.querySelector('main');if(!n||!m)return;const b=document.createElement('button');b.dataset.p='eco-lever';b.textContent='📈 Éco-Levier';b.onclick=()=>goV13('eco-lever');n.appendChild(b);const s=document.createElement('section');s.id='eco-lever';s.className='page';s.innerHTML=`<div class="card eco"><span class="pill">ÉCO-LEVIER</span><h1>Faire de l’écologie un investissement</h1><p>Les économies, aides ou contributions saisies servent à simuler un scénario. Aucun remboursement n’est garanti.</p><div class="grid"><div><label>Surcoût écologique (€)</label><input id="ei" type="number" min="0" step=".01" value="0"></div><div><label>Économie immédiate (€)</label><input id="esav" type="number" min="0" step=".01" value="0"></div><div><label>Aide potentielle (€)</label><input id="ea" type="number" min="0" step=".01" value="0"></div><div><label>Contribution partenaire confirmée (€)</label><input id="ep" type="number" min="0" step=".01" value="0"></div><div><label>Économie annuelle (€)</label><input id="eag" type="number" min="0" step=".01" value="0"></div></div><button class="primary" id="ecalc">Calculer</button><div id="eres" class="box" style="margin-top:12px"></div></div><div class="card"><h2>Statuts de preuve</h2><p>🟢 Confirmé · 🟡 Sous conditions · 🔵 Estimé · 🟠 À demander · 🔴 Non identifié</p></div>`;m.appendChild(s);$('ecalc').onclick=()=>{const i=+$('ei').value||0,im=+$('esav').value||0,a=+$('ea').value||0,p=+$('ep').value||0,an=+$('eag').value||0,cover=Math.min(i,im+a+p),rem=Math.max(0,i-cover),roi=i?((im+a+p+an-i)/i*100):0,months=an?rem/(an/12):0;$('eres').innerHTML=`<div class="results"><div class="box">Investissement<div class="big">${eur(i)}</div></div><div class="box">Retour identifié<div class="big">${eur(im+a+p)}</div></div><div class="box">Reste<div class="big">${eur(rem)}</div></div><div class="box">ROI simulé<div class="big">${roi.toFixed(1)} %</div></div><div class="box">Retour<div class="big">${months?months.toFixed(1)+' mois':'à calculer'}</div></div></div>`}}

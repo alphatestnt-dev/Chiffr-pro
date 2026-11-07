@@ -27,7 +27,15 @@
   };
   const $=id=>document.getElementById(id);
   const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
-  function current(){return refs[$("metier")?.value]?.[$("prest")?.value]||null}
+  function current(){
+    const r=refs[$("metier")?.value]?.[$("prest")?.value]||null;
+    if(!r)return null;
+    if($("prest")?.value==="Tonte"){
+      const q=Math.max(0,Number($("qty")?.value)||0);
+      return {...r,price:q>=10000?0.07:0.09,condition:q>=10000?"Surface supérieure ou égale à 1 hectare, par intervention":"Surface inférieure à 1 hectare, par intervention"};
+    }
+    return r;
+  }
   function render(){
     const box=$("priceReferenceInfo"),btn=$("priceReferenceApply");
     if(!box||!btn)return;

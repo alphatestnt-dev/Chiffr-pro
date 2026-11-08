@@ -14,6 +14,33 @@
   function refreshSubnavs(){ensureSubnav('pro',proItems);ensureSubnav('particulier',partItems);ensureSubnav('devis',docItems);ensureSubnav('historique',docItems);hideExtraNav()}
   function addTools(){const eco=$('eco');if(eco&&!eco.querySelector('.ce-tools-nav')){const wrap=document.createElement('div');wrap.className='ce-tools-nav';const mk=(label,id)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>window.go?.(id);return b};wrap.append(mk('🤝 Partenaires','partnersPage'),mk('📈 Éco-Levier','eco-lever'));const card=eco.querySelector('.card');if(card)card.appendChild(wrap)}const oldPartner=$('partnerNav');if(oldPartner)oldPartner.style.display='none'}
   function guardPage(id,items){const page=$(id);if(!page||page.dataset.ceNavGuard)return;page.dataset.ceNavGuard='1';new MutationObserver(()=>ensureSubnav(id,items)).observe(page,{childList:true,subtree:true})}
+  function applyAppShell(){
+    if($('ce-app-shell-layout'))return;
+    const st=document.createElement('style');st.id='ce-app-shell-layout';
+    st.textContent=`
+      body>header{position:relative!important;z-index:31;min-height:76px!important;padding:14px max(4%,16px)!important;display:flex!important;align-items:center!important;gap:12px!important}
+      body>header .logo{font-size:clamp(21px,5vw,28px)!important;line-height:1.15!important}
+      body>header .tag{line-height:1.35!important}
+      body>header #count{margin-left:auto!important;white-space:nowrap!important}
+      main{max-width:none!important;margin:0 auto 28px!important;padding:0!important}
+      nav[aria-label="Navigation principale"]{position:sticky!important;top:0!important;z-index:40!important;width:100%!important;max-width:none!important;margin:0!important;padding:8px 10px!important;display:flex!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto!important;overflow-y:hidden!important;border-radius:0!important;background:#0b4b35!important;scrollbar-width:thin!important;-webkit-overflow-scrolling:touch}
+      nav[aria-label="Navigation principale"] button{flex:0 0 auto!important;min-height:40px!important;padding:8px 11px!important;font-size:12px!important;white-space:nowrap!important;border-radius:9px!important}
+      #accueil{padding:0!important;margin:0!important}
+      #accueil .home{display:flex!important;align-items:center!important;justify-content:center!important;width:100vw!important;max-width:none!important;height:calc(100dvh - 132px)!important;min-height:480px!important;margin:0 0 18px calc(50% - 50vw)!important;padding:8px!important;border-radius:0!important;overflow:hidden!important;background:#f3f7f4!important;box-shadow:none!important}
+      #accueil .home>img{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important}
+      #accueil .home-top-links,#accueil .home-links{display:none!important}
+      @media(max-width:560px){
+        body>header{min-height:68px!important;padding:10px 12px!important}
+        body>header .logo{font-size:22px!important}
+        body>header .tag{font-size:11px!important}
+        nav[aria-label="Navigation principale"]{padding:7px 8px!important}
+        nav[aria-label="Navigation principale"] button{min-height:38px!important;padding:8px 10px!important;font-size:12px!important}
+        #accueil .home{height:calc(100dvh - 112px)!important;min-height:500px!important;padding:4px!important}
+      }
+      @media(min-width:561px){#accueil .home{height:calc(100dvh - 140px)!important;min-height:560px!important}}
+    `;
+    document.head.appendChild(st);
+  }
   function install(){const nav=document.querySelector('nav[aria-label="Navigation principale"]');if(!nav)return;style();applyAppShell();const main=document.querySelector('main');if(main&&nav.parentElement!==main)main.insertBefore(nav,main.firstElementChild);nav.classList.add('is-global');ensurePrimaryButtons();hideExtraNav();markCards();refreshSubnavs();addTools();guardPage('pro',proItems);guardPage('particulier',partItems);guardPage('devis',docItems);guardPage('historique',docItems);if(!nav.dataset.cePrimaryGuard){nav.dataset.cePrimaryGuard='1';new MutationObserver(hideExtraNav).observe(nav,{childList:true})}if(!window.__ceGoWrapped){window.__ceGoWrapped='1';const baseGo=window.go;window.go=(id)=>{const r=typeof baseGo==='function'?baseGo(id):undefined;setTimeout(()=>{refreshSubnavs();addTools()},30);return r}}if(!window.__ceNavHeartbeat){window.__ceNavHeartbeat=setInterval(()=>{refreshSubnavs();addTools()},250)}const home=$('accueil')?.querySelector('.home img');if(home){home.removeAttribute('srcset');home.style.imageRendering='auto';const box=home.closest('.home');const fit=()=>{if(box&&home.naturalWidth>0)box.style.height=home.getBoundingClientRect().height+'px'};home.addEventListener('load',fit,{once:true});if(home.complete)fit();window.addEventListener('resize',fit,{passive:true})}window.__ceNavigationRefresh=install}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0),{once:true});else setTimeout(install,0);
 })();

@@ -135,14 +135,18 @@ test('private estimate refuses zero and unsupported tariffs instead of displayin
  await expect(page.locator('#detail')).toContainText('Aucune référence tarifaire');
 });
 
-test('landscape reference is optional and follows the area band',async({page})=>{
+test('equipment-based mowing uses conservative productivity and leaves price to artisan',async({page})=>{
  await openFresh(page);await openPro(page);
  await page.locator('#metier').selectOption({label:'Espaces verts'});
  await page.locator('#prest').selectOption({label:'Tonte'});
- await page.locator('#qty').fill('500');await expect(page.locator('#priceReferenceApply')).toBeEnabled();
+ await page.locator('#taskEquipment').selectOption({label:'Tondeuse'});
+ await page.locator('#qty').fill('500');
+ await expect(page.locator('#priceReferenceApply')).toBeDisabled();
  await expect(page.locator('#unitPrice')).toHaveValue('0');
- await page.locator('#priceReferenceApply').click();await expect(page.locator('#unitPrice')).toHaveValue('0.09');
- await page.locator('#qty').fill('10000');await expect(page.locator('#priceReferenceInfo')).toContainText('0,07');
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('400 m²/h');
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('1,25 h');
+ await page.locator('#unitPrice').fill('0.12');
+ await expect(page.locator('#unitPrice')).toHaveValue('0.12');
 });
 
 test('PWA reload and no uncaught browser errors',async({page})=>{

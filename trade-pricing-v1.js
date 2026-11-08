@@ -7,47 +7,47 @@
  const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
  const profiles={
   'Espaces verts':{
-   'Tonte':{unit:'m²',equipment:['Tondeuse','Tondeuse autoportée']},
-   'Débroussaillage':{unit:'m²',equipment:['Débroussailleuse','Débroussailleuse batterie','Débroussailleuse à bras / épareuse']},
+   'Tonte':{unit:'m²',equipment:['Outillage spécialisé']},
+   'Débroussaillage':{unit:'m²',equipment:['Outillage spécialisé']},
    'Taille de haie':{unit:'mètre',equipment:['Taille-haie','Taille-haie électrique']},
    'Désherbage':{unit:'m²',equipment:['Outillage spécialisé']},
-   'Plantation':{unit:'unité',equipment:['Mini-pelle','Outillage spécialisé']},
-   'Création de massif':{unit:'m²',equipment:['Mini-pelle','Outillage spécialisé']},
+   'Plantation':{unit:'unité',equipment:['Outillage spécialisé']},
+   'Création de massif':{unit:'m²',equipment:['Outillage spécialisé']},
    'Arrosage':{unit:'forfait',equipment:['Outillage spécialisé']},
    'Broyage végétaux':{unit:'m³',equipment:['Broyeur de végétaux']},
    'Remise en état':{unit:'forfait',equipment:['Débroussailleuse','Tondeuse','Broyeur de végétaux','Outillage spécialisé']}
   },
   'Élagage / abattage':{
-   'Élagage':{unit:'unité',equipment:['Tronçonneuse','Tronçonneuse batterie','Nacelle']},
-   'Abattage':{unit:'unité',equipment:['Tronçonneuse','Tronçonneuse batterie','Nacelle']},
-   'Dessouchage':{unit:'unité',equipment:['Rogneuse de souche','Mini-pelle']},
-   'Évacuation bois':{unit:'m³',equipment:['Camionnette','Camion benne','Remorque']},
+   'Élagage':{unit:'unité',equipment:['Outillage spécialisé']},
+   'Abattage':{unit:'unité',equipment:['Outillage spécialisé']},
+   'Dessouchage':{unit:'unité',equipment:['Outillage spécialisé']},
+   'Évacuation bois':{unit:'m³',equipment:['Outillage spécialisé']},
    'Broyage':{unit:'m³',equipment:['Broyeur de végétaux']}
   },
   'Maçonnerie / gros œuvre':{
    'Dalle béton':{unit:'m²',equipment:['Bétonnière','Malaxeur à mortier','Laser chantier','Plaque vibrante']},
    'Mur / parpaing':{unit:'m²',equipment:['Bétonnière','Malaxeur à mortier','Laser chantier']},
-   'Fondations':{unit:'m³',equipment:['Mini-pelle','Pelle mécanique','Bétonnière']},
-   'Dépose / démolition':{unit:'m²',equipment:['Marteau-piqueur','Perforateur','Mini-pelle']}
+   'Fondations':{unit:'m³',equipment:['Outillage spécialisé']},
+   'Dépose / démolition':{unit:'m²',equipment:['Outillage spécialisé']}
   },
   'Terrassement':{
-   'Décaissement':{unit:'m³',equipment:['Mini-pelle','Pelle mécanique','Bobcat / chargeuse compacte']},
-   'Tranchée':{unit:'mètre',equipment:['Mini-pelle','Pelle mécanique','Tractopelle']},
-   'Nivellement':{unit:'m²',equipment:['Mini-pelle','Chargeuse','Laser chantier']},
-   'Fondations':{unit:'m³',equipment:['Mini-pelle','Pelle mécanique','Tractopelle']},
-   'Évacuation terre':{unit:'m³',equipment:['Camion benne','Chargeuse','Mini-pelle']}
+   'Décaissement':{unit:'m³',equipment:['Outillage spécialisé']},
+   'Tranchée':{unit:'mètre',equipment:['Outillage spécialisé']},
+   'Nivellement':{unit:'m²',equipment:['Outillage spécialisé']},
+   'Fondations':{unit:'m³',equipment:['Outillage spécialisé']},
+   'Évacuation terre':{unit:'m³',equipment:['Outillage spécialisé']}
   },
   'Nettoyage':{
    'Nettoyage courant':{unit:'m²',equipment:['Aspirateur chantier','Autolaveuse','Outillage spécialisé']},
    'Fin de chantier':{unit:'m²',equipment:['Aspirateur chantier','Nettoyeur haute pression','Autolaveuse']},
-   'Vitres':{unit:'m²',equipment:['Outillage spécialisé','Nacelle']},
-   'Façades':{unit:'m²',equipment:['Nettoyeur haute pression','Nacelle']},
+   'Vitres':{unit:'m²',equipment:['Outillage spécialisé']},
+   'Façades':{unit:'m²',equipment:['Outillage spécialisé']},
    'Nettoyage lourd':{unit:'m²',equipment:['Nettoyeur haute pression','Aspirateur chantier','Machine vapeur']}
   },
   'Peinture':{
    'Murs':{unit:'m²',equipment:['Pistolet à peinture','Pompe à peinture','Outillage spécialisé']},
    'Plafonds':{unit:'m²',equipment:['Pistolet à peinture','Pompe à peinture','Échafaudage léger']},
-   'Façade':{unit:'m²',equipment:['Pistolet à peinture','Pompe à peinture','Nacelle']},
+   'Façade':{unit:'m²',equipment:['Outillage spécialisé']},
    'Boiseries':{unit:'m²',equipment:['Ponceuse','Pistolet à peinture','Outillage spécialisé']}
   },
   'Plomberie':{
@@ -61,8 +61,8 @@
    'Installation complète':{unit:'forfait',equipment:['Outillage spécialisé']}
   },
   'Couverture / toiture':{
-   'Pose couverture':{unit:'m²',equipment:['Échafaudage léger','Nacelle','Outillage spécialisé']},
-   'Réparation toiture':{unit:'forfait',equipment:['Échelle','Échafaudage léger','Nacelle']}
+   'Pose couverture':{unit:'m²',equipment:['Outillage spécialisé']},
+   'Réparation toiture':{unit:'forfait',equipment:['Outillage spécialisé']}
   },
   'Menuiserie':{
    'Pose porte':{unit:'unité',equipment:['Perceuse','Visseuse','Scie circulaire']},
@@ -89,18 +89,18 @@
    'Plancher':{unit:'m²',equipment:['Scie circulaire','Outillage spécialisé']}
   },
   'Clôture / portail':{
-   'Clôture':{unit:'mètre',equipment:['Mini-pelle','Perforateur','Bétonnière']},
-   'Grillage':{unit:'mètre',equipment:['Mini-pelle','Perforateur','Outillage spécialisé']},
+   'Clôture':{unit:'mètre',equipment:['Outillage spécialisé']},
+   'Grillage':{unit:'mètre',equipment:['Outillage spécialisé']},
    'Portail':{unit:'unité',equipment:['Perforateur','Poste à souder','Meuleuse']}
   },
   'Voirie / réseaux':{
-   'Tranchée':{unit:'mètre',equipment:['Mini-pelle','Pelle mécanique','Tractopelle']},
+   'Tranchée':{unit:'mètre',equipment:['Outillage spécialisé']},
    'Pavage':{unit:'m²',equipment:['Plaque vibrante','Scie à béton']},
-   'Enrobé':{unit:'m²',equipment:['Rouleau compacteur','Plaque vibrante']}
+   'Enrobé':{unit:'m²',equipment:['Outillage spécialisé']}
   },
   'Assainissement':{
-   'Canalisation':{unit:'mètre',equipment:['Mini-pelle','Pelle mécanique','Laser chantier']},
-   'Drainage':{unit:'mètre',equipment:['Mini-pelle','Plaque vibrante']},
+   'Canalisation':{unit:'mètre',equipment:['Outillage spécialisé']},
+   'Drainage':{unit:'mètre',equipment:['Outillage spécialisé']},
    'Pompage':{unit:'forfait',equipment:['Pompe à eau','Pompe de relevage']}
   }
  };
@@ -109,7 +109,6 @@
  // Ce sont des repères de préparation, jamais des cadences imposées.
  const productivity={
   'espaces verts|tonte|tondeuse':{m2h:400,source:'bas de la fourchette professionnelle publiée : 500 m² en 1 h 15'},
-  'espaces verts|tonte|tondeuse autoportee':{m2h:1500,source:'base prudente distincte pour autoportée ; terrain dégagé à confirmer'},
   'espaces verts|debroussaillage|debroussailleuse':{m2h:125,source:'borne basse publiée pour débroussaillage manuel / débroussailleuse, selon densité'},
   'espaces verts|debroussaillage|debroussailleuse batterie':{m2h:125,source:'repère prudent assimilé au débroussaillage manuel ; à ajuster selon végétation'}
  };

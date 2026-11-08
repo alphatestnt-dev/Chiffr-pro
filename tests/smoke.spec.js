@@ -202,13 +202,13 @@ test('equipment selection is tied to profession and service without invented pri
  await page.locator('#taskEquipment').selectOption({label:'Tondeuse'});
  await expect(page.locator('#unit')).toHaveValue('m²');
  await expect(page.locator('#priceReferenceApply')).toBeDisabled();
- await expect(page.locator('#taskEquipmentInfo')).toContainText('Aucune référence vérifiée');
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('Base indicative prudente');
  await expect(page.locator('#unitPrice')).toHaveValue('0');
  await page.locator('#prest').selectOption({label:'Débroussaillage'});
  await expect(page.locator('#taskEquipment')).toContainText('Débroussailleuse');
  await page.locator('#taskEquipment').selectOption({label:'Débroussailleuse'});
  await expect(page.locator('#priceReferenceApply')).toBeDisabled();
- await expect(page.locator('#taskEquipmentInfo')).toContainText('Aucune référence vérifiée');
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('Base indicative prudente');
  await page.locator('#unitPrice').fill('0.42');
  await expect(page.locator('#unitPrice')).toHaveValue('0.42');
  await expect(page.locator('#taskEquipmentInfo')).toContainText('saisie libre');
@@ -222,5 +222,5 @@ test('equipment list changes with other trades and unit profiles',async({page})=
  await expect(page.locator('#unit')).toHaveValue('mètre');
  await page.locator('#taskEquipment').selectOption({label:'Mini-pelle'});
  await expect(page.locator('#priceReferenceApply')).toBeDisabled();
- await expect(page.locator('#taskEquipmentInfo')).toContainText('Pas de tarif ni de rendement inventé');
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('Base indicative prudente');
 });

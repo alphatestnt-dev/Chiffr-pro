@@ -7,12 +7,12 @@
  const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
  const profiles={
   'Espaces verts':{
-   'Tonte':{unit:'m²',equipment:['Tondeuse','Tondeuse autoportée','Tracteur tondeuse']},
+   'Tonte':{unit:'m²',equipment:['Tondeuse']},
    'Débroussaillage':{unit:'m²',equipment:['Débroussailleuse','Débroussailleuse batterie','Débroussailleuse à bras / épareuse']},
-   'Taille de haie':{unit:'mètre',equipment:['Taille-haie','Taille-haie électrique','Taille-haie sur perche']},
-   'Désherbage':{unit:'m²',equipment:['Désherbeur thermique','Désherbeur mécanique','Outillage spécialisé']},
-   'Plantation':{unit:'unité',equipment:['Tarière','Mini-pelle','Outillage spécialisé']},
-   'Création de massif':{unit:'m²',equipment:['Mini-pelle','Motoculteur','Outillage spécialisé']},
+   'Taille de haie':{unit:'mètre',equipment:['Taille-haie','Taille-haie électrique']},
+   'Désherbage':{unit:'m²',equipment:['Outillage spécialisé']},
+   'Plantation':{unit:'unité',equipment:['Mini-pelle','Outillage spécialisé']},
+   'Création de massif':{unit:'m²',equipment:['Mini-pelle','Outillage spécialisé']},
    'Arrosage':{unit:'forfait',equipment:['Outillage spécialisé']},
    'Broyage végétaux':{unit:'m³',equipment:['Broyeur de végétaux']},
    'Remise en état':{unit:'forfait',equipment:['Débroussailleuse','Tondeuse','Broyeur de végétaux','Outillage spécialisé']}

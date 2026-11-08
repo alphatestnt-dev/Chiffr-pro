@@ -7,7 +7,7 @@
  const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
  const profiles={
   'Espaces verts':{
-   'Tonte':{unit:'m²',equipment:['Tondeuse']},
+   'Tonte':{unit:'m²',equipment:['Tondeuse','Tondeuse autoportée']},
    'Débroussaillage':{unit:'m²',equipment:['Débroussailleuse','Débroussailleuse batterie','Débroussailleuse à bras / épareuse']},
    'Taille de haie':{unit:'mètre',equipment:['Taille-haie','Taille-haie électrique']},
    'Désherbage':{unit:'m²',equipment:['Outillage spécialisé']},

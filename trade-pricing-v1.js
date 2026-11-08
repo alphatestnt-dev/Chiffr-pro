@@ -105,6 +105,25 @@
   }
  };
  const machineTasks=new Set(['tonte','debroussaillage','taille de haie','desherbage','plantation','creation de massif','broyage vegetaux','elagage','abattage','dessouchage','decaissement','tranchee','nivellement','fondations','evacuation terre','dalle beton','mur / parpaing','pose couverture','fin de chantier','facade','cloture','grillage','pavage','enrobe','drainage']);
+ // Rendements de départ prudents, retenus au bas des fourchettes publiées.
+ // Ce sont des repères de préparation, jamais des cadences imposées.
+ const productivity={
+  'espaces verts|tonte|tondeuse':{m2h:400,source:'bas de la fourchette professionnelle publiée : 500 m² en 1 h 15'},
+  'espaces verts|tonte|tondeuse autoportee':{m2h:1500,source:'base prudente distincte pour autoportée ; terrain dégagé à confirmer'},
+  'espaces verts|debroussaillage|debroussailleuse':{m2h:125,source:'borne basse publiée pour débroussaillage manuel / débroussailleuse, selon densité'},
+  'espaces verts|debroussaillage|debroussailleuse batterie':{m2h:125,source:'repère prudent assimilé au débroussaillage manuel ; à ajuster selon végétation'}
+ };
+ function showProductivity(){
+  const info=$('taskEquipmentInfo'),key=norm($('metier')?.value)+'|'+norm($('prest')?.value)+'|'+norm($('taskEquipment')?.value),r=productivity[key],qty=Math.max(0,Number($('qty')?.value)||0);
+  if(!info)return;
+  if(r&&qty>0){
+   const hours=qty/r.m2h,mins=60/r.m2h;
+   info.textContent='Base indicative prudente : '+r.m2h.toLocaleString('fr-FR')+' m²/h, soit '+mins.toLocaleString('fr-FR',{maximumFractionDigits:2})+' min/m². Pour '+qty.toLocaleString('fr-FR')+' m² : environ '+hours.toLocaleString('fr-FR',{maximumFractionDigits:2})+' h. '+r.source+'. Terrain simple ; l’artisan ajuste selon hauteur, densité, pente, obstacles, ramassage et finitions.';
+  }else if(r){
+   info.textContent='Base indicative prudente : '+r.m2h.toLocaleString('fr-FR')+' m²/h, soit '+(60/r.m2h).toLocaleString('fr-FR',{maximumFractionDigits:2})+' min/m². '+r.source+'. Saisissez la surface pour estimer la durée.';
+  }
+ }
+
  function render(){
   const profession=$('metier')?.value||'',task=$('prest')?.value||'',sel=$('taskEquipment'),info=$('taskEquipmentInfo'),unit=$('unit'),price=$('unitPrice'),apply=$('priceReferenceApply'),refInfo=$('priceReferenceInfo');
   if(!sel)return;
@@ -142,7 +161,8 @@
  };
  document.addEventListener('DOMContentLoaded',()=>{
   ['metier','prest'].forEach(id=>$(id)?.addEventListener('change',render));
-  $('taskEquipment')?.addEventListener('change',render);
+  $('taskEquipment')?.addEventListener('change',()=>{render();showProductivity();});
+  $('qty')?.addEventListener('input',showProductivity);
   $('unitPrice')?.addEventListener('input',()=>{if($('unitPrice'))delete $('unitPrice').dataset.ceAutoReference;});
   const old=window.ceApplyPriceReference;
   window.ceApplyPriceReference=()=>{
@@ -151,5 +171,6 @@
    old?.();
   };
   render();
+  showProductivity();
  });
 })();

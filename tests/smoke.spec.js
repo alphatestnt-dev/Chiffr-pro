@@ -192,3 +192,35 @@ test('reset clears every hidden cost array and restores zero defaults',async({pa
  await expect(page.locator('#res')).toHaveClass(/hide/);
  await expect(page.locator('#warn')).toContainText('Aucun prix ou coût positif');
 });
+
+test('equipment selection is tied to profession and service without invented prices',async({page})=>{
+ await openFresh(page);
+ await openPro(page);
+ await page.locator('#metier').selectOption({label:'Espaces verts'});
+ await page.locator('#prest').selectOption({label:'Tonte'});
+ await expect(page.locator('#taskEquipment')).toContainText('Tondeuse');
+ await page.locator('#taskEquipment').selectOption({label:'Tondeuse'});
+ await expect(page.locator('#unit')).toHaveValue('m²');
+ await expect(page.locator('#priceReferenceApply')).toBeDisabled();
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('Aucune référence vérifiée');
+ await expect(page.locator('#unitPrice')).toHaveValue('0');
+ await page.locator('#prest').selectOption({label:'Débroussaillage'});
+ await expect(page.locator('#taskEquipment')).toContainText('Débroussailleuse');
+ await page.locator('#taskEquipment').selectOption({label:'Débroussailleuse'});
+ await expect(page.locator('#priceReferenceApply')).toBeDisabled();
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('Aucune référence vérifiée');
+ await page.locator('#unitPrice').fill('0.42');
+ await expect(page.locator('#unitPrice')).toHaveValue('0.42');
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('saisie libre');
+});
+test('equipment list changes with other trades and unit profiles',async({page})=>{
+ await openFresh(page);
+ await openPro(page);
+ await page.locator('#metier').selectOption({label:'Terrassement'});
+ await page.locator('#prest').selectOption({label:'Tranchée'});
+ await expect(page.locator('#taskEquipment')).toContainText('Mini-pelle');
+ await expect(page.locator('#unit')).toHaveValue('mètre');
+ await page.locator('#taskEquipment').selectOption({label:'Mini-pelle'});
+ await expect(page.locator('#priceReferenceApply')).toBeDisabled();
+ await expect(page.locator('#taskEquipmentInfo')).toContainText('Pas de tarif ni de rendement inventé');
+});

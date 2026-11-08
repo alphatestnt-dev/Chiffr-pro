@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient());
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
-        webView.loadUrl("https://chiffreco-pro.fr/");
+        webView.loadUrl("file:///android_asset/www/index.html");
     }
 
     @Override

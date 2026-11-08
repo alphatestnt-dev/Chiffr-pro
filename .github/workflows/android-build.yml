@@ -2,7 +2,7 @@ name: Build Chiffr’EcoPro Android
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, test/accueil-integre-securise-20261107 ]
     paths:
       - 'android/**'
       - '.github/workflows/android-build.yml'
@@ -32,10 +32,14 @@ jobs:
       - name: Build release AAB (unsigned)
         run: gradle -p android bundleRelease
 
-      - name: Upload APK and AAB
+      - name: Package Android Studio project
+        run: zip -r ChiffrecoPro-Android-Studio-Accueil.zip android
+
+      - name: Upload APK, AAB and Android Studio project
         uses: actions/upload-artifact@v4
         with:
           name: ChiffrecoPro-Android
           path: |
             android/app/build/outputs/apk/debug/*.apk
             android/app/build/outputs/bundle/release/*.aab
+            ChiffrecoPro-Android-Studio-Accueil.zip

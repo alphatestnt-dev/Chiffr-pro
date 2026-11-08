@@ -71,7 +71,7 @@ test('zero labor and zero lines are omitted from quote and invoice; totals match
  await openFresh(page);await openPro(page);
  await page.locator('#client').fill('Client QA');
  await page.locator('#qty').fill('500');await page.locator('#unit').selectOption({label:'m²'});await page.locator('#unitPrice').fill('2');
- await page.locator('#hours').fill('0');await page.locator('#rate').fill('16');await page.locator('#margin').fill('0');await page.locator('#vat').fill('0');
+ await page.locator('#hours').fill('0');await page.locator('#rate').fill('0');await page.locator('#margin').fill('0');await page.locator('#vat').fill('0');
  await page.getByRole('button',{name:'Calculer le prix'}).click();await expect(page.locator('#ht')).toContainText('1 000,00');
  await page.getByRole('button',{name:'📄 Préparer le devis'}).click();
  await expect(page.locator('#quote')).toContainText('500 m² × 2,00');
@@ -170,12 +170,15 @@ test('VAT and margin stay at zero by default and calculate correctly when entere
  await expect(page.locator('#quote')).toContainText('133,33');
 });
 
-test('hours entered with zero hourly rate are blocked instead of silently omitted',async({page})=>{
+test('zero hourly rate excludes labor and still calculates priced work',async({page})=>{
  await openFresh(page);await openPro(page);
+ await page.locator('#qty').fill('100');await page.locator('#unitPrice').fill('2');
  await page.locator('#hours').fill('3');await page.locator('#rate').fill('0');
  await page.getByRole('button',{name:'Calculer le prix'}).click();
- await expect(page.locator('#res')).toHaveClass(/hide/);
- await expect(page.locator('#warn')).toContainText('taux horaire est à zéro');
+ await expect(page.locator('#res')).not.toHaveClass(/hide/);
+ await expect(page.locator('#ht')).toContainText('200,00');
+ await page.getByRole('button',{name:'📄 Préparer le devis'}).click();
+ await expect(page.locator('#quote')).not.toContainText('Main-d’œuvre');
 });
 
 test('reset clears every hidden cost array and restores zero defaults',async({page})=>{

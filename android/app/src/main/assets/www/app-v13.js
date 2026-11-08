@@ -166,7 +166,6 @@ function calcV13(){
  const machine=tools.reduce((sum,x)=>sum+x.c,0);
  const evac=validWastes.reduce((sum,x)=>sum+x.c,0);
  const hours=n('hours'),rate=n('rate');
- if(hours>0&&rate<=0){$('res')?.classList.add('hide');$('warn').textContent='Des heures de main-d’œuvre sont renseignées mais le taux horaire est à zéro. Saisissez un taux ou remettez les heures à zéro avant de calculer.';current=null;return null;}
  const labor=hours>0?hours*rate:0;
  const travel=n('travel'),other=n('other');
  const direct=unitBase+labor+material+machine+evac+travel+other;
@@ -232,7 +231,7 @@ function resetAllV13(){
  mats=[];toolsList=[];wastes=[];current=null;
  ['client','num','unitPrice','travel','other','mn','mq','mp','hours','wl','ww','wh','wv'].forEach(id=>{const el=$(id);if(el)el.value=''});
  if($('qty'))$('qty').value='1';
- if($('rate'))$('rate').value='16';
+ if($('rate'))$('rate').value='0';
  if($('hours'))$('hours').value='0';
  if($('margin'))$('margin').value='0';
  if($('vat'))$('vat').value='0';

@@ -1,0 +1,206 @@
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), eur=v=>Number(v||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'}), esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const professions={
+'Espaces verts':['Entretien jardin','Tonte','Taille de haie','Débroussaillage','Désherbage','Plantation','Création de massif','Arrosage','Broyage végétaux','Remise en état'],
+'Élagage / abattage':['Élagage','Abattage','Dessouchage','Évacuation bois','Broyage','Haubanage'],
+'Maçonnerie / gros œuvre':['Dalle béton','Mur / parpaing','Fondations','Enduit','Ouverture','Réparation fissures','Dépose / démolition'],
+'Rénovation':['Cuisine','Salle de bain','Pièce complète','Rénovation légère','Rénovation lourde','Rénovation énergétique'],
+'Peinture':['Murs','Plafonds','Façade','Boiseries','Préparation / rebouchage','Décoration'],
+'Plomberie':['Dépannage','Fuite','Canalisation','Salle de bain','Installation sanitaire','Recherche de fuite'],
+'Électricité':['Dépannage','Prises / éclairage','Tableau électrique','Mise en conformité','Installation complète','Borne de recharge'],
+'Terrassement':['Décaissement','Tranchée','Nivellement','Fondations','Évacuation terre','VRD'],
+'Nettoyage':['Nettoyage courant','Fin de chantier','Vitres','Façades','Nettoyage lourd','Débarras'],
+'Couverture / toiture':['Recherche fuite','Réparation toiture','Pose couverture','Étanchéité','Zinguerie'],'Charpente':['Réparation charpente','Pose charpente','Traitement bois','Renforcement'],'Menuiserie':['Pose porte','Pose fenêtre','Agencement','Réparation bois','Escalier'],'Plâtrerie / placo':['Cloison','Doublage','Faux plafond','Bandes / joints','Isolation intérieure'],'Carrelage / faïence':['Sol','Mur','Douche','Terrasse','Dépose'],'Sols / parquet':['Parquet','Stratifié','PVC / vinyle','Ponçage','Ragréage'],'Isolation':['Murs','Combles','Plancher','Isolation extérieure','Dépose isolation'],'Chauffage / climatisation':['Dépannage','Pose chauffage','Climatisation','Pompe à chaleur','Entretien'],'Ventilation':['VMC simple flux','VMC double flux','Nettoyage réseau','Réparation'],'Étanchéité':['Toiture','Terrasse','Salle de bain','Fondations'],'Démolition / dépose':['Dépose intérieure','Démolition mur','Démolition dalle','Évacuation'],'Métallerie / serrurerie':['Serrurerie','Garde-corps','Portail','Soudure','Réparation'],'Piscine':['Entretien','Réparation','Terrasse piscine','Local technique','Recherche fuite'],'Clôture / portail':['Clôture','Portail','Grillage','Brise-vue','Réparation'],'Voirie / réseaux':['Tranchée','Réseaux','Pavage','Enrobé','Réfection'],'Assainissement':['Canalisation','Fosse','Drainage','Pompage','Recherche fuite'],'Débarras / évacuation':['Débarras maison','Cave / garage','Encombrants','Évacuation chantier'],'Nettoyage spécialisé':['Fin de chantier','Vitres','Façades','Graffiti','Nettoyage lourd'],'Peinture / décoration':['Murs','Plafonds','Façade','Boiseries','Décoration'],'Énergies renouvelables':['Panneaux solaires','Pompe à chaleur','Borne de recharge','Maintenance'],'Autre':['Prestation personnalisée']};
+const margins={'Espaces verts':35,'Élagage / abattage':40,'Maçonnerie / gros œuvre':35,'Rénovation':35,'Peinture':35,'Plomberie':38,'Électricité':38,'Terrassement':40,'Nettoyage':32,'Couverture / toiture':40,'Charpente':40,'Menuiserie':38,'Plâtrerie / placo':35,'Carrelage / faïence':38,'Sols / parquet':35,'Isolation':35,'Chauffage / climatisation':40,'Ventilation':38,'Étanchéité':40,'Démolition / dépose':40,'Métallerie / serrurerie':40,'Piscine':38,'Clôture / portail':35,'Voirie / réseaux':40,'Assainissement':40,'Débarras / évacuation':35,'Nettoyage spécialisé':38,'Peinture / décoration':35,'Énergies renouvelables':40,'Autre':35};
+const tools={'Débroussailleuse':[900,700,1.1,'petrol',.65],'Taille-haie':[700,700,.9,'petrol',.6],'Tronçonneuse':[850,600,1.1,'petrol',.55],'Tondeuse':[1800,900,1.3,'petrol',.7],'Souffleur':[600,650,.8,'petrol',.45],'Broyeur de végétaux':[7000,1800,2.5,'petrol',2.2],'Rogneuse de souche':[18000,2500,4,'petrol',4],'Taille-haie électrique':[450,800,.6,'electric',.7],'Débroussailleuse batterie':[750,700,.8,'battery',.8],'Tronçonneuse batterie':[650,600,.8,'battery',.9],'Bétonnière':[1800,1200,.9,'electric',1],'Malaxeur à mortier':[1200,900,.7,'electric',1.2],'Perforateur':[650,900,.5,'electric',.6],'Marteau-piqueur':[1100,700,.9,'electric',.8],'Scie à béton':[1600,650,1.1,'electric',1.2],'Scie circulaire':[500,700,.5,'electric',1.2],'Scie sabre':[450,700,.5,'electric',.8],'Ponceuse':[500,800,.5,'electric',1],'Mini-pelle':[30000,5000,7,'diesel',6],'Pelle mécanique':[110000,7000,15,'diesel',12],'Chargeuse':[70000,6000,10,'diesel',8],'Bobcat / chargeuse compacte':[45000,5000,8,'diesel',6],'Tractopelle':[85000,6500,12,'diesel',9],'Plaque vibrante':[1800,1200,.9,'petrol',.7],'Pilonneuse':[2200,1200,1,'petrol',.8],'Rouleau compacteur':[25000,3500,5,'diesel',5],'Laser chantier':[900,1000,.2,'electric',.05],'Nettoyeur haute pression':[1200,800,.7,'electric',2.5],'Aspirateur chantier':[700,900,.5,'electric',1.3],'Autolaveuse':[7000,1800,2.5,'electric',3],'Injecteur-extracteur':[1500,900,.7,'electric',1.5],'Machine vapeur':[1200,800,.6,'electric',2.2],'Pistolet à peinture':[600,700,.5,'electric',.8],'Compresseur':[1200,900,.7,'electric',2],'Pompe à peinture':[1800,900,.8,'electric',1.5],'Rainureuse':[900,700,.7,'electric',1.8],'Carotteuse':[2500,700,1.4,'electric',2],'Nacelle':[35000,4000,5,'diesel',5],'Camionnette':[30000,5000,3.5,'diesel',7],'Camion benne':[70000,6000,7,'diesel',12],'Remorque':[6000,2500,.7,'none',0],'Benne chantier':[5000,1500,.8,'none',0],'Pompe de relevage':[900,900,.4,'electric',1],'Pompe à eau':[900,900,.5,'petrol',.8],'Déshumidificateur chantier':[1200,1000,.5,'electric',1],'Poste à souder':[1200,800,.7,'electric',3],'Meuleuse':[250,700,.3,'electric',.9],'Perceuse':[250,800,.3,'electric',.7],'Visseuse':[300,900,.3,'electric',.5],'Cloueur':[500,800,.4,'electric',.4],'Échafaudage léger':[2500,1500,.6,'none',0],'Échelle':[500,1200,.2,'none',0],'Outillage spécialisé':[1500,900,.8,'electric',.8]};
+const energy={electric:.20,petrol:2.15,diesel:2.30,battery:.20,none:0},wasteRates={verts:35,residuels:95,bois:55,gravats:75,terre:45,metaux:25,carton:20,plastique:60,verre:45,dangereux:160,melange:120};
+let mats=[],toolsList=[],wastes=[],current=null;
+const materialCatalog=[
+'Ciment','Béton prêt à l’emploi','Mortier','Sable','Gravier','Gravillon','Tout-venant','Terre végétale','Terreau','Paillage','Écorces de pin',
+'Gazon en rouleau','Gazon synthétique','Graines de gazon','Terreau universel','Terreau plantation','Terreau horticole','Terreau gazon','Terreau agrumes','Terreau plantes méditerranéennes','Compost végétal','Compost enrichi','Amendement organique','Engrais gazon','Engrais organique','Engrais à libération lente','Chaux','Paillage bois','Paillage minéral','Écorces de pin','Pouzzolane','Graviers décoratifs','Sable horticole','Sable pour gazon','Graines prairie fleurie','Semences couvre-sol','Gazon rustique','Gazon sport','Gazon ombre','Géotextile anti-mauvaises herbes','Toile de paillage','Agrafes de paillage','Piquets bois','Planches bois','Tasseaux','Bastaings','OSB','Contreplaqué','Bois de coffrage',
+'Parpaing','Brique','Bloc béton','Pierre naturelle','Pavé','Dalle béton','Carrelage','Faïence','Colle carrelage','Joint carrelage',
+'Plâtre','Plaque de plâtre BA13','Enduit','Enduit de façade','Mortier-colle','Peinture intérieure','Peinture extérieure','Sous-couche peinture',
+'Crépi','Résine','Vernis','Lasure','Silicone','Mastic','Colle','Vis','Chevilles','Boulons','Clous','Fil de fer',
+'Tuyau PVC','Tube cuivre','Raccord PVC','Robinet','Câble électrique','Gaine électrique','Prise électrique','Interrupteur',
+'Isolant laine de verre','Isolant laine de roche','Polystyrène','Mousse expansive','Membrane d’étanchéité','Géotextile','Grillage','Brise-vue',
+'Panneau bois','Plaque acier','Tube acier','Grille métallique','Sacs à gravats','Bâche de protection'
+];
+const plantCatalog=['Laurier-rose','Laurier-tin','Laurier-sauce','Laurier-palme','Photinia','Troène','Eleagnus','Pittosporum','Cyprès','Thuya','Fusain','Escallonia','Abelia','Oranger du Mexique','Arbousier','Grenadier','Olivier','Citronnier','Oranger','Mandarinier','Figuier','Pêcher','Abricotier','Pommier','Poirier','Prunier','Cerisier','Amandier','Rosier','Lavande','Romarin','Thym','Sauge','Hortensia','Agapanthe','Hibiscus','Bougainvillier','Jasmin','Glycine','Clématite','Passiflore','Bambou','Miscanthus','Stipa','Pennisetum','Fétuque','Yucca','Cordyline','Érable','Palmier','Washingtonia','Trachycarpus','Albizia','Mimosa','Magnolia','Cerisier du Japon','Buis','Lonicera','Viburnum','Ciste','Teucrium','Santoline','Gaura','Perovskia','Céanothe'];
+const normPlant=s=>String(s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();let plants=[];
+function plantQuickV13(){const q=normPlant($('plantSearch')?.value),box=$('plantQuickResults');if(!box)return;if(!q){box.classList.add('hide');box.innerHTML='';return}const hits=plantCatalog.filter(x=>normPlant(x).includes(q)).slice(0,10);box.classList.remove('hide');box.innerHTML=hits.length?hits.map(x=>`<button type="button" style="width:100%;text-align:left;margin:3px 0;padding:9px;border:1px solid #cbd8d1;border-radius:8px;background:#fff;cursor:pointer" data-plant="${esc(x)}">🌿 ${esc(x)}</button>`).join(''):'<span class="muted">Aucune plante ou arbuste trouvé.</span>';box.querySelectorAll('[data-plant]').forEach(b=>b.onclick=()=>{$('plantName').value=b.dataset.plant;$('plantSearch').value=b.dataset.plant;box.classList.add('hide');$('plantQty')?.focus()})}
+function plantRenderV13(){const el=$('plantList');if(!el)return;el.innerHTML=plants.length?plants.map((x,i)=>`<div class="item"><span>🌿 ${esc(x.n)} — ${x.q} ${esc(x.u)}</span><b>${eur(x.q*x.p)}</b><button onclick="window.__ceRemovePlant(${i})">×</button></div>`).join(''):'<p class="muted">Aucune plante ajoutée.</p>';$('plantTotal').textContent=eur(plants.reduce((s,x)=>s+x.q*x.p,0))}
+function addPlantV13(){const n=$('plantName')?.value.trim(),q=+$('plantQty')?.value||0,p=+$('plantPrice')?.value||0,u=$('plantUnit')?.value||'unité';if(n&&q>0&&p>=0){plants.push({n,q,p,u});plantRenderV13();$('plantName').value='';$('plantSearch').value='';$('plantPrice').value='';}}
+const normMat=s=>String(s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
+function runQuickSearch(inputId,resultId,catalog,selectId){
+ const q=normMat($(inputId)?.value||'').trim(),box=$(resultId);
+ if(!box)return;
+ if(!q){box.classList.add('hide');box.innerHTML='';return}
+ const terms=q.split(/\\s+/).filter(Boolean);
+ const hits=catalog.filter(x=>{const n=normMat(x);return terms.every(t=>n.includes(t))}).slice(0,12);
+ box.classList.remove('hide');
+ box.innerHTML=hits.length?hits.map(x=>`<button type="button" style="display:block;width:100%;text-align:left;margin:4px 0;padding:10px;border:1px solid #cbd8d1;border-radius:8px;background:#fff;cursor:pointer" data-result="${esc(x)}">${esc(x)}</button>`).join(''):'<span class="muted">Aucun résultat.</span>';
+ box.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{$(selectId).value=b.dataset.result;$(inputId).value=b.dataset.result;box.classList.add('hide');$(selectId)?.focus()});
+}
+function searchMaterialsV13(){runQuickSearch('matSearch','matQuickResults',materialCatalog,'mn')}
+function searchPlantsV13(){runQuickSearch('plantSearch','plantQuickResults',plantCatalog,'plantName')}
+const tradeCatalog={
+'espaces-verts':{
+'Plantes & arbustes':[['Olivier',45],['Laurier-rose',18],['Laurier-palme',16],['Photinia',22],['Troène',12],['Eleagnus',18],['Pittosporum',25],['Cyprès',20],['Thuya',22],['Fusain',16],['Arbousier',28],['Grenadier',35],['Citronnier',32],['Oranger',32],['Figuier',35],['Rosier',18],['Hortensia',22],['Bougainvillier',28],['Jasmin',18],['Bambou',25],['Palmier',85],['Washingtonia',120],['Mimosa',45],['Magnolia',55],['Albizia',50],['Cerisier du Japon',60],['Buis',15],['Viburnum',20],['Ciste',12],['Lavande',8],['Romarin',7],['Thym',5],['Agapanthe',9],['Yucca',22]],
+'Gazon & semences':[['Gazon en rouleau (m²)',8],['Gazon rustique (kg)',9],['Gazon sport (kg)',11],['Gazon ombre (kg)',12],['Graines prairie fleurie (kg)',18],['Semences couvre-sol (kg)',16]],
+'Terreaux & amendements':[['Terreau universel (50 L)',9],['Terreau plantation (50 L)',11],['Terreau horticole (50 L)',12],['Terreau gazon (50 L)',10],['Terreau agrumes (50 L)',13],['Compost végétal (50 L)',8],['Amendement organique (25 kg)',14],['Engrais gazon (25 kg)',28],['Engrais organique (25 kg)',25],['Chaux (25 kg)',12]],
+'Paillage & sols':[['Paillage bois (50 L)',9],['Écorces de pin (50 L)',11],['Pouzzolane (25 kg)',12],['Graviers décoratifs (25 kg)',10],['Sable horticole (25 kg)',8],['Terre végétale (m³)',45],['Tout-venant (m³)',35]],
+'Protection & plantation':[['Géotextile (m²)',2.5],['Toile de paillage (m²)',2.2],['Agrafe de paillage',0.25],['Agrafes de paillage (100)',8],['Piquet bois',3],['Piquet métal',5],['Tuteur arbre',5],['Tuteur bambou',2.5],['Tuteur bois',4],['Lien de tuteurage',2],['Collier de tuteurage',1.5],['Protection tronc arbre',8],['Grillage',6],['Brise-vue (m²)',8],['Voile d’hivernage (m²)',3]],
+'Irrigation & arrosage':[['Tuyau goutte-à-goutte (m)',1.2],['Goutteur réglable',1.5],['Goutteur 2 L/h',0.8],['Goutteur 4 L/h',0.9],['Tube PE irrigation (m)',1],['Raccord goutte-à-goutte',1.2],['Té goutte-à-goutte',1.5],['Coude goutte-à-goutte',1.2],['Bouchon goutte-à-goutte',0.8],['Piquet de maintien tuyau',0.7],['Programmateur arrosage',45],['Filtre irrigation',18],['Réducteur de pression',15],['Électrovanne',25],['Arroseur automatique',12],['Tuyau arrosage (m)',2],['Enrouleur arrosage',55],['Kit goutte-à-goutte',35]]
+},
+'btp':{
+'Ciments & liants':[['Ciment 25 kg',7],['Mortier 25 kg',8],['Chaux 25 kg',10],['Béton prêt à l’emploi 25 kg',8]],
+'Granulats & terres':[['Sable 0/4 (tonne)',35],['Gravier (tonne)',40],['Gravillon (tonne)',45],['Tout-venant (tonne)',30],['Terre végétale (m³)',45]],
+'Maçonnerie':[['Parpaing standard',2.5],['Brique',2.8],['Bloc béton',3.5],['Pierre naturelle (m²)',45],['Pavé (m²)',30],['Dalle béton (m²)',25]],
+'Ferraillage & coffrage':[['Treillis soudé',25],['Fer à béton',4],['Fil de fer',4],['Bois de coffrage',12]],
+'Fixations':[['Vis',0.15],['Cheville',0.25],['Boulon',0.6],['Clou',0.08]]
+},
+'peinture':{
+'Peintures':[['Peinture intérieure 10 L',70],['Peinture extérieure 10 L',95],['Peinture façade 10 L',100],['Sous-couche 10 L',55],['Crépi 25 kg',45],['Lasure 5 L',55],['Vernis 5 L',50]],
+'Préparation':[['Enduit 15 kg',25],['Enduit de façade 25 kg',35],['Mastic',8],['Silicone',7],['Résine 5 kg',60]],
+'Protection':[['Bâche de protection',8],['Ruban de masquage',5],['Film de protection',6]]
+},
+'plomberie':{
+'Tuyauterie':[['Tube PVC',4],['Tube cuivre',12],['Tube multicouche',6],['Raccord PVC',2],['Raccord cuivre',4]],
+'Sanitaire':[['Robinet',35],['Siphon',12],['Flexible',8],['Joint',1],['Mécanisme WC',25]],
+'Etanchéité & fixation':[['Silicone sanitaire',8],['Filasse',6],['Téflon',3],['Collier',1.5]]
+},
+'electricite':{
+'Câbles & gaines':[['Câble électrique (m)',2],['Gaine ICTA (m)',0.8],['Gaine technique (m)',1.5]],
+'Appareillage':[['Prise',6],['Interrupteur',6],['Boîte d’encastrement',1.5],['Tableau électrique',80]],
+'Protection':[['Disjoncteur',12],['Interrupteur différentiel',45],['Goulotte (m)',3]]
+},
+'menuiserie':{
+'Bois & panneaux':[['Planche bois',12],['Tasseau',4],['Bastaing',15],['OSB (m²)',12],['Contreplaqué (m²)',18]],
+'Fixations & quincaillerie':[['Vis bois',0.15],['Cheville',0.25],['Charnière',4],['Poignée',8],['Équerre',3]],
+'Protection bois':[['Lasure 5 L',55],['Vernis 5 L',50],['Traitement bois 5 L',45]]
+},
+'carrelage':{
+'Carrelage':[['Carrelage sol (m²)',25],['Carrelage mur (m²)',22],['Faïence (m²)',24],['Pavé extérieur (m²)',30]],
+'Pose':[['Colle carrelage 25 kg',18],['Mortier-colle 25 kg',20],['Joint 5 kg',12],['Primaire 5 L',20]],
+'Préparation':[['Ragréage 25 kg',25],['Enduit de lissage 20 kg',22]]
+},
+'isolation':{
+'Isolants':[['Laine de verre (m²)',8],['Laine de roche (m²)',10],['Polystyrène (m²)',12],['Mousse expansive',9]],
+'Etanchéité':[['Membrane d’étanchéité (m²)',8],['Bande d’étanchéité',10],['Mastic',8]],
+'Fixation':[['Cheville isolation',0.5],['Rondelle',0.3]]
+},
+'cloture':{
+'Clôtures':[['Grillage (m)',6],['Panneau rigide',35],['Brise-vue (m²)',8],['Piquet',6],['Portillon',180]],
+'Fixations':[['Collier',0.5],['Platine',8],['Vis',0.15],['Cheville',0.25]]
+},
+'nettoyage':{
+'Produits':[['Détergent 5 L',18],['Désinfectant 5 L',25],['Nettoyant vitres 5 L',15],['Dégraissant 5 L',22]],
+'Consommables':[['Sac poubelle',0.4],['Éponge',1],['Chiffon microfibre',2],['Brosse',5]]
+}
+};
+function setupDedicatedCatalogV13(){const m=$('catalogMetier'),c=$('catalogCategorie'),s=$('catalogSearch'),box=$('catalogResults');if(!m||!c||!box)return;const render=()=>{const cats=Object.keys(tradeCatalog[m.value]||{});c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');renderDedicatedCatalogV13()};m.onchange=render;c.onchange=render;s?.addEventListener('input',renderDedicatedCatalogV13);render()}
+function renderDedicatedCatalogV13(){const m=$('catalogMetier')?.value,c=$('catalogCategorie')?.value,q=normMat($('catalogSearch')?.value||'').trim(),box=$('catalogResults');if(!box)return;const pool=(tradeCatalog[m]?.[c]||[]).map(x=>({n:x[0],p:x[1]}));const terms=q.split(/\\s+/).filter(Boolean);const hits=(q?pool.filter(x=>terms.every(t=>normMat(x.n).includes(t))):pool).slice(0,50);box.innerHTML=hits.length?hits.map(x=>`<div class="item"><span><b>${esc(x.n)}</b><br><small class="muted">${eur(x.p)} indicatif</small></span><button type="button" onclick="useCatalogProductV13(this)" data-prod="${esc(x.n)}" data-price="${x.p}">Ajouter au chiffrage</button></div>`).join(''):'<span class="muted">Aucun produit trouvé.</span>'}
+window.useCatalogProductV13=b=>{$('mn')&&($('mn').value=b.dataset.prod);$('mp')&&($('mp').value=b.dataset.price);goV13('pro');$('mq')?.focus()};
+function setupMaterialCatalogV13(){
+ const m=$('matMetier'),c=$('matCategorie');if(!m||!c)return;
+ const refreshCats=()=>{const cats=Object.keys(tradeCatalog[m.value]||{});c.innerHTML=cats.map(x=>`<option>${esc(x)}</option>`).join('');searchTradeProductsV13()};
+ m.onchange=refreshCats;c.onchange=searchTradeProductsV13;refreshCats();
+ $('matSearch')?.addEventListener('input',searchTradeProductsV13);
+}
+function searchTradeProductsV13(){
+ const m=$('matMetier')?.value,c=$('matCategorie')?.value,q=normMat($('matSearch')?.value||'').trim(),box=$('matQuickResults');if(!box)return;
+ const all=Object.values(tradeCatalog[m]||{}).flat().map(x=>({n:x[0],p:x[1]}));
+ const pool=c?(tradeCatalog[m]?.[c]||[]).map(x=>({n:x[0],p:x[1]})):all;
+ const terms=q.split(/\\s+/).filter(Boolean);
+ const hits=(q?pool.filter(x=>terms.every(t=>normMat(x.n).includes(t))):pool).slice(0,20);
+ box.classList.remove('hide');
+ box.innerHTML=hits.length?hits.map(x=>`<button type="button" style="display:block;width:100%;text-align:left;margin:4px 0;padding:10px;border:1px solid #cbd8d1;border-radius:8px;background:#fff;cursor:pointer" data-prod="${esc(x.n)}" data-price="${x.p}"><b>${esc(x.n)}</b> — ${eur(x.p)} indicatif</button>`).join(''):'<span class="muted">Aucun produit trouvé dans cette catégorie.</span>';
+ box.querySelectorAll('[data-prod]').forEach(b=>b.onclick=()=>{$('mn').value=b.dataset.prod;$('mp').value=b.dataset.price;$('matSearch').value=b.dataset.prod;box.classList.add('hide');$('mq')?.focus()});
+}
+function matQuickV13(){
+  const q=normMat($('matSearch')?.value);
+  const box=$('matQuickResults');
+  if(!box)return;
+  if(!q){box.classList.add('hide');box.innerHTML='';return;}
+  const hits=materialCatalog.filter(x=>normMat(x).includes(q)).slice(0,8);
+  box.classList.remove('hide');
+  box.innerHTML=hits.length?hits.map(x=>`<button type="button" class="actions" style="width:100%;justify-content:flex-start;margin:3px 0;padding:8px;border:1px solid #cbd8d1;border-radius:8px;background:#fff;cursor:pointer" data-mat="${esc(x)}">${esc(x)}</button>`).join(''):'<span class="muted">Aucun matériau trouvé.</span>';
+  box.querySelectorAll('[data-mat]').forEach(b=>b.onclick=()=>{ $('mn').value=b.dataset.mat; $('matSearch').value=b.dataset.mat; box.classList.add('hide'); $('mq')?.focus(); });
+}
+
+function addOptions(id,list){const el=$(id);if(!el)return;const old=el.value;el.innerHTML=list.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');if(list.includes(old))el.value=old}
+function professionV13(){const m=$('metier')?.value||'Espaces verts';addOptions('prest',professions[m]||professions.Autre);addOptions('etat',['Bon état','État courant','Dégradé','Très dégradé','Accès difficile','Accès très difficile']);const mar=$('margin');if(mar&&(!mar.dataset.manual||mar.dataset.manual==='0'))mar.value=margins[m]||35}
+function pSubV13(){const m=$('pf')?.value||'Espaces verts';addOptions('ps',professions[m]||professions.Autre);addOptions('pe',['Très bon état','État courant','Dégradé','Très dégradé','Accès difficile'])}
+function toolCost(name,h,mode){const p=tools[name]||tools['Outillage spécialisé'];if(!p||h<=0)return 0;let[price,life,maint,type,cons]=p;let e=type==='none'?0:cons*energy[type];if(mode==='battery')e=cons*energy.battery*.85;if(mode==='thermal2')e=cons*energy.petrol;if(mode==='thermal4')e=cons*energy.petrol*.9;return h*(price/life+maint+e)}
+function setupToolsV13(){const n=$('tn'),h=$('th'),c=$('tc');if(!n||!h||!c)return;addOptions('tn',Object.keys(tools));c.readOnly=true;c.placeholder='Calcul automatique';let mode=$('tenergy');if(!mode){mode=document.createElement('select');mode.id='tenergy';mode.innerHTML='<option value="auto">⚙️ Auto</option><option value="electric">⚡ Électrique</option><option value="battery">🔋 Batterie</option><option value="thermal2">🔥 Thermique 2T</option><option value="thermal4">🔥 Thermique 4T</option>';c.parentNode.insertBefore(mode,c)}const refresh=()=>{const x=toolCost(n.value,+h.value||0,mode.value);c.value=x?x.toFixed(2):'';let note=$('toolAutoV13');if(!note){note=document.createElement('small');note.id='toolAutoV13';note.className='muted';c.parentNode.appendChild(note)}note.textContent=x?`Automatique : ${eur(x)} / ${h.value} h — amortissement + entretien + énergie`:'Durée requise'};n.onchange=refresh;h.oninput=refresh;mode.onchange=refresh;window.addTool=()=>{const hh=+h.value||0,cc=toolCost(n.value,hh,mode.value);if(hh>0&&cc>0){toolsList.push({n:n.value,h:hh,c:cc,energy:mode.value});h.value='';c.value='';toolRenderV13();refresh()}};refresh()}
+function matRenderV13(){const el=$('ml');if(!el)return;el.innerHTML=mats.length?mats.map((x,i)=>`<div class="item"><span>${esc(x.n)} — ${x.q} × ${eur(x.p)}</span><b>${eur(x.q*x.p)}</b><button onclick="window.__ceRemoveMat(${i})">×</button></div>`).join(''):'<p class="muted">Aucun matériau.</p>';$('mt').textContent=eur(mats.reduce((s,x)=>s+x.q*x.p,0));window.addMat=()=>{const n=$('mn').value.trim(),q=+$('mq').value||0,p=+$('mp').value||0;if(n&&q>0&&p>=0){mats.push({n,q,p});$('mn').value='';$('mq').value='';$('mp').value='';matRenderV13()}}}
+function toolRenderV13(){const el=$('tl');if(!el)return;el.innerHTML=toolsList.length?toolsList.map((x,i)=>`<div class="item"><span>${esc(x.n)} — ${x.h} h</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveTool(${i})">×</button></div>`).join(''):'<p class="muted">Aucun outil.</p>';$('tt').textContent=eur(toolsList.reduce((s,x)=>s+x.c,0))}
+function wasteVolume(){return $('wmode')?.value==='volume'?Math.max(0,+$('wv').value||0):Math.max(0,(+$('wl').value||0)*(+$('ww').value||0)*(+$('wh').value||0))}
+function wasteCost(v,t){return v>0?v*(wasteRates[t]||80)+35:0}
+function previewV13(){const v=wasteVolume(),c=wasteCost(v,$('wt').value);$('wvol').textContent=v.toFixed(2)+' m³';$('wcost').textContent=eur(c)+' indicatif'}
+function wasteRenderV13(){const el=$('wlst');if(!el)return;el.innerHTML=wastes.length?wastes.map((x,i)=>`<div class="item"><span>${esc(x.label)} — ${x.v.toFixed(2)} m³</span><b>${eur(x.c)}</b><button onclick="window.__ceRemoveWaste(${i})">×</button></div>`).join(''):'<p class="muted">Aucune évacuation.</p>'}
+function addWasteV13(){const v=wasteVolume(),t=$('wt').value;if(v<=0)return;const label=$('wt').selectedOptions[0].textContent;wastes.push({t,label,v,c:wasteCost(v,t)});previewV13();wasteRenderV13();ecoV13()}
+function calcV13(){
+ const num=id=>{const n=Number($(id)?.value);return Number.isFinite(n)?Math.max(0,n):0};
+ const material=mats.reduce((s,x)=>s+Math.max(0,Number(x.q)||0)*Math.max(0,Number(x.p)||0),0);
+ const machine=toolsList.reduce((s,x)=>s+Math.max(0,Number(x.c)||0),0);
+ const evac=wastes.reduce((s,x)=>s+Math.max(0,Number(x.c)||0),0);
+ const hours=num('hours'),rate=num('rate'),labor=hours*rate;
+ const travel=num('travel'),other=num('other');
+ const direct=labor+material+machine+evac+travel+other;
+ const margin=Math.min(99.9,num('margin'));
+ const ht=direct/(1-margin/100);
+ const vat=num('vat'),tva=ht*vat/100,ttc=ht+tva;
+ current={entreprise:$('entreprise').value,num:$('num').value,client:$('client').value,metier:$('metier').value,prest:$('prest').value,etat:$('etat').value,qty:num('qty'),unit:$('unit').value,hours,rate,materials:[...mats],tools:[...toolsList],wastes:[...wastes],travel,other,direct,margin,ht,tva,ttc,vat,date:new Date().toLocaleString('fr-FR')};
+ $('cost').textContent=eur(direct);$('me').textContent=eur(ht-direct);$('mr').textContent=(ht?((ht-direct)/ht*100):0).toFixed(1)+' %';$('ht').textContent=eur(ht);$('ttc').textContent=eur(ttc);$('res').classList.remove('hide');
+ $('warn').textContent=margin>60?'Marge cible très élevée : vérifiez les coûts et le positionnement marché.':'';
+ ecoV13();return current
+}
+function saveV13(){const d=calcV13(),a=JSON.parse(localStorage.getItem('ce_history')||'[]');a.unshift(d);localStorage.setItem('ce_history',JSON.stringify(a));histV13()}
+function histV13(){const a=JSON.parse(localStorage.getItem('ce_history')||'[]');$('count').textContent=a.length+' chiffrage(s)';const el=$('hist');if(!el)return;el.innerHTML=a.length?a.map((x,i)=>`<div class="item"><span><b>${esc(x.prest||x.metier)}</b> — ${esc(x.client||'Sans client')}<br><small>${esc(x.date)} · ${eur(x.ttc)} TTC</small></span><button onclick="loadV13(${i})">Ouvrir</button><button onclick="delV13(${i})">×</button></div>`).join(''):'<p class="muted">Aucun chiffrage.</p>'}
+window.loadV13=i=>{const x=JSON.parse(localStorage.getItem('ce_history')||'[]')[i];if(!x)return;['entreprise','num','client','metier','qty','unit','hours','rate','vat'].forEach(k=>{if($(k)&&x[k]!=null)$(k).value=x[k]});mats=x.materials||x.mats||[];toolsList=x.tools||[];wastes=x.wastes||[];professionV13();matRenderV13();toolRenderV13();wasteRenderV13();calcV13();goV13('pro')};window.delV13=i=>{const a=JSON.parse(localStorage.getItem('ce_history')||'[]');a.splice(i,1);localStorage.setItem('ce_history',JSON.stringify(a));histV13()};window.clearHist=()=>{if(confirm('Supprimer tout l’historique ?')){localStorage.removeItem('ce_history');histV13()}};
+function ecoV13(){const total=wastes.reduce((s,x)=>s+x.v,0),sep=wastes.filter(x=>x.t!=='melange').reduce((s,x)=>s+x.v,0);let score=total?Math.round(sep/total*45):0;if($('sort')?.checked)score+=20;if($('reuse')?.checked)score+=20;if($('grind')?.checked)score+=7;if($('opt')?.checked)score+=8;score=Math.min(100,score);if($('score'))$('score').textContent=score;if($('ev'))$('ev').textContent=total.toFixed(2)+' m³';if($('es'))$('es').textContent=(total?Math.round(sep/total*100):0)+' %';if($('erep'))$('erep').innerHTML=`<p><b>Score interne :</b> ${score}/100</p><p><b>Flux déchets :</b> ${wastes.length}</p><p><b>Orientation :</b> ${score>=70?'démarche écologique forte':score>=40?'démarche intermédiaire':'possibilités d’amélioration identifiées'}</p>`}
+function quoteV13(){
+ const d=calcV13(),s=JSON.parse(localStorage.getItem('ce_settings')||'{}');
+ const line=(label,value)=>`<div class="line"><span>${label}</span><b>${eur(value)}</b></div>`;
+ $('quote').innerHTML=`<h1>DEVIS</h1>
+ <p><b>${esc(d.entreprise||s.n||'Entreprise')}</b><br>${esc(s.a||'')}<br>${esc(s.t||'')} ${esc(s.e||'')}<br>SIRET : ${esc(s.s||'')}<br>N° ${esc(d.num||'À définir')} · ${esc(d.date)}</p>
+ <p><b>Client :</b> ${esc(d.client||'—')}</p>
+ <p><b>Prestation :</b> ${esc(d.prest||d.metier||'Prestation')} — ${d.qty} ${esc(d.unit)}</p>
+ <h3>Détail du chiffrage</h3>
+ ${line('Main-d’œuvre ('+d.hours+' h × '+eur(d.rate)+'/h)',d.hours*d.rate)}
+ ${d.materials.map(x=>line(esc(x.n)+' ('+x.q+' × '+eur(x.p)+')',Math.max(0,Number(x.q)||0)*Math.max(0,Number(x.p)||0))).join('')}
+ ${d.tools.map(x=>line(esc(x.n)+' — '+x.h+' h',x.c)).join('')}
+ ${d.wastes.map(x=>line('Évacuation — '+esc(x.label)+' — '+x.v.toFixed(2)+' m³',x.c)).join('')}
+ ${line('Déplacement',d.travel)}
+ ${line('Autres coûts',d.other)}
+ <div class="line"><span>Sous-total des coûts</span><b>${eur(d.direct)}</b></div>
+ <div class="line"><span>Marge (${d.margin} %)</span><b>${eur(d.ht-d.direct)}</b></div>
+ <div class="line"><span><b>Total HT</b></span><b>${eur(d.ht)}</b></div>
+ <div class="line"><span>TVA ${d.vat}%</span><b>${eur(d.tva)}</b></div>
+ <div class="line"><span><b>Total TTC</b></span><b>${eur(d.ttc)}</b></div>
+ <p>Options : ${$('sort')?.checked?'tri proposé · ':''}${$('reuse')?.checked?'réemploi · ':''}${$('grind')?.checked?'broyage · ':''}${$('opt')?.checked?'déplacements optimisés':''}</p>
+ <div class="notice">Les options écologiques sont proposées sans pénalité automatique. Les aides et avantages restent soumises à leurs conditions.</div>`;
+ goV13('devis')
+}
+function estimateV13(){const b={'Espaces verts':35,'Élagage / abattage':40,'Maçonnerie / gros œuvre':35,'Rénovation':35,'Peinture':35,'Plomberie':38,'Électricité':38,'Terrassement':40,'Nettoyage':32}[$('pf').value]||35,q=Math.max(0,+$('pq').value||0),d=$('pd').value==='Difficile'?1.35:$('pd').value==='Moyenne'?1.15:1,e=/Dégradé|Très|difficile/i.test($('pe').value)?1.2:1,lo=q*b*.8*d*e,hi=q*b*1.25*d*e;$('range').textContent=eur(lo)+' à '+eur(hi);$('detail').textContent='Fourchette indicative, à confirmer par visite et devis professionnel.';$('pr').classList.remove('hide')}
+function ecoLeverPage(){if($('eco-lever'))return;const n=document.querySelector('nav'),m=document.querySelector('main');if(!n||!m)return;const b=document.createElement('button');b.dataset.p='eco-lever';b.textContent='📈 Éco-Levier';b.onclick=()=>goV13('eco-lever');n.appendChild(b);const s=document.createElement('section');s.id='eco-lever';s.className='page';s.innerHTML=`<div class="card eco"><span class="pill">ÉCO-LEVIER</span><h1>Faire de l’écologie un investissement</h1><p>Les économies, aides ou contributions saisies servent à simuler un scénario. Aucun remboursement n’est garanti.</p><div class="grid"><div><label>Surcoût écologique (€)</label><input id="ei" type="number" min="0" step=".01" value="0"></div><div><label>Économie immédiate (€)</label><input id="esav" type="number" min="0" step=".01" value="0"></div><div><label>Aide potentielle (€)</label><input id="ea" type="number" min="0" step=".01" value="0"></div><div><label>Contribution partenaire confirmée (€)</label><input id="ep" type="number" min="0" step=".01" value="0"></div><div><label>Économie annuelle (€)</label><input id="eag" type="number" min="0" step=".01" value="0"></div></div><button class="primary" id="ecalc">Calculer</button><div id="eres" class="box" style="margin-top:12px"></div></div><div class="card"><h2>Statuts de preuve</h2><p>🟢 Confirmé · 🟡 Sous conditions · 🔵 Estimé · 🟠 À demander · 🔴 Non identifié</p></div>`;m.appendChild(s);$('ecalc').onclick=()=>{const i=+$('ei').value||0,im=+$('esav').value||0,a=+$('ea').value||0,p=+$('ep').value||0,an=+$('eag').value||0,cover=Math.min(i,im+a+p),rem=Math.max(0,i-cover),roi=i?((im+a+p+an-i)/i*100):0,months=an?rem/(an/12):0;$('eres').innerHTML=`<div class="results"><div class="box">Investissement<div class="big">${eur(i)}</div></div><div class="box">Retour identifié<div class="big">${eur(im+a+p)}</div></div><div class="box">Reste<div class="big">${eur(rem)}</div></div><div class="box">ROI simulé<div class="big">${roi.toFixed(1)} %</div></div><div class="box">Retour<div class="big">${months?months.toFixed(1)+' mois':'à calculer'}</div></div></div>`}}
+function aidsV13(){const el=$('aid');if(!el)return;const cards=[['Études d’écoconception — ADEME','Écoconception — informations indicatives à vérifier sur la fiche officielle.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/etudes-decoconception-des-produits-et-des-services'],['Investissements d’écoconception — ADEME','Dispositif soumis à conditions : vérifier la fiche officielle avant toute décision.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/investissements-decoconception-pour-ameliorer-la-performance-environnementale'],['Réemploi, réutilisation et réparation — ADEME','Dispositif à vérifier selon projet, secteur et période.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue/2026/soutien-aux-investissements-pour-le-reemploi-reutilisation-et-la-reparation-hors-emballages'],['Catalogue des aides ADEME','Catalogue officiel pour vérifier les aides disponibles.','https://agirpourlatransition.ademe.fr/entreprises/aides-financieres/catalogue']];el.innerHTML=cards.map(x=>`<div class="item"><div><b>${esc(x[0])}</b><p class="muted">${esc(x[1])}</p><a href="${x[2]}" target="_blank" rel="noopener">Source officielle</a></div></div>`).join('')}
+function settingsV13(){const s=JSON.parse(localStorage.getItem('ce_settings')||'{}');if($('dn'))$('dn').value=s.n||'';if($('dv'))$('dv').value=s.v||20;if($('da'))$('da').value=s.a||'';if($('dt'))$('dt').value=s.t||'';if($('de'))$('de').value=s.e||'';if($('ds'))$('ds').value=s.s||'';if($('entreprise'))$('entreprise').value=s.n||'';if($('vat'))$('vat').value=s.v||20}window.settingsSave=()=>{const s={n:$('dn').value,v:$('dv').value,a:$('da').value,t:$('dt').value,e:$('de').value,s:$('ds').value};localStorage.setItem('ce_settings',JSON.stringify(s));settingsV13()};
+function goV13(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));const target=$(id)||document.getElementById(id);if(target)target.classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.p===id));if(id==='historique')histV13();if(id==='eco')ecoV13();if(id==='aides')aidsV13()}window.go=goV13;window.calc=calcV13;window.save=saveV13;window.makeQuote=quoteV13;window.profession=professionV13;window.pSub=pSubV13;window.previewWaste=previewV13;window.addWaste=addWasteV13;window.estimate=estimateV13;window.addPlant=addPlantV13;window.__ceRemovePlant=i=>{plants.splice(i,1);plantRenderV13();};
+function init(){const metier=$('metier');if(metier){addOptions('metier',Object.keys(professions));metier.onchange=professionV13}const pf=$('pf');if(pf){addOptions('pf',Object.keys(professions));pf.onchange=pSubV13}professionV13();pSubV13();setupToolsV13();matRenderV13();toolRenderV13();$('plantSearch')?.addEventListener('input',searchPlantsV13);plantRenderV13();wasteRenderV13();histV13();settingsV13();aidsV13();ecoLeverPage();document.querySelectorAll('nav button').forEach(b=>{if(!b.dataset.v13){b.dataset.v13='1';b.onclick=()=>goV13(b.dataset.p)}});$('margin')?.addEventListener('input',e=>e.target.dataset.manual='1');['sort','reuse','grind','opt'].forEach(id=>$(id)?.addEventListener('change',ecoV13));$('wmode')?.addEventListener('change',previewV13);['wl','ww','wh','wv'].forEach(id=>$(id)?.addEventListener('input',previewV13));previewV13()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+
+// Small compatibility layer for features that were previously embedded in index.html.
+window.pWaste=()=>{const v=Math.max(0,(+$('pwl').value||0)*(+$('pww').value||0)*(+$('pwh').value||0));$('pvol').textContent=v.toFixed(2)+' m³';const map={'Déchets verts':'verts','Déchets poubelle / résiduels':'residuels','Gravats':'gravats','Bois':'bois','Terre':'terre','Mélangés':'melange'};$('pcost').textContent=eur(v?wasteCost(v,map[$('pwt').value]):0)+' indicatif'};
+window.compareAdd=()=>{const n=$('cn').value.trim(),p=+$('cp').value||0;if(!n||p<=0)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.push({n,p});localStorage.setItem('ce_cmp',JSON.stringify(a));compareRender();$('cn').value='';$('cp').value=''};
+function compareRender(){const el=$('cl');if(!el)return;const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');el.innerHTML=a.length?a.map((x,i)=>`<div class="item"><span>${esc(x.n)}</span><b>${eur(x.p)}</b><button onclick="removeCompare(${i})">×</button></div>`).join(''):'<p class="muted">Aucun devis.</p>'}window.removeCompare=i=>{const a=JSON.parse(localStorage.getItem('ce_cmp')||'[]');a.splice(i,1);localStorage.setItem('ce_cmp',JSON.stringify(a));compareRender()};
+window.exportData=()=>{const data={application:'Chiffr’EcoPro',version:'stable',chiffrages:JSON.parse(localStorage.getItem('ce_history')||'[]'),parametres:JSON.parse(localStorage.getItem('ce_settings')||'{}'),comparaison:JSON.parse(localStorage.getItem('ce_cmp')||'[]')};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='chifrecopro-export.json';a.click();URL.revokeObjectURL(a.href)};
+window.resetAll=()=>{if(confirm('Réinitialiser le chiffrage en cours ?'))location.reload()};
+compareRender();
+window.__ceRemoveMat=i=>{mats.splice(i,1);matRenderV13();};
+window.__ceRemoveTool=i=>{toolsList.splice(i,1);toolRenderV13();};
+window.__ceRemoveWaste=i=>{wastes.splice(i,1);wasteRenderV13();ecoV13();};
+
+})();
